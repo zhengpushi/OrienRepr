@@ -1,0 +1,25 @@
+-R ./ ""
+
+-arg -w -arg -notation-overridden
+-arg -w -arg -hiding-delimiting-key
+# -arg -w -arg -deprecated-hint-without-locality
+# -arg -w -arg -redundant-canonical-projection
+# -arg -w -arg -ambiguous-paths
+# -arg -w -arg -local-declaration
+# -arg -w -arg -future-coercion-class-field
+# -arg -w -arg -extraction-logical-axiom
+
+
+MathBase.v
+Orien2D.v
+AxisAngle.v
+Orien3D.v
+EulerAngle.v
+# Quaternion.v
+
+Pose2D.v
+Pose3D.v
+
+Quaternion_base.v
+Quaternion_rot.v
+rvctool.v
