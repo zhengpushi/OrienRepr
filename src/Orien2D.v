@@ -111,11 +111,11 @@ Definition rot2 (theta : R) : smat 2 :=
 
 (** rot2 is orthogonal matrix *)
 Lemma rot2_orth : forall (θ : R), morth (rot2 θ).
-Proof. intros; meq; req. Qed.
+Proof. intros; meq; ra. Qed.
 
 (** The determinant of rot2 is 1 *)
 Lemma rot2_det1 : forall (θ : R), mdet (rot2 θ) = 1.
-Proof. intros; cbv; req. Qed.
+Proof. intros; cbv; ra. Qed.
 
 (** rot2 satisfies SOnP *)
 Lemma rot2_SOnP : forall (θ : R), SOnP (rot2 θ).
@@ -132,7 +132,7 @@ Proof. intros. apply morth_minvtble. apply rot2_orth. Qed.
 Lemma rot2_inv_eq_trans : forall θ : R, (rot2 θ)\-1 = (rot2 θ)\T.
 Proof.
   (* method 1 : prove by computing (slow) *)
-  (* intros; meq; req. *)
+  (* intros; meq; ra. *)
   (* method 2 : prove by reasoning *)
   intros; apply (SOn_minv_eq_trans (rot2_SO2 θ)).
 Qed.
@@ -155,7 +155,7 @@ Proof. intros. rewrite <- rot2_inv_eq_trans. apply rot2_inv_mul_rot2. Qed.
 
 (** rot2(θ1) * rot2(θ2) = rot2(θ1 + θ2) *)
 Lemma rot2_eq_add : forall (θ1 θ2 : R), (rot2 θ1) * (rot2 θ2) = rot2 (θ1 + θ2).
-Proof. intros; meq; req. Qed.
+Proof. intros; meq; ra. Qed.
 
 (** rot2(θ1) * rot2(θ2) = rot2(θ2) * rot2(θ1) *)
 Lemma rot2_comm : forall (θ1 θ2 : R), (rot2 θ1) * (rot2 θ2) = (rot2 θ2) * (rot2 θ1).
@@ -163,11 +163,11 @@ Proof. intros; meq; ra. Qed.
 
 (** rot2(-θ) = rot2(θ)\-1 *)
 Lemma rot2_neg_eq_inv : forall θ : R, rot2 (-θ) = (rot2 θ)\-1.
-Proof. intros. symmetry. apply mmul_eq1_imply_minvAM_r. meq; req. Qed.
+Proof. intros. symmetry. apply mmul_eq1_imply_minvAM_r. meq; ra. Qed.
 
 (** rot2(-θ) = rot2(θ)\T *)
 Lemma rot2_neg_eq_trans : forall θ : R, rot2 (-θ) = (rot2 θ)\T.
-Proof. intros; meq; req. Qed.
+Proof. intros; meq; ra. Qed.
 
 
 (* ======================================================================= *)
@@ -262,15 +262,15 @@ Section spec_TwoFrame.
   Hypotheses xb'yb'_orth : morth (cvl2m [xb';yb']). (* {B}的坐标轴是正交的 *)
   Variable theta : R.         (* 坐标系{W}旋转theta角后到{B} *)
   Hypotheses Hxb' :           (* xb'由 theta 和 {xw,yw} 表示 *)
-    xb' = (cos theta \.* xw' + sin theta \.* yw')%V.
+    xb' = (cos theta c* xw' + sin theta c* yw')%V.
   Hypotheses Hyb' :           (* yb'由 theta 和 {xw,yw} 表示 *)
-    yb' = ((- sin theta)%R \.* xw' + cos theta \.* yw')%V.
+    yb' = ((- sin theta)%R c* xw' + cos theta c* yw')%V.
   
   Variable p : vec 2.        (* 任意P点 *)
   Variable w : vec 2.        (* P点在 {W} 下的坐标 *)
   Variable b : vec 2.        (* P点在 {B} 下坐标 *)
-  Hypotheses Hpw : p = (w.1 \.* xw' + w.2 \.* yw')%V. (* P点在{W}中的表示 *)
-  Hypotheses Hpb : p = (b.1 \.* xb' + b.2 \.* yb')%V. (* P点在{B}中的表示 *)
+  Hypotheses Hpw : p = (w.1 c* xw' + w.2 c* yw')%V. (* P点在{W}中的表示 *)
+  Hypotheses Hpb : p = (b.1 c* xb' + b.2 c* yb')%V. (* P点在{B}中的表示 *)
 
   (* Hxb' 和 Hyb' 的矩阵形式，公式(2.4) *)
   Fact Hxb'Hyb' : cvl2m [xb';yb'] = (cvl2m [xw';yw']) * rot2 theta.
@@ -374,13 +374,11 @@ Section spec_OneFrame.
     - (* Tips: `a.1` and `a.2` is A type, making `ring` will fail. *)
       remember ((a (nat2finS 0)) : R) as a_x.
       rewrite cos_add, sin_add; unfold alpha, Rminus, l. ring_simplify.
-      rewrite associative. rewrite v2len_mul_cos_vangle2_i; auto.
-      rewrite cos2'. ra.
+      rewrite associative. rewrite v2len_mul_cos_vangle2_i; ra.
     - remember ((a (nat2finS 1)) : R) as a_y.
       rewrite cos_add, sin_add; unfold alpha, Rminus, l. ring_simplify.
       replace ((||a||) * cos theta ^ 2 * sin (v2i /2_ a))%R
         with (cos theta ^ 2 * (||a|| * sin (v2i /2_ a)))%R; ra.
-      rewrite associative. rewrite v2len_mul_sin_vangle2_i; auto.
-      rewrite sin2'. ra.
+      rewrite associative. rewrite v2len_mul_sin_vangle2_i; ra.
   Qed.
 End spec_OneFrame.

@@ -73,7 +73,7 @@
  *)
 
 From FinMatrix Require Export MatrixR.
-(* Require Import Quaternion. *)
+Require Export Reals.
 
 Open Scope nat_scope.
 Open Scope R_scope.

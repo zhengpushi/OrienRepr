@@ -62,7 +62,7 @@ Definition transl2 (t : vec 2) : mat 3 3 := trans2 t 0.
 (** Transform a vector v by "transl2 t" equal to "translate v by offset t" *)
 Lemma transl2_spec : forall (t : vec 2) (v : vec 2),
     (transl2 t *v e2h v)%V = e2h (v + t)%V.
-Proof. intros. veq; req. Qed.
+Proof. intros. veq; ra. Qed.
 
 (** Create a 2-D relative pose with a pure rotation of angle `theta` *)
 Definition trot2 (theta : R) : mat 3 3 := trans2 vzero theta.
@@ -70,12 +70,12 @@ Definition trot2 (theta : R) : mat 3 3 := trans2 vzero theta.
 (** Transform a vector v by "trot2 theta" equal to "rotate v by angle theta" *)
 Lemma trot2_spec : forall (theta : R) (v : vec 2),
     (trot2 theta *v e2h v)%V = e2h (rot2 theta *v v)%V.
-Proof. intros. veq; req. Qed.
+Proof. intros. veq; ra. Qed.
 
 (** (trans2 t theta) * v = (trot2 theta) * v + t *)
 Lemma trans2_eq : forall (t : vec 2) (theta : R) (v : vec 2),
     (h2e (trans2 t theta *v e2h v) = h2e (trot2 theta *v e2h v) + t)%V. 
-Proof. intros. veq; req. Qed.
+Proof. intros. veq; ra. Qed.
 
 (** A transformation to rotate about point C *)
 Definition trot2center (C : vec 2) (theta : R) : mat 3 3 :=
