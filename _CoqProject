@@ -13,13 +13,10 @@
 src/MathBase.v
 src/Orien2D.v
 src/AxisAngle.v
+src/RotationMatrix3D.v
 src/EulerAngle.v
 src/Orien3D.v
 src/Quaternion.v
-
 src/Pose2D.v
 src/Pose3D.v
-
-# src/Quaternion_base.v
-# src/Quaternion_rot.v
-src/rvctool.v
+# src/rvctool.v
