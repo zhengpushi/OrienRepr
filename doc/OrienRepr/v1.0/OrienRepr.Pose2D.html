@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="resources/coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="resources/coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resources/config.js"></script>
+<script type="text/javascript" src="resources/coqdocjs.js"></script>
+<title>FinMatrix Library</title>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../index.html">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<h1 class="libtitle">OrienRepr.Pose2D</h1>
+
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="OrienRepr.Orien2D.html#"><span class="id" title="library">Orien2D</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab51"></a><h1 class="section">Pose in 2-D</h1>
+
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab52"></a><h2 class="section">Convert between Euclidean coordinates and homogeneous coordinates</h2>
+
+<div class="paragraph"> </div>
+
+ Convert Euclidean coordinates to homogeneous coordinates 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="e2h" class="idref" href="#e2h"><span class="id" title="definition">e2h</span></a> (<a id="v:1" class="idref" href="#v:1"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 2) : <span class="id" title="abbreviation">vec</span> 3 := <span class="id" title="definition">mkvec3</span> (<a class="idref" href="OrienRepr.Pose2D.html#v:1"><span class="id" title="variable">v</span></a><span class="id" title="notation">.1</span>) (<a class="idref" href="OrienRepr.Pose2D.html#v:1"><span class="id" title="variable">v</span></a><span class="id" title="notation">.2</span>) 1.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Convert homogeneous coordinates to Euclidean coordinates 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="h2e" class="idref" href="#h2e"><span class="id" title="definition">h2e</span></a> (<a id="v:2" class="idref" href="#v:2"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 2 := <span class="id" title="definition">mkvec2</span> (<a class="idref" href="OrienRepr.Pose2D.html#v:2"><span class="id" title="variable">v</span></a><span class="id" title="notation">.1</span><a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rdefinitions.html#3942bfc45fbeaeee49010b741755982b"><span class="id" title="notation">/</span></a><a class="idref" href="OrienRepr.Pose2D.html#v:2"><span class="id" title="variable">v</span></a><span class="id" title="notation">.3</span>) (<a class="idref" href="OrienRepr.Pose2D.html#v:2"><span class="id" title="variable">v</span></a><span class="id" title="notation">.2</span><a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rdefinitions.html#3942bfc45fbeaeee49010b741755982b"><span class="id" title="notation">/</span></a><a class="idref" href="OrienRepr.Pose2D.html#v:2"><span class="id" title="variable">v</span></a><span class="id" title="notation">.3</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="h2e_e2h" class="idref" href="#h2e_e2h"><span class="id" title="lemma">h2e_e2h</span></a> : <span class="id" title="keyword">forall</span> (<a id="v:3" class="idref" href="#v:3"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 2), <a class="idref" href="OrienRepr.Pose2D.html#h2e"><span class="id" title="definition">h2e</span></a> (<a class="idref" href="OrienRepr.Pose2D.html#e2h"><span class="id" title="definition">e2h</span></a> <a class="idref" href="OrienRepr.Pose2D.html#v:3"><span class="id" title="variable">v</span></a>) <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="OrienRepr.Pose2D.html#v:3"><span class="id" title="variable">v</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">intros</span>. <span class="id" title="var">veq</span>; <span class="id" title="var">ra</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="e2h_h2e" class="idref" href="#e2h_h2e"><span class="id" title="lemma">e2h_h2e</span></a> : <span class="id" title="keyword">forall</span> (<a id="v:4" class="idref" href="#v:4"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3), <a class="idref" href="OrienRepr.Pose2D.html#v:4"><span class="id" title="variable">v</span></a><span class="id" title="notation">.3</span> <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 1 <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="OrienRepr.Pose2D.html#e2h"><span class="id" title="definition">e2h</span></a> (<a class="idref" href="OrienRepr.Pose2D.html#h2e"><span class="id" title="definition">h2e</span></a> <a class="idref" href="OrienRepr.Pose2D.html#v:4"><span class="id" title="variable">v</span></a>) <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="OrienRepr.Pose2D.html#v:4"><span class="id" title="variable">v</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">intros</span>. <span class="id" title="tactic">cbv</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>. <span class="id" title="var">veq</span>; <span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span>; <span class="id" title="var">ra</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab53"></a><h2 class="section">2-D homogeneous transformation matrix</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">mat_scope</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Create a 2-D homogeneous transformation matrix:
+    1. It represents translation and orientation, or relative pose. 
+       This is often referred to as a rigid-body motion.
+    2. 它表示坐标系先平移 t，再旋转 θ 后的相对位姿
+    3. trans2 ∈ SE(2) ⊂ R^(3x3), SE: special Euclidean group
+    4. 相对位姿可用3个参数(t.1, t.2, θ)，或齐次矩阵来表示，前者省空间，后者有组合性
+    5. 由于平移和旋转操作不可交换，所以我们总是使用两个分开的操作
+    6. 如何使用该矩阵来变换向量？见 operations 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="trans2" class="idref" href="#trans2"><span class="id" title="definition">trans2</span></a> (<a id="t:5" class="idref" href="#t:5"><span class="id" title="binder">t</span></a> : <span class="id" title="abbreviation">vec</span> 2) (<a id="c903ef0210dd88efe78f317d67bc1508" class="idref" href="#c903ef0210dd88efe78f317d67bc1508"><span class="id" title="binder">θ</span></a> : <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) : <span class="id" title="abbreviation">mat</span> 3 3 :=<br/>
+&nbsp;&nbsp;<span class="id" title="definition">l2m</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">[[</span></a><a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rtrigo_def.html#cos"><span class="id" title="definition">cos</span></a> <a class="idref" href="OrienRepr.Pose2D.html#c903ef0210dd88efe78f317d67bc1508"><span class="id" title="variable">θ</span></a><a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a> <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rdefinitions.html#::R_scope:'-'_x"><span class="id" title="notation">-</span></a> <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rtrigo_def.html#sin"><span class="id" title="definition">sin</span></a> <a class="idref" href="OrienRepr.Pose2D.html#c903ef0210dd88efe78f317d67bc1508"><span class="id" title="variable">θ</span></a><a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a> <a class="idref" href="OrienRepr.Pose2D.html#t:5"><span class="id" title="variable">t</span></a><span class="id" title="notation">.1</span><a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">];</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">[</span></a><a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rtrigo_def.html#sin"><span class="id" title="definition">sin</span></a> <a class="idref" href="OrienRepr.Pose2D.html#c903ef0210dd88efe78f317d67bc1508"><span class="id" title="variable">θ</span></a><a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a> <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rtrigo_def.html#cos"><span class="id" title="definition">cos</span></a> <a class="idref" href="OrienRepr.Pose2D.html#c903ef0210dd88efe78f317d67bc1508"><span class="id" title="variable">θ</span></a><a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a>   <a class="idref" href="OrienRepr.Pose2D.html#t:5"><span class="id" title="variable">t</span></a><span class="id" title="notation">.2</span><a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">];</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">[</span></a>0<a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a>     0<a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a>       1  <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">]]</span></a>%<span class="id" title="var">R</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab54"></a><h2 class="section">2-D transformation operations</h2>
+
+<div class="paragraph"> </div>
+
+ Create a 2-D relative pose with pure translate of offset `t` 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="transl2" class="idref" href="#transl2"><span class="id" title="definition">transl2</span></a> (<a id="t:7" class="idref" href="#t:7"><span class="id" title="binder">t</span></a> : <span class="id" title="abbreviation">vec</span> 2) : <span class="id" title="abbreviation">mat</span> 3 3 := <a class="idref" href="OrienRepr.Pose2D.html#trans2"><span class="id" title="definition">trans2</span></a> <a class="idref" href="OrienRepr.Pose2D.html#t:7"><span class="id" title="variable">t</span></a> 0.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Transform a vector v by "transl2 t" equal to "translate v by offset t" 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="transl2_spec" class="idref" href="#transl2_spec"><span class="id" title="lemma">transl2_spec</span></a> : <span class="id" title="keyword">forall</span> (<a id="t:8" class="idref" href="#t:8"><span class="id" title="binder">t</span></a> : <span class="id" title="abbreviation">vec</span> 2) (<a id="v:9" class="idref" href="#v:9"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 2),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="OrienRepr.Pose2D.html#transl2"><span class="id" title="definition">transl2</span></a> <a class="idref" href="OrienRepr.Pose2D.html#t:8"><span class="id" title="variable">t</span></a> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.Pose2D.html#e2h"><span class="id" title="definition">e2h</span></a> <a class="idref" href="OrienRepr.Pose2D.html#v:9"><span class="id" title="variable">v</span></a>)%<span class="id" title="var">V</span> <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="OrienRepr.Pose2D.html#e2h"><span class="id" title="definition">e2h</span></a> (<a class="idref" href="OrienRepr.Pose2D.html#v:9"><span class="id" title="variable">v</span></a> <span class="id" title="notation">+</span> <a class="idref" href="OrienRepr.Pose2D.html#t:8"><span class="id" title="variable">t</span></a>)%<span class="id" title="var">V</span>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">intros</span>. <span class="id" title="var">veq</span>; <span class="id" title="var">ra</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Create a 2-D relative pose with a pure rotation of angle `theta` 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="trot2" class="idref" href="#trot2"><span class="id" title="definition">trot2</span></a> (<a id="theta:10" class="idref" href="#theta:10"><span class="id" title="binder">theta</span></a> : <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) : <span class="id" title="abbreviation">mat</span> 3 3 := <a class="idref" href="OrienRepr.Pose2D.html#trans2"><span class="id" title="definition">trans2</span></a> <span class="id" title="definition">vzero</span> <a class="idref" href="OrienRepr.Pose2D.html#theta:10"><span class="id" title="variable">theta</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Transform a vector v by "trot2 theta" equal to "rotate v by angle theta" 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="trot2_spec" class="idref" href="#trot2_spec"><span class="id" title="lemma">trot2_spec</span></a> : <span class="id" title="keyword">forall</span> (<a id="theta:11" class="idref" href="#theta:11"><span class="id" title="binder">theta</span></a> : <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) (<a id="v:12" class="idref" href="#v:12"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 2),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="OrienRepr.Pose2D.html#trot2"><span class="id" title="definition">trot2</span></a> <a class="idref" href="OrienRepr.Pose2D.html#theta:11"><span class="id" title="variable">theta</span></a> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.Pose2D.html#e2h"><span class="id" title="definition">e2h</span></a> <a class="idref" href="OrienRepr.Pose2D.html#v:12"><span class="id" title="variable">v</span></a>)%<span class="id" title="var">V</span> <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="OrienRepr.Pose2D.html#e2h"><span class="id" title="definition">e2h</span></a> (<a class="idref" href="OrienRepr.Orien2D.html#rot2"><span class="id" title="definition">rot2</span></a> <a class="idref" href="OrienRepr.Pose2D.html#theta:11"><span class="id" title="variable">theta</span></a> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.Pose2D.html#v:12"><span class="id" title="variable">v</span></a>)%<span class="id" title="var">V</span>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">intros</span>. <span class="id" title="var">veq</span>; <span class="id" title="var">ra</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+(trans2 t theta) * v = (trot2 theta) * v + t 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="trans2_eq" class="idref" href="#trans2_eq"><span class="id" title="lemma">trans2_eq</span></a> : <span class="id" title="keyword">forall</span> (<a id="t:13" class="idref" href="#t:13"><span class="id" title="binder">t</span></a> : <span class="id" title="abbreviation">vec</span> 2) (<a id="theta:14" class="idref" href="#theta:14"><span class="id" title="binder">theta</span></a> : <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) (<a id="v:15" class="idref" href="#v:15"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 2),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="OrienRepr.Pose2D.html#h2e"><span class="id" title="definition">h2e</span></a> (<a class="idref" href="OrienRepr.Pose2D.html#trans2"><span class="id" title="definition">trans2</span></a> <a class="idref" href="OrienRepr.Pose2D.html#t:13"><span class="id" title="variable">t</span></a> <a class="idref" href="OrienRepr.Pose2D.html#theta:14"><span class="id" title="variable">theta</span></a> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.Pose2D.html#e2h"><span class="id" title="definition">e2h</span></a> <a class="idref" href="OrienRepr.Pose2D.html#v:15"><span class="id" title="variable">v</span></a>) <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="OrienRepr.Pose2D.html#h2e"><span class="id" title="definition">h2e</span></a> (<a class="idref" href="OrienRepr.Pose2D.html#trot2"><span class="id" title="definition">trot2</span></a> <a class="idref" href="OrienRepr.Pose2D.html#theta:14"><span class="id" title="variable">theta</span></a> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.Pose2D.html#e2h"><span class="id" title="definition">e2h</span></a> <a class="idref" href="OrienRepr.Pose2D.html#v:15"><span class="id" title="variable">v</span></a>) <span class="id" title="notation">+</span> <a class="idref" href="OrienRepr.Pose2D.html#t:13"><span class="id" title="variable">t</span></a>)%<span class="id" title="var">V</span>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">intros</span>. <span class="id" title="var">veq</span>; <span class="id" title="var">ra</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+A transformation to rotate about point C 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="trot2center" class="idref" href="#trot2center"><span class="id" title="definition">trot2center</span></a> (<a id="C:16" class="idref" href="#C:16"><span class="id" title="binder">C</span></a> : <span class="id" title="abbreviation">vec</span> 2) (<a id="theta:17" class="idref" href="#theta:17"><span class="id" title="binder">theta</span></a> : <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) : <span class="id" title="abbreviation">mat</span> 3 3 :=<br/>
+&nbsp;&nbsp;<a class="idref" href="OrienRepr.Pose2D.html#transl2"><span class="id" title="definition">transl2</span></a> <a class="idref" href="OrienRepr.Pose2D.html#C:16"><span class="id" title="variable">C</span></a> <span class="id" title="notation">*</span> <a class="idref" href="OrienRepr.Pose2D.html#trot2"><span class="id" title="definition">trot2</span></a> <a class="idref" href="OrienRepr.Pose2D.html#theta:17"><span class="id" title="variable">theta</span></a> <span class="id" title="notation">*</span> <a class="idref" href="OrienRepr.Pose2D.html#transl2"><span class="id" title="definition">transl2</span></a> (<span class="id" title="notation">-</span> <a class="idref" href="OrienRepr.Pose2D.html#C:16"><span class="id" title="variable">C</span></a>)%<span class="id" title="var">V</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="test" class="idref" href="#test"><span class="id" title="section">test</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="test.trans_example1" class="idref" href="#test.trans_example1"><span class="id" title="variable">trans_example1</span></a> := <a class="idref" href="OrienRepr.Pose2D.html#transl2"><span class="id" title="definition">transl2</span></a> (<span class="id" title="definition">mkvec2</span> 1 2) <span class="id" title="notation">*</span> <a class="idref" href="OrienRepr.Pose2D.html#trot2"><span class="id" title="definition">trot2</span></a> (0.5). <span class="id" title="keyword">End</span> <a class="idref" href="OrienRepr.Pose2D.html#test"><span class="id" title="section">test</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab55"></a><h1 class="section">Others</h1>
+
+<div class="paragraph"> </div>
+
+ The relationship between pre-multiplying and post-multiplying a rotation matrix,
+    i.e., R * u = (u' * R')' 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="rot2_pre_post" class="idref" href="#rot2_pre_post"><span class="id" title="lemma">rot2_pre_post</span></a> : <span class="id" title="keyword">forall</span> (<a id="u:18" class="idref" href="#u:18"><span class="id" title="binder">u</span></a> : <span class="id" title="abbreviation">vec</span> 2) (<a id="6b73c882eb7f37aecdecb9c795d582ab" class="idref" href="#6b73c882eb7f37aecdecb9c795d582ab"><span class="id" title="binder">θ</span></a> : <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <a id="v1:20" class="idref" href="#v1:20"><span class="id" title="binder">v1</span></a> : <span class="id" title="abbreviation">vec</span> 2 := (<a class="idref" href="OrienRepr.Orien2D.html#rot2"><span class="id" title="definition">rot2</span></a> <a class="idref" href="OrienRepr.Pose2D.html#6b73c882eb7f37aecdecb9c795d582ab"><span class="id" title="variable">θ</span></a> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.Pose2D.html#u:18"><span class="id" title="variable">u</span></a>)%<span class="id" title="var">V</span> <span class="id" title="tactic">in</span>      <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <a id="v2:21" class="idref" href="#v2:21"><span class="id" title="binder">v2</span></a> : <span class="id" title="abbreviation">vec</span> 2 := <span class="id" title="definition">rv2v</span> (<span class="id" title="definition">v2rv</span> <a class="idref" href="OrienRepr.Pose2D.html#u:18"><span class="id" title="variable">u</span></a> <span class="id" title="notation">*</span> <span class="id" title="notation">(</span><a class="idref" href="OrienRepr.Orien2D.html#rot2"><span class="id" title="definition">rot2</span></a> <a class="idref" href="OrienRepr.Pose2D.html#6b73c882eb7f37aecdecb9c795d582ab"><span class="id" title="variable">θ</span></a><span class="id" title="notation">)\</span><span class="id" title="notation">T</span>) <span class="id" title="tactic">in</span>  <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="OrienRepr.Pose2D.html#v1:20"><span class="id" title="variable">v1</span></a> <a class="idref" href="http://coq.inria.fr/doc/V8.19.1/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="OrienRepr.Pose2D.html#v2:21"><span class="id" title="variable">v2</span></a>. <span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">intros</span>. <span class="id" title="var">veq</span>; <span class="id" title="var">ra</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Special Euclidean Group of dimension 3: T ∈ SE(2) ⊂ R^(3x3) 
+</div>
+<div class="code">
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

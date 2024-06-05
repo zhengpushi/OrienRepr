@@ -1,4 +1,4 @@
--R ./src ""
+-R ./OrienRepr "OrienRepr"
 
 -arg -w -arg -notation-overridden
 -arg -w -arg -hiding-delimiting-key
@@ -10,13 +10,13 @@
 # -arg -w -arg -extraction-logical-axiom
 
 
-src/MathBase.v
-src/Orien2D.v
-src/AxisAngle.v
-src/RotationMatrix3D.v
-src/EulerAngle.v
-src/Orien3D.v
-src/Quaternion.v
-src/Pose2D.v
-src/Pose3D.v
-# src/rvctool.v
+OrienRepr/MathBase.v
+OrienRepr/Orien2D.v
+OrienRepr/AxisAngle.v
+OrienRepr/RotationMatrix3D.v
+OrienRepr/EulerAngle.v
+OrienRepr/Orien3D.v
+OrienRepr/Quaternion.v
+OrienRepr/Pose2D.v
+OrienRepr/Pose3D.v
+# OrienRepr/rvctool.v
