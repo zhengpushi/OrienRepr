@@ -36,6 +36,13 @@ html: $(COQMAKEFILE)
 	cp $(HTML_EXTRA_DIR)/footer.html $(MY_HTML_ROOT_WITH_VERSION)/
 	cp $(HTML_EXTRA_DIR)/resources $(MY_HTML_ROOT_WITH_VERSION)/ -R
 
+install: $(COQMAKEFILE)
+	$(MAKE) -f $^ install
+
+uninstall: $(COQMAKEFILE)
+	$(MAKE) -f $^ uninstall
+
+
 clean: $(COQMAKEFILE)
 	$(MAKE) -f $^ cleanall
 
@@ -43,4 +50,4 @@ cleanall: $(COQMAKEFILE)
 	$(MAKE) -f $^ cleanall
 	$(RM) $^ $^.conf
 
-.PHONY: all clean cleanall
+.PHONY: all clean cleanall html install uninstall

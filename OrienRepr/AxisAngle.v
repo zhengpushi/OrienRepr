@@ -45,7 +45,7 @@ Proof.
   intros. destruct aa as [θ n]; intros; simpl in *.
   assert (a_para = <a,n> c* n)%V as H1.
   { unfold a_para, vproj, Vector.vproj. unfold vunit, Vector.vunit in H.
-    rewrite H. unfold vcmul. f_equal. unfold vdot. autounfold with A. field. }
+    rewrite H. unfold vcmul. f_equal. unfold vdot. autounfold with tA. field. }
   assert (a_perp = (a - <a,n> c* n)%V) as H2.
   { unfold a_perp. rewrite <- H1. auto. }
   assert (b = n \x a) as H3.
@@ -66,7 +66,7 @@ Proof.
   intros. destruct aa as [θ n]. unfold rotaa. rewrite vcmul_vsub. agroup.
   unfold Rminus. rewrite Rmult_plus_distr_l. rewrite identityRight at 1.
   rewrite vcmul_add. agroup. rewrite vcmul_assoc.
-  rewrite <- vcmul_opp. f_equal. autounfold with A. ring.
+  rewrite <- vcmul_opp. f_equal. autounfold with tA. ring.
 Qed.
 
 (* Give any rotation axis n̂, rotation angle θ and any vector a.
