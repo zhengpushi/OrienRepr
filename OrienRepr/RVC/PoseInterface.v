@@ -3,7 +3,7 @@
   This file is part of VFCS. It is distributed under the MIT
   "expat license". You should have recieved a LICENSE file with it.
 
-  purpose   : 位姿的接口
+  purpose   : Interface of pose representation (version 1)
   author    : ZhengPu Shi
   date      : Nov, 2023
   
@@ -12,83 +12,101 @@
      Ch2 Representing Position and Orientation 位置和朝向表示
  *)
 
+Declare Scope pose_scope.
+Delimit Scope pose_scope with pose.
+Open Scope pose_scope.
+
+(** An abstract formal model for kinematics transformation.
+    1. for 2D/3D orientation or pose.
+    2. use right-hand rule to determine positive direction or positive angle.
+ *)
 Module Type PoseInterface.
-(* 坐标系 *)
-Parameter frame : Type.
-(* 相对位姿 ${}^A\xi_B$ 表示 B 相对于 A 的位姿 *)
-Parameter pose : frame -> frame -> Type.
-(* 点（在某个坐标系下描述点） *)
-Parameter point : frame -> Type.
+  (* 坐标系 *)
+  Parameter Frame : Type.
 
-(* 位姿对点的坐标做转换 *)
-Parameter pointTrans : forall (A B:frame) (p:pose A B) (pt:point A), point B.
+  (* 在某个坐标系下描述的点，约束向量，坐标向量 *)
+  Parameter Point : Frame -> Type.
 
-(* 位姿的复合 *)
-Parameter poseOp : forall {A B C:frame} (pAB:pose A B) (pBC:pose B C), pose A C.
+  (* 相对位姿（简称位姿）。例如，${}^A\xi_B$ 表示 B 相对于 A 的位姿 *)
+  Parameter Pose : Frame -> Frame -> Type.
 
-(* 位姿的零元 *)
-Parameter pose0 : forall {A B:frame}, pose A B.
+  (* 位姿的良定义性。比如：正交矩阵，SO(3),SE(3)等 *)
+  Parameter poseWd : forall {B C}, Pose B C -> Prop.
 
-(* 位姿的逆元 *)
-Parameter poseN : forall {A B:frame}, pose A B -> pose B A.
+  (* 位姿参数。用以创建一个位姿 *)
+  Parameter PoseParam : Type.
+  (* 使用位姿参数创建位姿 *)
+  Parameter makePose : forall {B C}, PoseParam -> Pose B C.
+  (* 使用位姿参数创建出的位姿满足位姿良定义性 *)
+  Axiom makePose_poseWd : forall B C pp, @poseWd B C (makePose pp).
 
-Infix "⊕" := poseOp (at level 50).
-Notation "⊖ p" := (poseN p) (at level 40).
-Notation "0" := pose0.
-Infix "⊖" := (fun p q => p ⊕ (⊖ q)) (at level 50).
+  (* 坐标变换 *)
+  Parameter pointTrans : forall {B C} (p : Pose B C) (v : Point B), Point C.
+  Infix "*" := pointTrans.
+  (* 坐标变换需要满足的性质：确保变换的结果符合几何推理 *)
+  Parameter PointTransSpec : forall {B C} (p : Pose B C) (vb : Point B) (vc : Point C), Prop.
+  Axiom pointTrans_PointTransSpec : forall B C (p : Pose B C) (vb : Point B),
+      PointTransSpec p vb (p * vb).
+  (* 坐标变换的唯一性 *)
+  (* Axiom pointTrans_uniq : forall B C (p1 p2 : Pose B C) (vb : Point B), p1 * vb = p2 * vb. *)
 
-(* 一些规则 *)
-Section rules.
-  (* pose是唯一的 *)
-  Axiom poseUniq : forall (A B:frame) (p1 p2:pose A B), p1 = p2.
-  
-  (* 逆元等于交换上下标 *)
-  Axiom poseN_eq : forall (A B:frame) (p:pose A B) (q:pose B A), ⊖ p = q.
+  (* 位姿复合 *)
+  Parameter poseComp : forall {B C D} (pBC : Pose B C) (pCD : Pose C D), Pose B D.
+  Infix "+" := poseComp.
+  (* 位姿复合需要满足的性质：确保复合后的位姿与坐标变换一致 *)
+  Axiom poseComp_keep_pointTrans :
+    forall B C D (pBC : Pose B C) (pCD : Pose C D) (vb : Point B),
+      pCD * (pBC * vb) = (pBC + pCD) * vb.
 
-  (* 左单位元 *)
-  Axiom pose0l : forall (A B:frame) (p:pose A B), p ⊕ 0 = p.
+  (* 位姿单位元 *)
+  Parameter poseId : forall {B C}, Pose B C.
+  Notation "0" := poseId.
+  (* 位姿单位元是左单位元 *)
+  Axiom poseIdL : forall B C (p : Pose B C), 0 + p = p.
+  (* 位姿单位元是右单位元 *)
+  Axiom poseIdR : forall B C (p : Pose B C), p + 0 = p.
 
-  (* 右单位元 *)
-  Axiom pose0r : forall (A B:frame) (p:pose A B), 0 ⊕ p = p.
-
-  (* 左逆元 *)
-  Axiom poseNl : forall (A B:frame) (p:pose A B), (⊖ p) ⊕ p = 0.
-
-  (* 右逆元 *)
-  Axiom poseNr : forall (A B:frame) (p:pose A B), p ⊕ (⊖ p) = 0.
-
-End rules.
-
+  (* 位姿逆运算 *)
+  Parameter poseInv : forall {B C}, Pose B C -> Pose C B.
+  Notation "- p" := (poseInv p).
+  Infix "-" := (fun a b => a + - b).
+  (* 位姿逆元是左逆元 *)
+  Axiom poseInvL : forall B C (p : Pose B C), poseWd p -> - p + p = 0.
+  (* 位姿逆元是右逆元 *)
+  Axiom poseInvR : forall B C (p : Pose B C), poseWd p -> p + - p = 0.
 End PoseInterface.
 
-(* Example *)
-Declare Module AP : PoseInterface.
 
-(* O,F,B,C,R 的例子 *)
-Section example.
+(* Example *)
+Module test1.
+  Declare Module AP : PoseInterface.
   Import AP.
 
-  (* 给定一些坐标系 *)
-  Variable O : frame.         (* 世界坐标系 *)
-  Variable F : frame.         (* fixed camera *)
-  Variable B : frame.         (* object *)
-  Variable C : frame.         (* camera on robot *)
-  Variable R : frame.         (* robot *)
-  
-  (* 给定几个位姿 *)
-  Variable pOF : pose O F.      (* 从 O 到 F 的位姿 *)
-  Variable pOB : pose O B.
-  Variable pOR : pose O R.
-  Variable pFB : pose F B.
-  Variable pCB : pose C B.
-  Variable pRC : pose R C.
+  (* O,F,B,C,R 的例子 *)
+  Section example.
 
-  (* 证明 pFB = pFOB *)
-  Goal pFB = ⊖pOF ⊕ pOB.
-  Proof. apply poseUniq. Qed.   (* pose 唯一性 *)
-  
-  (* 请以多种方式构造出 pFR *)
-  Definition pFOR : pose F R := ⊖ pOF ⊕ pOR.
-  Definition pFBCR : pose F R := pFB ⊖ pCB ⊖ pRC.
+    (* 给定一些坐标系 *)
+    Variable O : Frame.         (* 世界坐标系 *)
+    Variable F : Frame.         (* fixed camera *)
+    Variable B : Frame.         (* object *)
+    Variable C : Frame.         (* camera on robot *)
+    Variable R : Frame.         (* robot *)
+    
+    (* 给定几个位姿 *)
+    Variable pOF : Pose O F.      (* 从 O 到 F 的位姿 *)
+    Variable pOB : Pose O B.
+    Variable pOR : Pose O R.
+    Variable pFB : Pose F B.
+    Variable pCB : Pose C B.
+    Variable pRC : Pose R C.
 
-End example.
+    (* `pFB` is equivalent to `(- pOF) + pOB` *)
+    Goal forall (p : Point F), pFB * p = (- pOF + pOB) * p.
+    Proof. intros. apply pointTrans_uniq. Qed.
+    
+    (* Give different paths to represent pFR *)
+    Definition pFOR : Pose F R := - pOF + pOR.
+    Definition pFBCR : Pose F R := pFB - pCB - pRC.
+
+  End example.
+End test1.
