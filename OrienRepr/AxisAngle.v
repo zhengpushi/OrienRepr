@@ -119,7 +119,7 @@ Theorem aa2matM_eq_aa2mat : forall (aa : AxisAngle),
 Proof.
   intros. destruct aa as [θ n]; intros; simpl in *.
   pose proof (v3unit_sqr_x n H).
-  v2e n. rewrite Ha in *. cbv in H0. meq; ra; rewrite H0; ra.
+  v2e n. rewrite H0 in *. cbv in H0. meq; ra; rewrite H0; ra.
 Qed.
 
 (** `aa2matM` is orthogonal matrix *)
@@ -128,7 +128,7 @@ Lemma aa2matM_orth : forall (aa : AxisAngle),
 Proof.
   intros. destruct aa as [θ n]; intros; simpl in *.
   pose proof (v3unit_sqr_x n H).
-  v2e n. rewrite Ha in *. cbv in H0. rewrite !xx_Rsqr in *.
+  v2e n. rewrite H0 in *. cbv in H0. rewrite !xx_Rsqr in *.
   meq; ring_simplify; simp_pow; rewrite sin2.
   all: rewrite H0; ra.
 Qed.
@@ -139,7 +139,7 @@ Lemma aa2matM_det1 : forall (aa : AxisAngle),
 Proof.
   intros. destruct aa as [θ n]; intros; simpl in *.
   pose proof (v3unit_sqr_x n H).
-  v2e n. rewrite Ha in *. cbv in *.
+  v2e n. rewrite H0 in *. cbv in *.
   ring_simplify. ra. rewrite sin2. rewrite H0. ra.
 Qed.
 

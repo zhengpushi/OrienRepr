@@ -214,8 +214,7 @@ Definition qunit (q : quat) : Prop := ||q|| = 1.
 (** vunit v -> qunit [0,v] *)
 Lemma im2q_qunit : forall v : vec 3, vunit v -> qunit (im2q v).
 Proof.
-  intros. v2e v. rewrite Ha in *. cbv in H. cbv. ra.
-  rewrite associative. rewrite H. ra.
+  intros. v2e v. cbv in H. cbv. ra. rewrite associative. rewrite H. ra.
 Qed.
 
 (** qunit q <-> qlen2 q = 1 *)
@@ -335,7 +334,7 @@ Lemma qsqr_im2q : forall v : vec 3,
     vunit v -> (im2q v) * (im2q v) = s2q (-1).
 Proof.
   intros. pose proof (v3unit_sqr_x v H).
-  v2e v. rewrite Ha in *. cbv in H. cbv. lqa.
+  v2e v. cbv in H0. cbv. rewrite H0. lqa.
 Qed.
 
 (** Left scalar multiplication *)
@@ -661,9 +660,8 @@ Lemma aa2quat_unit : forall aa : AxisAngle,
 Proof.
   intros. destruct aa as [θ n]. intros.
   pose proof (v3unit_sqr_x n H).
-  v2e n. rewrite Ha in *. cbv. cbv in H0.
-  rewrite sqrt_eq1_if_eq1; auto.  ra. rewrite H0.
-  ring_simplify. ra.
+  v2e n. cbv. cbv in H0. ra. rewrite H0.
+  rewrite sqrt_eq1_if_eq1; auto. ring_simplify. ra.
 Qed.
   
 (** Convert unit quaternion to axis-angle value *)
@@ -1496,8 +1494,7 @@ Proof.
   pose proof (H1 #0 #2 H02).
   pose proof (H1 #1 #2 H12).
   pose proof (H2 #0). pose proof (H2 #1). pose proof (H2 #2).
-  clear H1 H2. v2e M. rewrite Ha,Ha0,Ha1,Ha2 in *. clear H01 H02 H12 Ha Ha0 Ha1 Ha2.
-  cbv in *. apply sqrt_eq1_if_eq1. field_simplify. ra.
+  clear H1 H2. v2eALL M. cbv in *. apply sqrt_eq1_if_eq1. field_simplify. ra.
   (* destruct Rle_Dec. *)
   (* repeat destruct dec. *)
   (* I cann't prove it now *)

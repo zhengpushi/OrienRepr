@@ -204,37 +204,37 @@ Proof. intros; meq; ra. Qed.
 Lemma Rx_neg_mul_Rx : forall θ : R, Rx (- θ) * Rx θ = mat1.
 Proof.
   (* intros; meq; ra. Qed. *)
-  intros; rewrite Rx_neg_eq_trans, <- Rx_inv_eq_trans, mmul_minv_l; auto.
+  intros; rewrite Rx_neg_eq_trans, <- Rx_inv_eq_trans, mmul_minvAM_l; auto.
   apply Rx_minvtble.
 Qed.
 
 Lemma Ry_neg_mul_Ry : forall θ : R, Ry (- θ) * Ry θ = mat1.
 Proof.
-  intros; rewrite Ry_neg_eq_trans, <- Ry_inv_eq_trans, mmul_minv_l; auto.
+  intros; rewrite Ry_neg_eq_trans, <- Ry_inv_eq_trans, mmul_minvAM_l; auto.
   apply Ry_minvtble.
 Qed.
 
 Lemma Rz_neg_mul_Rz : forall θ : R, Rz (- θ) * Rz θ = mat1.
 Proof.
-  intros; rewrite Rz_neg_eq_trans, <- Rz_inv_eq_trans, mmul_minv_l; auto.
+  intros; rewrite Rz_neg_eq_trans, <- Rz_inv_eq_trans, mmul_minvAM_l; auto.
   apply Rz_minvtble.
 Qed.
 
 (** R(θ) * R(-θ) = I *)
 Lemma Rx_mul_Rx_neg : forall θ : R, Rx θ * Rx (- θ) = mat1.
 Proof.
-  intros; rewrite Rx_neg_eq_trans, <- Rx_inv_eq_trans, mmul_minv_r; auto.
+  intros; rewrite Rx_neg_eq_trans, <- Rx_inv_eq_trans, mmul_minvAM_r; auto.
   apply Rx_minvtble.
 Qed.
 
 Lemma Ry_mul_Ry_neg : forall θ : R, Ry θ * Ry (- θ) = mat1.
 Proof.
-  intros; rewrite Ry_neg_eq_trans, <- Ry_inv_eq_trans, mmul_minv_r; auto.
+  intros; rewrite Ry_neg_eq_trans, <- Ry_inv_eq_trans, mmul_minvAM_r; auto.
   apply Ry_minvtble.
 Qed.
 
 Lemma Rz_mul_Rz_neg : forall θ : R, Rz θ * Rz (- θ) = mat1.
 Proof.
-  intros; rewrite Rz_neg_eq_trans, <- Rz_inv_eq_trans, mmul_minv_r; auto.
+  intros; rewrite Rz_neg_eq_trans, <- Rz_inv_eq_trans, mmul_minvAM_r; auto.
   apply Rz_minvtble.
 Qed.

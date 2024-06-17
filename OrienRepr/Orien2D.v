@@ -143,7 +143,7 @@ Proof. intros. apply mmul_minvAM_r. apply rot2_minvtble. Qed.
 
 (** rot2\-1 * rot2 = I *)
 Lemma rot2_inv_mul_rot2 : forall θ : R, (rot2 θ)\-1 * (rot2 θ) = mat1.
-Proof. intros. apply mmul_minv_l. apply rot2_minvtble. Qed.
+Proof. intros. apply mmul_minvAM_l. apply rot2_minvtble. Qed.
 
 (** rot2 * rot2\T = I *)
 Lemma rot2_mul_rot2_trans : forall θ : R, rot2 θ * ((rot2 θ)\T) = mat1.
