@@ -32,147 +32,102 @@ Require Export RotationMatrix3D.
 (* ########################################################################### *)
 (** * Pose representation of rigid-body 刚体位姿描述 *)
 
-(* ======================================================================= *)
-(** ** 坐标系的描述 *)
-
-(** 用自然数来表示不同的坐标系 *)
-Definition Frame := nat.
-
-(** 任意一点在坐标系{A}中的位置矢量 *)
-Record Point (A : Frame) :=
-  mkPoint {
-      pointVec :> vec 3
-    }.
-Arguments mkPoint {A}.
-Arguments pointVec {A}.
-
-(** 坐标系{B}相对于{A}的姿态 *)
-Record Orien (A B : Frame) :=
-  mkOrien {
-      orienMat :> smat 3;
-      orienSO3 :> SOnP orienMat
-    }.
-Arguments mkOrien {A B}.
-Arguments orienMat {A B}.
-Arguments orienSO3 {A B}.
-
-(** orienMat o1 = orienMat o2 -> o1 = o2 *)
-Lemma orien_eq_if : forall A B (o1 o2 : Orien A B), orienMat o1 = orienMat o2 -> o1 = o2.
-Proof.
-  intros. destruct o1 as [o1Mat o1SO3], o2 as [o2Mat o2SO3]. simpl in *.
-  subst. f_equal. apply proof_irrelevance.
-Qed.
-
-
 (** 坐标系{B}相对于坐标系{A}的位姿，由两部分组成：
    1. 坐标系{B}相对于{A}的姿态 R : smat 3
    2. 坐标系{B}的原点相对于{A}的平移矢量 p : vec 3 *)
-Record Pose (A B : Frame) :=
+Record Pose :=
   mkPose {
-      poseOrien :> Orien A B;
-      poseOffset :> Point A
+      poseOrien : smat 3;
+      poseOffset : vec 3;
     }.
-Arguments mkPose {A B}.
-Arguments poseOrien {A B}.
-Arguments poseOffset {A B}.
 
-(** orienMat p1 = orienMat p2 -> poseOffset p1 = poseOffset p2 -> p1 = p2 *)
-Lemma pose_eq_if : forall A B (p1 p2 : Pose A B),
-    orienMat p1 = orienMat p2 -> poseOffset p1 = poseOffset p2 -> p1 = p2.
+(** The condition of a Pose, i.e., it is well-defined  *)
+Definition poseWd (pose : Pose) := SOnP (poseOrien pose).
+
+Lemma poseOrien_inv_eq_trans : forall (pose : Pose),
+    poseWd pose -> poseOrien pose\-1 = poseOrien pose\T.
 Proof.
-  intros. destruct p1 as [p1Orien p1Offset], p2 as [p2Orien p2Offset]. simpl in *.
-  subst. f_equal. apply orien_eq_if; auto.
+  intros. apply morth_imply_minv_eq_trans; auto.
+  hnf in H. destruct H as [H1 H2]. auto.
 Qed.
-
 
 (* ======================================================================= *)
 (** ** 坐标变换 *)
 
-(** 坐标平移(translate)，或称平移映射：
+(** 坐标平移(translateate)，或称平移映射：
     设坐标系{B}和{A}具有相同的方位，但是原点不重合，用平移矢量offsetB2A描述
     {B}相对于{A}的位置，则任意点p在{A}中的坐标pA可由p在{B}中的坐标pB得到 *)
-Definition transl {A B} (offsetB2A : Point A) (pB : Point B)
-  : Point A :=
-  mkPoint (pB + offsetB2A)%V.
+Definition translate (offsetB2A : vec 3) (pB : vec 3) : vec 3 := (pB + offsetB2A)%V.
 
 (** 坐标旋转(rotation)，或称旋转映射：
     设坐标系{B}和{A}由共同的坐标原点，但两者的姿态不同，用旋转矩阵orienB2A描述
     {B}相对于{A}的姿态，则任意点p在{A}中的坐标pA可由p在{B}中的坐标pB得到 *)
-Definition rotate {A B} (orienB2A : Orien A B) (pB : Point B)
-  : Point A :=
-  mkPoint (orienB2A *v pB).
+Definition rotate (orienB2A : smat 3) (pB : vec 3) : vec 3 := orienB2A *v pB.
 
 (** 一般刚体变换(transformation)：
     设坐标系{B}和{A}不但原点不重合，而且姿态也不相同，用位姿poseB2A描述
     {B}相对于{A}的位姿，则任意点p在{A}中的坐标pA可由p在{B}中的坐标pB得到 *)
-Definition trans {A B} (poseB2A : Pose A B) (pB : Point B)
-  : Point A :=
-  mkPoint (poseB2A *v pB + poseOffset poseB2A)%V.
+Definition transform (poseB2A : Pose) (pB : vec 3) : vec 3 :=
+  (poseOrien poseB2A *v pB + poseOffset poseB2A)%V.
 
 (** 一般刚体变换的公式可以借由一个过渡坐标系{B}来得到 *)
 
 (** 首先，分步骤进行详细推导 *)
-Section trans_spec1.
+Section transform_spec1.
   (* 假设有两个坐标系{A}和{B}，并且{B}相对于{A}的位姿是poseB2A，
     任意点p在{A}和{B}中的坐标分别为pA和pB *)
-  Variable A B : Frame.
-  Variable poseB2A : Pose A B.
-  Variable pA : Point A.
-  Variable pB : Point B.
+  Variable poseB2A : Pose.
+  Variable pA pB : vec 3.
 
   (* 再假设有一个过渡坐标系{C}，使{C}的坐标原点与{B}的重合，而姿态与{A}的相同 *)
-  Variable C : Frame.
-  Let poseB2C : Pose C B := mkPose (mkOrien poseB2A poseB2A) (mkPoint vzero).
-  Let poseC2A : Pose A C := mkPose (mkOrien mat1 mat1_SOnP) (poseOffset poseB2A).
+  Let poseB2C : Pose := mkPose (poseOrien poseB2A) vzero.
+  Let poseC2A : Pose := mkPose mat1 (poseOffset poseB2A).
 
   (* 再设 p在{C}中的坐标为pC *)
-  Variable pC : Point C.
+  Variable pC : vec 3.
 
   (* 显然，如下关系式成立：
      1. pC可由对pB进行坐标旋转得到
      2. pA可由pC进行坐标平移得到 *)
-  Hypotheses pC_eq_rotate : pC = rotate poseB2C pB.
-  Hypotheses pA_eq_transl : pA = transl poseC2A pC.
+  Hypotheses pC_eq_rotate : pC = rotate (poseOrien poseB2C) pB.
+  Hypotheses pA_eq_translate : pA = translate (poseOffset poseC2A) pC.
 
-  (* 证明 trans 函数的定义是合理的 *)
-  Goal pA = trans poseB2A pB.
+  (* 证明 transform 函数的定义是合理的 *)
+  Goal pA = transform poseB2A pB.
   Proof.
-    rewrite pA_eq_transl. rewrite pC_eq_rotate.
-    unfold transl, rotate, trans. simpl. auto.
+    rewrite pA_eq_translate. rewrite pC_eq_rotate.
+    unfold translate, rotate, transform. simpl. auto.
   Qed.
-End trans_spec1.
+End transform_spec1.
 
 (* 写成一个引理 *)
-Lemma trans_spec1 : forall (A B C : Frame) (poseB2A : Pose A B)
-                      (pA : Point A) (pB : Point B) (pC : Point C),
-    let poseB2C : Pose C B := mkPose (mkOrien poseB2A poseB2A) (mkPoint vzero) in
-    let poseC2A : Pose A C := mkPose (mkOrien mat1 mat1_SOnP) (poseOffset poseB2A) in
-    pC = rotate poseB2C pB ->
-    pA = transl poseC2A pC ->
-    pA = trans poseB2A pB.
+Lemma transform_spec1 : forall (poseB2A : Pose) (pA pB pC : vec 3),
+    let poseB2C : Pose := mkPose (poseOrien poseB2A) vzero in
+    let poseC2A : Pose := mkPose mat1 (poseOffset poseB2A) in
+    pC = rotate (poseOrien poseB2C) pB ->
+    pA = translate (poseOffset poseC2A) pC ->
+    pA = transform poseB2A pB.
 Proof.
   intros. rewrite H0. rewrite H.
-  unfold transl, rotate, trans. simpl. auto.
+  unfold translate, rotate, transform. simpl. auto.
 Qed.
 
 (** 当姿态为零时，一般刚体变换等价于坐标平移 *)
-Lemma trans_eq_transl : forall A B (poseB2A : Pose A B) (pB : Point B),
-    poseOrien poseB2A = mkOrien mat1 mat1_SOnP ->
-    trans poseB2A pB = transl (poseOffset poseB2A) pB.
+Lemma transform_eq_translate : forall (poseB2A : Pose) (pB : vec 3),
+    poseOrien poseB2A = mat1 ->
+    transform poseB2A pB = translate (poseOffset poseB2A) pB.
 Proof.
-  intros. destruct poseB2A as [orien offset]. simpl in *.
-  destruct orien as [orienB2A]. inv H.
-  unfold trans, transl. simpl. rewrite mmulv_1_l. auto.
+  intros. destruct poseB2A as [orien offset]. simpl in *. subst.
+  unfold transform, translate. simpl. rewrite mmulv_1_l. auto.
 Qed.
 
 (** 当原点相同时，一般刚体变换等价于坐标旋转 *)
-Lemma trans_eq_rotate : forall A B (poseB2A : Pose A B) (pB : Point B),
-    poseOffset poseB2A = mkPoint vzero ->
-    trans poseB2A pB = rotate (poseOrien poseB2A) pB.
+Lemma transform_eq_rotate : forall (poseB2A : Pose) (pB : vec 3),
+    poseOffset poseB2A = vzero ->
+    transform poseB2A pB = rotate (poseOrien poseB2A) pB.
 Proof.
-  intros. destruct poseB2A as [orien offset]. simpl in *.
-  destruct offset as [offsetB2A]. inv H.
-  unfold trans, rotate. simpl. rewrite vadd_0_r. auto.
+  intros. destruct poseB2A as [orien offset]. simpl in *. subst.
+  unfold transform, rotate. simpl. rewrite vadd_0_r. auto.
 Qed.
 
 
@@ -181,55 +136,64 @@ Module ex_3_1.
 
   Section ex_3_1.
     (* 两个坐标系{A}和{B}，刚开始{B}和{A}重合，然后{B}绕{A}的z轴转30度，
-     然后沿{A}的x轴移动10个单位，并沿{A}的y轴移动5个单位。*)
-    Variable A B : Frame.
+     然后沿{A}的x轴移动10个单位，并沿{A}的y轴移动5个单位。
+     求{B}相对于{A}的位置向量和旋转矩阵 *)
 
-    (* 求{B}相对于{A}的位置向量和旋转矩阵（ *)
-    Example offsetB2A : Point A := mkPoint (l2v [10;5;0]).
-    Example orienB2A : Orien A B := mkOrien (Rz (deg2rad 30)) (Rz_SOnP _).
-    (* 进而得到{B}相对于{A}的位姿 *)
-    Example poseB2A : Pose A B := mkPose orienB2A offsetB2A.
+    (* 定义{B}相对于{A}的位姿 *)
+    Let orienB2A : smat 3 := Rz (deg2rad 30).
+    Let offsetB2A : vec 3 := l2v [10;5;0].
+    Let poseB2A : Pose := mkPose orienB2A offsetB2A.
 
     (* 假设p点在{B}中的坐标 *)
-    Example pB : Point B := mkPoint (l2v [3;7;0]).
+    Let pB : vec 3 := l2v [3;7;0].
 
     (* 求p点在{A}中的坐标 *)
-    Example pA : Point A := trans poseB2A pB.
+    Example pA : vec 3 := transform poseB2A pB.
 
     (* 验证这些结果与教材上一致 *)
 
     (* 1. 先验证旋转矩阵的结果 *)
     Lemma orienB2A_eq :
-      (orienB2A : smat 3) =
+      orienB2A =
         l2m [[(sqrt 3)/2; -1/2; 0]; [1/2; (sqrt 3)/2; 0]; [0; 0; 1]].
     Proof.
       cbn. replace (deg2rad 30) with (PI/6) by (cbv; ra).
       meq.
       (* Tips: 如何让 
        cos (PI * / ((R1 + R1) * (R1 + (R1 + R1)))) 
-       自动化简称 cos (PI/6)，
-       以便使用重写，从而自动证明 *)
+       自动化简为 cos (PI/6)，以便使用重写，从而自动证明 *)
       (* 目前只好先手动进行 *)
-      pose proof cos_PI6. cbv in H. auto.
-      pose proof sin_PI6. cbv in H. ra.
-      pose proof sin_PI6. cbv in H. ra.
-      pose proof cos_PI6. cbv in H. auto.
+      - pose proof cos_PI6. cbv in H. rewrite <- H. f_equal. field.
+      - pose proof sin_PI6. cbv in H.
+        rewrite <- Ropp_mult_distr_l. rewrite <- H. f_equal. f_equal. field.
+      - pose proof sin_PI6. cbv in H. rewrite <- H. f_equal. field.
+      - pose proof cos_PI6. cbv in H. rewrite <- H. f_equal. field.
     Qed.
 
   End ex_3_1.
 
-  (* 2. 对于pA的值，教材上给的近似值，所以，我们可以在OCaml中计算看看 *)
-  Example pA_value : list R := v2l (pA O O).
+  (* 2. 对于pA的值，教材上给的是浮点数近似值，我们可以在OCaml中计算来比较 *)
+  Example pA_value : list R := v2l pA.
 
   (* 首先抽取代码 *)
-  (* Extraction "ocaml_test_pose_ex_3_1.ml" pA_value. *)
+  Extraction "ocaml_test_pose_ex_3_1.ml" pA_value.
   
 (* 运行结果如下，与教材一致：
-     utop[4]> Coq_ex_3_1.pA_value;;
-     - : float list = [9.09807621135331601; 12.5621778264910713; 0.]  *)
+   utop[1]> Coq_ex_3_1.pA_value;;
+   - : float list = [9.09807621135331601; 12.5621778264910713; 0.] *)
   
 End ex_3_1.
 
+(** 三个坐标轴 *)
+Inductive Axis := AxisX | AxisY | AxisZ.
+
+(** Rotate around axis k by θ angle *)
+Definition rotateByAxis (k : Axis) (theta : R) : smat 3 :=
+  match k with
+  | AxisX => Rx theta
+  | AxisY => Ry theta
+  | AxisZ => Rz theta
+  end.
 
 
 (* ########################################################################### *)
@@ -237,6 +201,23 @@ End ex_3_1.
 
 (* ======================================================================= *)
 (** ** Homogeneous coordinates *)
+
+(* 
+   1. 空间一点p的直角坐标为p=[x y z]^T，则它的齐次坐标可表示为 p=[x y z 1]^T。
+   2. 齐次坐标的表示不唯一，将其各元素同乘一非零因子ω后，仍然代表同一点p，即
+      p = [x y z 1] = [a b c ω]，其中：a=ωx, b=ωy, c=ωz
+   3. [0 0 0 0]^T没有意义
+   4. 一些规定：
+      (1) 列矢量[a b c 0]^T (其中a^2+b^2+c^2<>0) 表示空间的无穷远点。把包括了无穷远点的
+          空间称为扩大空间，把第4个元素为非零的点称为非无穷远点。
+      (2) 无穷远点[a b c 0]^T的三元素a,b,c称为该点的方向数。例如[1 0 0 0]代表x轴上的
+          无穷远点，可表示x轴的方向。
+      (3) 非无穷远点[0 0 0 1]^T代表坐标原点。
+      (4) 于是，利用齐次坐标不仅可表示点的位置，还可规定矢量的方向。
+          当第4个元素非零时，齐次坐标代表点的位置；为零时，代表方向。
+          利用该性质，可赋予齐次变换矩阵另一个物理解释：齐次变换矩阵poseHomB2A描述了
+          坐标系{B}相对于{A}的位置和姿态，前三个列矢量分别代表{B}的三个坐标轴相对于{A}
+          的方向，第四个列矢量{}^Ap_{B_0}描述{B}的坐标原点相对于{A}的位置。*)
 
 (** Convert Euclidean coordinates to homogeneous coordinates *)
 Definition e2h (v : vec 3) : vec 4 := l2v [v.1; v.2; v.3; 1].
@@ -250,89 +231,326 @@ Proof. intros. v2e v. veq; ra. Qed.
 Lemma e2h_h2e : forall (v : vec 4), v.4 = 1 -> e2h (h2e v) = v.
 Proof. intros. v2e v. cbv in H. rewrite H. veq; ra. Qed.
 
-(** 任意一点在坐标系{A}中的齐次坐标 *)
-Record PointHom (A : Frame) :=
-  mkPointHom {
-      pointHomVec :> vec 4;
-    }.
-Arguments mkPointHom {A}.
-Arguments pointHomVec {A}.
-
 
 (* ======================================================================= *)
 (** ** Homogeneous transformation *)
 
-(** 坐标系{B}相对于坐标系{A}的位姿，由齐次矩阵构成 *)
-Record PoseHom (A B : Frame) :=
-  mkPoseHom {
-      poseHomMat :> smat 4;
-      poseHomSO3 : SOnP (mremovecT (mremoverT poseHomMat));
-      poseHomRow4Zero : [poseHomMat.4.1; poseHomMat.4.2; poseHomMat.4.3] = [0;0;0]
-    }.
-Arguments mkPoseHom {A B}.
-Arguments poseHomMat {A B}.
-Arguments poseHomSO3 {A B}.
-Arguments poseHomRow4Zero {A B}.
+(** Homogeneous transformation matrix is a 4×4 matrix *)
 
-(** orienMat p1 = orienMat p2 -> poseOffset p1 = poseOffset p2 -> p1 = p2 *)
-Lemma poseHom_eq_if : forall A B (p1 p2 : PoseHom A B),
-    poseHomMat p1 = poseHomMat p2 -> p1 = p2.
+(** The condition of a hom-trans-mat, i.e., it is well-defined  *)
+Definition hommatWd (A : smat 4) :=
+  (* the left-top 3×3 matrix belongs to SO(3) *)
+  let Rmat := mremovecT (mremoverT A) in
+  (* the bottom row is [0 0 0 1] *)
+  let row4 := mtailr A in
+  SOnP Rmat /\ row4 = vconsT vzero 1.
+
+(** hommatWd A -> |A| = 1, i.e.,
+        [r11 r12 r13 | v1]       [r11 r12 r13]
+    det [r21 r22 r23 | v2] = det [r21 r22 r23]
+        [r31 r32 r33 | v3]       [r31 r32 r33]
+        [  0   0   0 |  1] *)
+Lemma hommatWd_mdet_eq1 : forall (A : smat 4), hommatWd A -> |A| = 1.
 Proof.
-  intros. destruct p1 as [poseHomMat_1 poseHomSO3_1 poseHomRow4Zero_1].
-  destruct p2 as [poseHomMat_2 poseHomSO3_2 poseHomRow4Zero_2].
-  simpl in *. subst. f_equal. all: apply proof_irrelevance.
+  intros. hnf in H. destruct H as [[Horth Hdet1] H2].
+  assert (A = mconsrT (mremoverT A) (vconsT vzero 1)).
+  { rewrite (meq_mconsrT_mremoverT_mtailr A). f_equal; auto. auto_vec. }
+  rewrite H.
+  assert (|mconsrT (mremoverT A) (vconsT vzero 1)| = |mremovecT (mremoverT A)|).
+  rewrite mdet_mconsrT_vconsT_vzero_1_eq. auto.
+  rewrite H0. unfold mdet. auto.
 Qed.
 
-
-(** Convert Pose to PoseHom *)
-Definition pose2poseHom {A B} (poseB2A : Pose A B) : PoseHom A B.
-  pose (poseB2A : smat 3) as R.
-  pose (poseOffset poseB2A : vec 3) as p.
-  pose (orienSO3 poseB2A) as R_SO3.
-  pose (mconscT R p : mat 3 4) as m34.
-  pose (vconsT vzero 1 : vec 4) as p4.
-  pose (mconsrT m34 p4 : smat 4) as m44.
-  refine (mkPoseHom m44 _ _); auto.
-  unfold m44,m34,p4.
-  rewrite mremoverT_mconsrT. rewrite mremovecT_mconscT. auto.
-Defined.
-
-(** Convert Pose to PoseHom *)
-Definition poseHom2pose {A B} (poseHomB2A : PoseHom A B) : Pose A B.
-  pose (poseHomMat poseHomB2A) as m44.
-  pose (mremovecT (mremoverT poseHomB2A)) as m33.
-  pose (poseHomSO3 m44) as m33_SO3.
-  pose (vremoveT (mtailc m44)) as p3.
-  apply (mkPose (mkOrien m33 m33_SO3) (mkPoint p3)).
-Defined.
-
-(** poseHom2pose (pose2poseHom poseB2A) = poseB2A *)
-Lemma poseHom2pose_pose2poseHom : forall A B (poseB2A : Pose A B),
-    poseHom2pose (pose2poseHom poseB2A) = poseB2A.
+(** hommatWd A -> minvtble A *)
+Lemma hommatWd_minvtble : forall (A : smat 4), hommatWd A -> minvtble A.
 Proof.
-  intros. unfold poseHom2pose, pose2poseHom; simpl.
-  destruct poseB2A as [[orienMatB2A orienSO3B2A] [offsetB2A]]; simpl.
-  apply pose_eq_if; simpl.
+  intros. apply minvtble_iff_mdet_neq0. rewrite hommatWd_mdet_eq1; auto.
+Qed.
+
+(** Convert Pose to Hom-trans-mat, where poseB2A is pose of {B} respect to {A} *)
+Definition pose2hommat (poseB2A : Pose) : smat 4 :=
+  mconsrT (mconscT (poseOrien poseB2A) (poseOffset poseB2A)) (vconsT vzero 1).
+
+(** Convert Hom-trans-mat to Pose, where hommatB2A is hom-trans-mat of {B} respect
+    to {A} *)
+Definition hommat2pose (hommatB2A : smat 4) : Pose :=
+  mkPose
+    (mremovecT (mremoverT hommatB2A))
+    (vremoveT (mtailc hommatB2A)).
+
+(** hommat2pose (pose2hommat poseB2A) = poseB2A *)
+Lemma hommat2pose_pose2hommat : forall (poseB2A : Pose),
+    hommat2pose (pose2hommat poseB2A) = poseB2A.
+Proof.
+  intros. unfold hommat2pose, pose2hommat; simpl.
+  destruct poseB2A as [poseOrienB2A poseOffsetB2A]; simpl. f_equal.
   - rewrite mremoverT_mconsrT. rewrite mremovecT_mconscT. auto.
-  - f_equal. rewrite mtailc_mconsrT_mconscT_vconsT. rewrite vremoveT_vconsT. auto.
+  - rewrite mtailc_mconsrT_mconscT_vconsT. rewrite vremoveT_vconsT. auto.
 Qed.
-  
-Lemma pose2poseHom_poseHom2pose : forall A B (poseHomB2A : PoseHom A B),
-    pose2poseHom (poseHom2pose poseHomB2A) = poseHomB2A.
+
+Lemma pose2hommat_hommat2pose : forall (hommatB2A : smat 4),
+    hommatWd hommatB2A ->
+    pose2hommat (hommat2pose hommatB2A) = hommatB2A.
 Proof.
-  intros. unfold poseHom2pose, pose2poseHom; simpl.
-  destruct poseHomB2A as [poseHomMat poseHomSO3 poseHomRow4Zero]; simpl.
-  apply poseHom_eq_if. simpl.
-  rewrite meq_mconsrT_mremoverT_mtailr. f_equal.
-  - rewrite meq_mconscT_mremovecT_mtailc. f_equal.
-  -
+  intros. unfold hommat2pose, pose2hommat; simpl.
+  rewrite meq_mconsrT_mremoverT_mtailr. f_equal; auto.
+  rewrite meq_mconscT_mremovecT_mtailc. auto.
+  hnf in H. destruct H. rewrite H0. veq.
+Qed.
+
+Lemma pose2hommat_keep_wd : forall (pose : Pose),
+    poseWd pose -> hommatWd (pose2hommat pose).
+Proof.
+  intros. unfold hommatWd, poseWd, pose2hommat in *. auto_vec.
+Qed.
+
+Lemma hommat2pose_keep_wd : forall (T : smat 4),
+    hommatWd T -> poseWd (hommat2pose T).
+Proof.
+  intros. unfold hommatWd, poseWd, hommat2pose in *. simpl. tauto.
+Qed.
+
+  
+(** 齐次变换矩阵表示了坐标平移与坐标旋转的复合，可将其分解为两个矩阵的乘积 *)
+Section hommat_eq.
+  
+  (** Translation transformation matrix for frame {B} respect to {A}, where offsetB2A
+      is the origin point p of {B} respect to {A} *)
+  Definition translMat (offsetB2A : vec 3) : smat 4 :=
+    mconsrT (mconscT mat1 offsetB2A) (vconsT vzero 1).
+
+  (** Rotation transformation matrix for frame {B} respect to {A}, where orienB2A is 
+      the orientation of {B} respect to {A}. We denoted it with Rot(k,θ), it means a 
+      rotation operator that represents the rotation angle θ of axis k around the 
+      origin. *)
+  Definition rotateMat (orienB2A : smat 3) : smat 4 :=
+    mconsrT (mconscT orienB2A vzero) (vconsT vzero 1).
+
+  (** Hom-trans-mat satisfy the following equation:
+    [R p] = [I p][R 0]
+    [0 1]   [0 1][0 1], denoted as T = Trans(p) ⋅ Rot(k,θ) *)
+  Lemma hommat_eq_mmul_translMat_rotMat : forall (poseB2A : Pose),
+      let T : smat 4 := pose2hommat poseB2A in
+      let Transl : smat 4 := translMat (poseOffset poseB2A) in
+      let Rot : smat 4 := rotateMat (poseOrien poseB2A) in
+      T = Transl * Rot.
+  Proof.
+    intros. unfold T,Transl,Rot. clear.
+    destruct poseB2A as [poseOrienB2A poseOffsetB2A]. simpl.
+    v2eALL poseOrienB2A. meq; try lra.
+  Qed.
+End hommat_eq.
+
+
+(* ########################################################################### *)
+(** * 运动算子 *)
+
+(* 齐次变换矩阵 ${}^A_B T$ 有多种作用：
+   1. 表示同一点在两个坐标系{B}和{A}中的映射关系：${}^A p = {}^A_B T {}^B p$，见(3-16)
+   2. 描述坐标系{B}相对于另一个坐标系{A}的位姿，见例3.3
+   3. 还可用来作为点的运动算子 *)
+
+(* 在坐标系{A}中，点的初始位置是 ${}^Ap_1$，经平移或旋转后到达位置 ${}^Ap_2$。
+   下面讨论从 ${}^Ap_1$ 到 ${}^Ap_2$ 的运动算子。*)
+
+(** ** 平移算子 *)
+
+(** 在一个坐标系{A}中，移动矢量${}^Ap$，其对应的平移算子 Transl(p) 为 *)
+Definition Transl (p : vec 3) : smat 4 :=
+  mconsrT (mconscT mat1 p) (vconsT vzero 1).
+
+(* 平移算子的使用: p_2 = Transl(p) * p_1 *)
+
+(** ** 旋转算子 *)
+
+(* 有两种表示方法：
+   1. 用 3×3 的旋转矩阵R表示
+      将旋转矩阵 R 作为旋转算子，于是
+      p_2 = R * p_1，此处点的坐标是3维的。
+      注意，旋转矩阵R作为算子来解释时，不带上下标，因为是在同一个坐标系下。
+   2. 用 4×4 的齐次变换矩阵 Rot(k,θ) 表示
+      用Rot(k,θ)作为旋转算子，明确的给出旋转轴k和转角θ, 于是 
+      p_2 = Rot(k,θ) * p_1，此处点的坐标是4维的。
+*)
+Section rotate_operator.
+
+  (** 绕k轴旋转θ角的齐次旋转矩阵，或旋转算子 *)
+  Definition Rot (k : Axis) (theta : R) : smat 4 :=
+    mconsrT (mconscT (rotateByAxis k theta) vzero) (vconsT vzero 1).
+End rotate_operator.
+
+(** ** 运动算子的一般形式 *)
+
+(* 在坐标系{A}中，点p经过转动和平移，令其前、后的位置为${}^Ap_1$和${}^Ap_2$，则两者的
+   关系可用齐次变换T来表示：
+   {}^Ap_2 = T {}^Ap_1
+   当齐次变换T作为算子使用时，不带上下标。*)
+
+(* 质点p在坐标系中的运动轨迹为时间t的函数 ${}^Ap(t)$，初始位置为${}^Ap(0)$，则质点p在
+   坐标系{A}中的运动轨迹可用齐次变换 T(t)来表示：
+   {}^Ap(t) = T(t) {}^Ap(0) *)
+
+(* 例3.4：在{A}中，点p的运动轨迹如下：初始位置 ${}^Ap_1=[3 7 0]^T$，绕z轴旋转30度，
+   沿x轴平移10，沿y轴平移5。求运动后的位置${}^Ap_2$。*)
+Module ex_3_4.
+  Let p1 : vec 3 := l2v [3;7;0].
+  Example p2 :=
+    let T1 := Rot AxisZ (deg2rad 30) in
+    let T2 := Transl (l2v [10;0;0]) in
+    let T3 := Transl (l2v [0;5;0]) in
+    (T3 * T2 * T1) *v (e2h p1).
+
+  (* 对于p2的值，教材上给的是浮点数近似值，我们可以在OCaml中计算来比较 *)
+  Example p2_value : list R := v2l p2.
+
+  (* 首先抽取代码 *)
+  Extraction "ocaml_test_pose_ex_3_4.ml" p2_value.
+  
+(* 运行结果如下，与教材一致：
+   utop[1]> Coq_ex_3_4.p2_value;;
+   - : float list = [9.09807621135331601; 12.5621778264910713; 0.; 1.] *)
+End ex_3_4.
+
+(* ########################################################################### *)
+(** * 变换矩阵的运算 *)
+
+(** ** 变换矩阵相乘 *)
+
+(** 根据{B}相对于{A}的变换transB2A，以及{C}相对于{B}的变换transC2B，计算{C}相对于{A}
+    的复合变换矩阵 transC2A *)
+Definition transComp (transB2A transC2B : smat 4) : smat 4 := transB2A * transC2B.
+
+(** transComp的外延性，即，它变换了一个点在不同坐标系下的坐标 *)
+Lemma transComp_spec : forall (transB2A transC2B : smat 4) (pA pB pC : vec 4),
+    pA = transB2A *v pB ->
+    pB = transC2B *v pC -> 
+    pA = (transComp transB2A transC2B) *v pC.
+Proof.
+  intros. rewrite H,H0. unfold transComp. rewrite mmulv_assoc. auto.
+Qed.
+
+(** 复合变换矩阵的分解形式
+    {}^A_CT = {}^A_BT{}^B_CT = [{}^A_BR{}^B_CR  {}^A_BR{}^Bp_{C_0} + {}^Ap_{B_0}]
+                               [0               1                               ] *)
+Definition transComp2 (transB2A transC2B : smat 4) : smat 4 :=
+  let poseB2A := hommat2pose transB2A in
+  let poseC2B := hommat2pose transC2B in
+  let R_B2A := poseOrien poseB2A in
+  let R_C2B := poseOrien poseC2B in
+  let p_B2A := poseOffset poseB2A in
+  let p_C2B := poseOffset poseC2B in
+  mconsrT
+    (mconscT (R_B2A * R_C2B) (R_B2A *v p_C2B + p_B2A)%V)
+    (vconsT vzero 1).
+
+(** transComp2与transComp相等 *)
+Lemma transComp2_eq : forall (transB2A transC2B : smat 4),
+    hommatWd transB2A -> hommatWd transC2B ->
+    transComp2 transB2A transC2B = transComp transB2A transC2B.
+Proof.
+  intros.
+  unfold transComp2, transComp.
+  v2eALL transB2A. v2eALL transC2B. apply m2l_inj; cbv.
+  destruct H as [H1 H2]. destruct H0 as [H3 H4].
+  apply v2l_eq in H2. cbv in H2. inv H2.
+  apply v2l_eq in H4. cbv in H4. inv H4.
+  list_eq; try lra.
+Qed.
+
+Section ex_3_3.
+  Let T1 := Transl (l2v [1;-3;4]).
+  Let T2 := Rot AxisY (deg2rad 90).
+  Let T3 := Rot AxisZ (deg2rad 90).
+
+  Goal T2 = l2m [[0;0;1;0];
+                 [0;1;0;0];
+                 [-1;0;0;0];
+                 [0;0;0;1]].
+  Proof.
+  Abort.
+End ex_3_3.
+
+
+(** ** 变换矩阵求逆 *)
+
+(* 已知{B}相对于{A}的齐次变换矩阵 ${}^A_BT$，求{A}相对于{B}的齐次变换矩阵${}^B_AT$。
+   这是变换矩阵求逆的问题。
+   一种方法是直接对4×4矩阵求逆；另一种是利用性质先推导出一个简便的公式。*)
+
+Definition transInv (transB2A : smat 4) : smat 4 :=
+  let poseB2A := hommat2pose transB2A in
+  let R := poseOrien poseB2A in
+  let p := poseOffset poseB2A in
+  mconsrT
+    (mconscT (R\T) (- (R\T) *v p)%V)
+    (vconsT vzero 1).
+
+Module transInv_spec_manual.
+  Variable transB2A : smat 4.
+  Let transA2B := transInv transB2A.
+  Hypotheses transB2A_hom : hommatWd transB2A.
+  Let poseB2A : Pose := hommat2pose transB2A.
+  Let R_B2A : smat 3 := poseOrien poseB2A.
+  Let p_B2A : vec 3 := poseOffset poseB2A.
+  Let R_A2B : smat 3 := R_B2A\-1.
+  Variable p_A2B : vec 3.
+  Hypotheses p_B2B_zero : transform (mkPose R_A2B p_A2B) p_B2A = vzero.
+
+  Lemma poseB2A_wd : poseWd poseB2A.
+  Proof. unfold poseB2A. apply hommat2pose_keep_wd. apply transB2A_hom. Qed.
     
-    ?
+  Goal transA2B = pose2hommat (mkPose R_A2B p_A2B).
+  Proof.
+    unfold transA2B, transInv, pose2hommat. f_equal. f_equal.
+    - unfold R_A2B. replace (R_B2A\-1) with (R_B2A\T); auto.
+      unfold R_B2A. rewrite poseOrien_inv_eq_trans; auto. apply poseB2A_wd.
+    - simpl.
+      assert (p_A2B = - R_A2B *v p_B2A)%V.
+      { pose proof p_B2B_zero. unfold transform in H. simpl in H.
+        apply vadd_eq0_imply_vopp_l in H. auto. }
+      rewrite H. f_equal. f_equal. unfold R_A2B. unfold R_B2A.
+      rewrite poseOrien_inv_eq_trans; auto. apply poseB2A_wd.
+  Qed.
+End transInv_spec_manual.
+
+Lemma transInv_eq_inv : forall transB2A : smat 4,
+    hommatWd transB2A ->
+    transInv transB2A = transB2A \-1.
+Proof.
+  intros. symmetry. apply mmul_eq1_imply_minvAM_l.
+  unfold transInv, hommatWd in *. destruct H as [[Horth Hdet1] Htail].
+  replace transB2A with
+    (mconsrT
+       (mconscT (mremoverT (mremovecT transB2A)) (vremoveT (mtailc transB2A)))
+       (vconsT (vremoveT (mtailr transB2A)) (vtail (mtailr transB2A)))) at 1.
+  all: rewrite Htail.
+  rewrite mmul_mconsrT_mconscT_vconsT.
+  - apply mconsrT_mconscT_vconsT_imply_mat1; simpl; auto_vec.
+    + apply morth_iff_mul_trans_r; auto.
+    + rewrite mmulv_vopp. rewrite <- mmulv_assoc.
+      rewrite mremoverT_mremovecT_eq_mremovecT_mremoverT.
+      rewrite morth_iff_mul_trans_r in Horth. rewrite Horth. auto_vec.
+    + ring.
+  - auto_vec.
+    symmetry. rewrite meq_mconsrT_mremoverT_mtailr at 1. f_equal; auto.
+    rewrite mremoverT_mremovecT_eq_mremovecT_mremoverT.
+    rewrite meq_mconscT_mremovecT_mtailc at 1. auto.
+Qed.
+
+Lemma transInv_spec : forall (transB2A : smat 4) (pA pB : vec 4),
+    hommatWd transB2A ->
+    pA = transB2A *v pB ->
+    pB = transInv transB2A *v pA.
+Proof.
+  intros. rewrite H0. rewrite transInv_eq_inv; auto.
+  rewrite <- mmulv_assoc. rewrite mmul_minvAM_l. rewrite mmulv_1_l. auto.
+  apply hommatWd_minvtble; auto.
+Qed.
 
 (** 齐次变换(transformation)：
     设坐标系{B}和{A}不但原点不重合，而且姿态也不相同，用位姿poseB2A描述
     {B}相对于{A}的位姿，则任意点p在{A}中的坐标pA可由p在{B}中的坐标pB得到 *)
-Definition trans {A B} (poseB2A : Pose A B) (pB : Point B)
+Definition homTrans {A B} (poseB2A : Pose A B) (pB : Point B)
   : Point A :=
   mkPoint (poseB2A *v pB + poseOffset poseB2A)%V.
 

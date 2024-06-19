@@ -278,7 +278,7 @@ Lemma qmul_spec (p q : quat) :
   p * q =
     si2q
       (p.W * q.W - <p.Im, q.Im>)
-      (p.W c* q.Im + q.W c* p.Im + p.Im \x q.Im)%V.
+      (p.W s* q.Im + q.W s* p.Im + p.Im \x q.Im)%V.
 Proof. destruct p, q. lqa. Qed.
 
 (** qlen2 (q1 * q2) = (qlen2 q1) * (qlen2 q2) *)
@@ -338,46 +338,46 @@ Proof.
 Qed.
 
 (** Left scalar multiplication *)
-Definition qcmul (a : R) (q : quat) : quat :=
+Definition qscal (a : R) (q : quat) : quat :=
   mkQ (a * q.W) (a * q.X) (a * q.Y) (a * q.Z).
-Notation "a c* q" := (qcmul a q) : quat_scope.
+Notation "a s* q" := (qscal a q) : quat_scope.
 
-(** 1 c* q = q *)
-Lemma qcmul_1_l : forall q : quat, 1 c* q = q.
+(** 1 s* q = q *)
+Lemma qscal_1_l : forall q : quat, 1 s* q = q.
 Proof. intros. destruct q. lqa. Qed.
 
-(** (a c* p) * q = a c* (p * q) *)
-Lemma qmul_qcmul_l : forall (a : R) (p q : quat), (a c* p) * q = a c* (p * q).
+(** (a s* p) * q = a s* (p * q) *)
+Lemma qmul_qscal_l : forall (a : R) (p q : quat), (a s* p) * q = a s* (p * q).
 Proof. intros. destruct p,q. lqa. Qed.
 
-(** p * (a c* q) = a c* (p * q) *)
-Lemma qmul_qcmul_r : forall (a : R) (p q : quat), p * (a c* q) = a c* (p * q).
+(** p * (a s* q) = a s* (p * q) *)
+Lemma qmul_qscal_r : forall (a : R) (p q : quat), p * (a s* q) = a s* (p * q).
 Proof. intros. destruct p,q. lqa. Qed.
 
-(** a c* (b c* q) = (a * b) c* q *)
-Lemma qcmul_assoc : forall (a b : R) (q : quat), a c* (b c* q) = (a * b) c* q.
+(** a s* (b s* q) = (a * b) s* q *)
+Lemma qscal_assoc : forall (a b : R) (q : quat), a s* (b s* q) = (a * b) s* q.
 Proof. intros. destruct q. lqa. Qed.
 
-(** qlen2 (a c* q) = a² * (qlen2 q) *)
-Lemma qlen2_qcmul : forall (a : R) (q : quat), qlen2 (a c* q) = (a² * (qlen2 q))%R.
+(** qlen2 (a s* q) = a² * (qlen2 q) *)
+Lemma qlen2_qscal : forall (a : R) (q : quat), qlen2 (a s* q) = (a² * (qlen2 q))%R.
 Proof. intros. destruct q. cbv. ring. Qed.
 
-(** a c* q = qzero <-> (a = 0) \/ (q = qzero) *)
-Lemma qcmul_eq0_iff : forall (q : quat) (a : R),
-    a c* q = qzero <-> (a = 0) \/ (q = qzero).
+(** a s* q = qzero <-> (a = 0) \/ (q = qzero) *)
+Lemma qscal_eq0_iff : forall (q : quat) (a : R),
+    a s* q = qzero <-> (a = 0) \/ (q = qzero).
 Proof. intros. destruct q. rewrite !quat_eq_iff; simpl. ra. Qed.
 
-(** a c* q <> qzero <-> (a <> 0) /\ (q <> qzero) *)
-Lemma qcmul_neq0_iff : forall (q : quat) (a : R),
-    a c* q <> qzero <-> (a <> 0) /\ (q <> qzero).
-Proof. intros. pose proof(qcmul_eq0_iff q a). tauto. Qed.
+(** a s* q <> qzero <-> (a <> 0) /\ (q <> qzero) *)
+Lemma qscal_neq0_iff : forall (q : quat) (a : R),
+    a s* q <> qzero <-> (a <> 0) /\ (q <> qzero).
+Proof. intros. pose proof(qscal_eq0_iff q a). tauto. Qed.
 
 (** Right scalar multiplication *)
-Definition qmulc (q : quat) (s : R) : quat := qcmul s q.
-Notation "q *c a" := (qmulc q a) : quat_scope.
+Definition qmulc (q : quat) (s : R) : quat := qscal s q.
+Notation "q *s a" := (qmulc q a) : quat_scope.
 
-(** s c* q = q *c s *)
-Lemma qcmul_eq_qmulc (s : R) (q : quat) : s c* q = q *c s.
+(** s s* q = q *s s *)
+Lemma qscal_eq_qmulc (s : R) (q : quat) : s s* q = q *s s.
 Proof. destruct q. lqa. Qed.
 
 
@@ -393,7 +393,7 @@ Definition qmatL (q : quat) : smat 4 :=
 
 (** Verify the construction *)
 Lemma qmatL_spec1 : forall q : quat,
-    let m1 : smat 4 := (q.W c* mat1)%M in
+    let m1 : smat 4 := (q.W s* mat1)%M in
     let m2a : vec 4 := vconsH 0 (-(q.Im))%V in
     let m2b : mat 3 4 := mconscH (q.Im) (skew3 (q.Im)) in
     let m2 : smat 4 := mconsrH m2a m2b in
@@ -414,7 +414,7 @@ Definition qmatR (q : quat) : smat 4 :=
 
 (** Verify the construction *)
 Lemma qmatR_spec1 : forall q : quat,
-    let m1 : smat 4 := (q.W c* mat1)%M in
+    let m1 : smat 4 := (q.W s* mat1)%M in
     let m2a : vec 4 := vconsH 0 (-q.Im)%V in
     let m2b : mat 3 4 := mconscH (q.Im) (-(skew3 (q.Im)))%M in
     let m2 : smat 4 := mconsrH m2a m2b in
@@ -479,8 +479,8 @@ Proof. lqa. Qed.
 Lemma qconj_qmul (p q : quat) : (p * q)\* = q\* * p\*.
 Proof. destruct p,q. lqa. Qed.
 
-(** (a c* q)\* = a c* (q\* ) *)
-Lemma qconj_qcmul : forall (a : R) (q : quat), (a c* q)\* = a c* (q\*).
+(** (a s* q)\* = a s* (q\* ) *)
+Lemma qconj_qscal : forall (a : R) (q : quat), (a s* q)\* = a s* (q\*).
 Proof. intros. lqa. Qed.
 
 (** (p + q)\* = p\* + q\* *)
@@ -544,7 +544,7 @@ Qed.
 (** ** Quaternion inverse *)
 
 (** inversion of quaternion *)
-Definition qinv (q : quat) : quat := (/ (qlen2 q)) c* (q \*).
+Definition qinv (q : quat) : quat := (/ (qlen2 q)) s* (q \*).
 Notation "q \-1" := (qinv q) : quat_scope.
 
 (** q \-1 * q = 1 *)
@@ -565,24 +565,24 @@ Qed.
 Lemma qinv_eq_qconj : forall q : quat, qunit q -> q \-1 = q \*.
 Proof.
   intros. unfold qinv. apply qunit_iff_qlen2_eq1 in H. rewrite H.
-  autorewrite with R. rewrite qcmul_1_l. auto.
+  autorewrite with R. rewrite qscal_1_l. auto.
 Qed.
 
 (** (p * q)\-1 = q\-1 * p\-1 *)
 Lemma qinv_qmul : forall p q : quat, p <> qzero -> q <> qzero -> (p * q)\-1 = q\-1 * p\-1.
 Proof.
   intros. unfold qinv. rewrite qconj_qmul.
-  rewrite qmul_qcmul_l. rewrite qmul_qcmul_r. rewrite qcmul_assoc. f_equal.
+  rewrite qmul_qscal_l. rewrite qmul_qscal_r. rewrite qscal_assoc. f_equal.
   rewrite qlen2_qmul. field. split; apply qlen2_neq0_iff; auto.
 Qed.
 
-(** (a c* q)\-1 = (1/a) c* q\-1 *)
-Lemma qinv_qcmul : forall (q : quat) (a : R),
-    a <> 0 -> q <> qzero -> (a c* q)\-1 = (1/a) c* q\-1.
+(** (a s* q)\-1 = (1/a) s* q\-1 *)
+Lemma qinv_qscal : forall (q : quat) (a : R),
+    a <> 0 -> q <> qzero -> (a s* q)\-1 = (1/a) s* q\-1.
 Proof.
   intros.
-  unfold qinv. rewrite qlen2_qcmul.
-  rewrite qconj_qcmul. rewrite !qcmul_assoc. f_equal.
+  unfold qinv. rewrite qlen2_qscal.
+  rewrite qconj_qscal. rewrite !qscal_assoc. f_equal.
   unfold Rsqr. field. apply qlen2_neq0_iff in H0. auto.
 Qed.
 
@@ -651,7 +651,7 @@ Proof. intros. unfold qdiv. rewrite qmul_assoc,qmul_qinv_l,qmul_1_r; auto. Qed.
 (** Convert axis-angle value to unit quaternion *)
 Definition aa2quat (aa : AxisAngle) : quat :=
   let (θ,n) := aa in
-  si2q (cos (θ/2)) (sin (θ/2) c* n)%V.
+  si2q (cos (θ/2)) (sin (θ/2) s* n)%V.
 
 (** Any quaternion constructed from axis-angle is unit quaternion *)
 Lemma aa2quat_unit : forall aa : AxisAngle,
@@ -667,7 +667,7 @@ Qed.
 (** Convert unit quaternion to axis-angle value *)
 Definition quat2aa (q : quat) : AxisAngle :=
   let θ : R := (2 * acos (q.W))%R in
-  let n : vec 3 := ((1 / sqrt (1-q.W²)) c* q.Im)%V in
+  let n : vec 3 := ((1 / sqrt (1-q.W²)) s* q.Im)%V in
   mkAA θ n.
 
 (** 若q = aa(θ,n) = (cos(θ/2), sin(θ/2)*n) 是单位向量，则：
@@ -794,8 +794,8 @@ Lemma qrot_linear_vadd : forall (q : quat) (v1 v2 : vec 3),
 Proof. intros. veq; ra. Qed.
 
 (** qrot对向量数乘是线性的 *)
-Lemma qrot_linear_vcmul : forall (q : quat) (v : vec 3) (k : R),
-    (qrotv q (k c* v) = k c* (qrotv q v))%V.
+Lemma qrot_linear_vscal : forall (q : quat) (v : vec 3) (k : R),
+    (qrotv q (k s* v) = k s* (qrotv q v))%V.
 Proof. intros. veq; ra. Qed.
 
 (** qrot作用于某个四元数后不改变它的w分量。公式5.26 *)
@@ -830,7 +830,7 @@ Lemma qrot_vnorm_comm : forall (q : quat) (v : vec 3),
     qunit q -> vnorm (qrotv q v) = qrotv q (vnorm v).
 Proof.
   intros. unfold vnorm. unfold vlen, Vector.vlen.
-  rewrite qrot_keep_dot; auto. rewrite qrot_linear_vcmul. easy.
+  rewrite qrot_keep_dot; auto. rewrite qrot_linear_vscal. easy.
 Qed.
 
 (** qrot operation keep vector length *)
@@ -1001,7 +1001,7 @@ Section rotation_derivation.
     unfold q. unfold aa2quat. unfold ab2q. f_equal.
     - rewrite vdot_eq_cos_angle. rewrite <- Hangle_v01_θ.
       rewrite !vunit_imply_vlen_eq1; auto. ra.
-    - rewrite v3cross_eq_vcmul; ra.
+    - rewrite v3cross_eq_vscal; ra.
       rewrite Hangle_v01_θ, Hnorm_v01_n.
       rewrite !vunit_imply_vlen_eq1; auto. ra.
       all: apply vunit_neq0; auto.
@@ -1178,7 +1178,7 @@ Section rotation_derivation.
     (* we assume that: 0 < s0, 0 < s1,
        instead assuming that: s0 <> 0, s1 <> 0 *)
     Hypotheses (Hs0_gt0 : 0 < s0) (Hs1_gt0 : 0 < s1).
-    Let v : vec 3 := (s0 c* v0 + s1 c* v1 + s2 c* n)%V.
+    Let v : vec 3 := (s0 s* v0 + s1 s* v1 + s2 s* n)%V.
     (* 假设 v 被 qrot 作用后成为了 v' *)
     Let v' : vec 3 := qrotv q v.
 
@@ -1202,25 +1202,25 @@ Section rotation_derivation.
     Proof.
       pose proof (vunit_neq0 n Hunit_n).
       unfold v',v.
-      rewrite !qrot_linear_vadd, !qrot_linear_vcmul.
+      rewrite !qrot_linear_vadd, !qrot_linear_vscal.
       fold v2. fold v3. rewrite rot_n_eq_n.
-      (* elim (s2 c* n) *)
-      rewrite !vperp_vadd, !vperp_vcmul; auto.
-      rewrite vperp_self; auto. rewrite vcmul_0_r, !vadd_0_r.
+      (* elim (s2 s* n) *)
+      rewrite !vperp_vadd, !vperp_vscal; auto.
+      rewrite vperp_self; auto. rewrite vscal_0_r, !vadd_0_r.
       (* elim vperp *)
       rewrite !vorth_imply_vperp_eq_l.
-      (* (s0 c* v0 + s1 c* v1)%V /_ (s0 c* v2 + s1 c* v3)%V = θ *)
+      (* (s0 s* v0 + s1 s* v1)%V /_ (s0 s* v2 + s1 s* v3)%V = θ *)
       rewrite vangle_vadd.
-      all: rewrite ?vangle_vcmul_l_gt0, ?vangle_vcmul_r_gt0; auto.
+      all: rewrite ?vangle_vscal_l_gt0, ?vangle_vscal_r_gt0; auto.
       (* solve goals such as: v1 <> vzero *)
       all: try (apply vunit_neq0; try apply v3_vunit; try apply v2_vunit; easy).
       all: try apply v3_orth_n; try apply v2_orth_n; try apply v1_orth_n.
       all: try apply v0_orth_n; try apply v13_angle_θ.
-      (* solve goals such as: (s1 c* v3)%V <> vzero *)
-      all: try apply vcmul_neq0_neq0_neq0; unfold Azero; try lra.
+      (* solve goals such as: (s1 s* v3)%V <> vzero *)
+      all: try apply vscal_neq0_neq0_neq0; unfold Azero; try lra.
       all: try (apply vunit_neq0; try apply v3_vunit; easy).
-      (* solve goals such as: (||s0 c* v0||)%V = (||s0 c* v2||)%V *)
-      all: rewrite ?vlen_vcmul,?vunit_imply_vlen_eq1; auto.
+      (* solve goals such as: (||s0 s* v0||)%V = (||s0 s* v2||)%V *)
+      all: rewrite ?vlen_vscal,?vunit_imply_vlen_eq1; auto.
       apply v2_vunit. apply v3_vunit.
       (* v0 /_ v1 = v2 /_ v3 *)
       rewrite v23_v12_same_angle. rewrite v12_v01_same_angle. auto.
@@ -1233,7 +1233,7 @@ End rotation_derivation.
 Theorem qrot_valid : forall (v0 v1 : vec 3) (s0 s1 s2 : R) (aa : AxisAngle),
     let (θ, n) := aa in
     let q : quat := aa2quat aa in
-    let v : vec 3 := (s0 c* v0 + s1 c* v1 + s2 c* n)%V in
+    let v : vec 3 := (s0 s* v0 + s1 s* v1 + s2 s* n)%V in
     let v' : vec 3 := qrotv q v in
     vunit v0 -> vunit v1 ->
     0 < θ < 2 * PI ->
@@ -1296,7 +1296,7 @@ Section qlog.
   (*   let θ : R := aa_angle a in *)
   (*   let n : vec 3 := aa_axis a in *)
   (*   let α : R := θ / 2 in *)
-  (*   si2q 0 (α c* n)%V. *)
+  (*   si2q 0 (α s* n)%V. *)
   Parameter qlog : quat -> quat.
 
 End qlog.
@@ -1327,11 +1327,11 @@ Section qpower.
      某些情况，我们关心旋转的总量，而不仅是最终结果（例如角速度）。
      此时，四元数不是正确的工具，可使用指数映射，或轴角格式。*)
   
-  Definition qpower' (q : quat) (t : R) : quat := qexp (t c* qlog q).
+  Definition qpower' (q : quat) (t : R) : quat := qexp (t s* qlog q).
 
   (* 理解 q^t 的插值（Interpolate）为什么会从qone到q。
      对数运算实际上将四元数转换为指数映射格式（except因子2）。
-     当用 t c* q 时，效果是角度乘以 t，
+     当用 t s* q 时，效果是角度乘以 t，
      当用 exp q 时，“撤销”对数运算所做的事，从指数矢量重新计算新的 w 和 v。 *)
 
   (* 虽然 qpow 的公式是正式的数学定义，并在理论上很优雅，但直接转为代码则很复杂。

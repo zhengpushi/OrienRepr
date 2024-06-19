@@ -262,15 +262,15 @@ Section spec_TwoFrame.
   Hypotheses xb'yb'_orth : morth (cvl2m [xb';yb']). (* {B}的坐标轴是正交的 *)
   Variable theta : R.         (* 坐标系{W}旋转theta角后到{B} *)
   Hypotheses Hxb' :           (* xb'由 theta 和 {xw,yw} 表示 *)
-    xb' = (cos theta c* xw' + sin theta c* yw')%V.
+    xb' = (cos theta s* xw' + sin theta s* yw')%V.
   Hypotheses Hyb' :           (* yb'由 theta 和 {xw,yw} 表示 *)
-    yb' = ((- sin theta)%R c* xw' + cos theta c* yw')%V.
+    yb' = ((- sin theta)%R s* xw' + cos theta s* yw')%V.
   
   Variable p : vec 2.        (* 任意P点 *)
   Variable w : vec 2.        (* P点在 {W} 下的坐标 *)
   Variable b : vec 2.        (* P点在 {B} 下坐标 *)
-  Hypotheses Hpw : p = (w.1 c* xw' + w.2 c* yw')%V. (* P点在{W}中的表示 *)
-  Hypotheses Hpb : p = (b.1 c* xb' + b.2 c* yb')%V. (* P点在{B}中的表示 *)
+  Hypotheses Hpw : p = (w.1 s* xw' + w.2 s* yw')%V. (* P点在{W}中的表示 *)
+  Hypotheses Hpb : p = (b.1 s* xb' + b.2 s* yb')%V. (* P点在{B}中的表示 *)
 
   (* Hxb' 和 Hyb' 的矩阵形式，公式(2.4) *)
   Fact Hxb'Hyb' : cvl2m [xb';yb'] = (cvl2m [xw';yw']) * rot2 theta.

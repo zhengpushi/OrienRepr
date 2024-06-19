@@ -202,6 +202,8 @@ type 'tA dec = 'tA -> 'tA -> bool
 
 val dec0 : 'a1 dec -> 'a1 -> 'a1 -> bool
 
+val nat_eq_Dec : int dec
+
 val nat_lt_Dec : int dec
 
 module NormedOrderedFieldElementTypeR :
@@ -211,6 +213,8 @@ module NormedOrderedFieldElementTypeR :
   val coq_Azero : tA
 
   val coq_Aadd : RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R
+
+  val coq_Aone : tA
 
   val coq_Amul : RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R
  end
@@ -223,6 +227,8 @@ val fin2nat : int -> fin -> int
 val nat2finS : int -> int -> fin
 
 val nat2fin : int -> int -> fin
+
+val fPredRange : int -> fin -> fin
 
 val finseq : int -> fin list
 
@@ -244,13 +250,22 @@ val v2l : int -> 'a1 vec -> 'a1 list
 
 val vmap2 : int -> ('a1 -> 'a2 -> 'a3) -> 'a1 vec -> 'a2 vec -> 'a3 vec
 
-val vsum : ('a1 -> 'a1 -> 'a1) -> 'a1 -> int -> 'a1 vec -> 'a1
+val vconsT : int -> 'a1 vec -> 'a1 -> 'a1 vec
 
-val vadd : ('a1 -> 'a1 -> 'a1) -> int -> 'a1 vec -> 'a1 vec -> 'a1 vec
+val vsum : ('a1 -> 'a1 -> 'a1) -> 'a1 -> int -> 'a1 vec -> 'a1
 
 val vdot : ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> 'a1 vec -> 'a1 vec -> 'a1
 
 val l2m : 'a1 -> int -> int -> 'a1 list list -> 'a1 vec vec
+
+val mconsrT : int -> int -> 'a1 vec vec -> 'a1 vec -> 'a1 vec vec
+
+val mconscT : int -> int -> 'a1 vec vec -> 'a1 vec -> 'a1 vec vec
+
+val mat1 : 'a1 -> 'a1 -> int -> 'a1 vec vec
+
+val mmul :
+  ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> int -> int -> 'a1 vec vec -> 'a1 vec vec -> 'a1 vec vec
 
 val mmulv : ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> int -> 'a1 vec vec -> 'a1 vec -> 'a1 vec
 
@@ -258,11 +273,26 @@ val v2l0 : int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldEle
 
 val l2v0 : int -> NormedOrderedFieldElementTypeR.tA list -> NormedOrderedFieldElementTypeR.tA vec
 
+val vzero0 : int -> NormedOrderedFieldElementTypeR.tA vec
+
+val vconsT0 :
+  int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA -> NormedOrderedFieldElementTypeR.tA vec
+
 val l2m0 : int -> int -> NormedOrderedFieldElementTypeR.tA list list -> NormedOrderedFieldElementTypeR.tA vec vec
 
-val vadd0 :
-  int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA
-  vec
+val mconsrT0 :
+  int -> int -> NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA vec ->
+  NormedOrderedFieldElementTypeR.tA vec vec
+
+val mconscT0 :
+  int -> int -> NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA vec ->
+  NormedOrderedFieldElementTypeR.tA vec vec
+
+val mat0 : int -> NormedOrderedFieldElementTypeR.tA vec vec
+
+val mmul0 :
+  int -> int -> int -> NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA vec vec ->
+  NormedOrderedFieldElementTypeR.tA vec vec
 
 val mmulv0 :
   int -> int -> NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA vec ->
@@ -270,15 +300,30 @@ val mmulv0 :
 
 val deg2rad : RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R
 
+val rx : RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec
+
+val ry : RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec
+
 val rz : RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec
 
-type pose = { poseOrien : NormedOrderedFieldElementTypeR.tA vec vec; poseOffset : NormedOrderedFieldElementTypeR.tA vec }
+type axis =
+| AxisX
+| AxisY
+| AxisZ
 
-val transform : pose -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec
+val rotateByAxis : axis -> RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec
 
-module Coq_ex_3_1 :
+val e2h : NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec
+
+val transl : NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec vec
+
+val rot : axis -> RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec
+
+module Coq_ex_3_4 :
  sig
-  val pA : NormedOrderedFieldElementTypeR.tA vec
+  val p1 : NormedOrderedFieldElementTypeR.tA vec
 
-  val pA_value : RbaseSymbolsImpl.coq_R list
+  val p2 : NormedOrderedFieldElementTypeR.tA vec
+
+  val p2_value : RbaseSymbolsImpl.coq_R list
  end

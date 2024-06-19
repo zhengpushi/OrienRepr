@@ -30,7 +30,7 @@ Record AxisAngle := mkAA {aaAngle : R; aaAxis : vec 3}.
     This formula is known as Rodrigues formula. *)
 Definition rotaa (aa : AxisAngle) (a : vec 3) : vec 3 :=
    let (θ, n) := aa in
-  ((cos θ) c* (a - <a,n> c* n) + (sin θ) c* (n \x a) + <a,n> c* n)%V.
+  ((cos θ) s* (a - <a,n> s* n) + (sin θ) s* (n \x a) + <a,n> s* n)%V.
 
 (** The correctness of `rotaa` by geometry *)
 Theorem rotaa_spec : forall (aa : AxisAngle) (a : vec 3),
@@ -38,20 +38,20 @@ Theorem rotaa_spec : forall (aa : AxisAngle) (a : vec 3),
     let a_para : vec 3 := vproj a n in
     let a_perp : vec 3 := vperp a n in
     let b : vec 3 := n \x a_perp in
-    let a_perp' : vec 3 := ((cos θ) c* a_perp + (sin θ) c* b)%V in
+    let a_perp' : vec 3 := ((cos θ) s* a_perp + (sin θ) s* b)%V in
     let a' : vec 3 := (a_perp' + a_para)%V in
     vunit n -> a' = rotaa aa a.
 Proof.
   intros. destruct aa as [θ n]; intros; simpl in *.
-  assert (a_para = <a,n> c* n)%V as H1.
+  assert (a_para = <a,n> s* n)%V as H1.
   { unfold a_para, vproj, Vector.vproj. unfold vunit, Vector.vunit in H.
-    rewrite H. unfold vcmul. f_equal. unfold vdot. autounfold with tA. field. }
-  assert (a_perp = (a - <a,n> c* n)%V) as H2.
+    rewrite H. unfold vscal. f_equal. unfold vdot. autounfold with tA. field. }
+  assert (a_perp = (a - <a,n> s* n)%V) as H2.
   { unfold a_perp. rewrite <- H1. auto. }
   assert (b = n \x a) as H3.
   { unfold b. rewrite H2.
     rewrite v3cross_add_distr_r. rewrite v3cross_vopp_r.
-    rewrite v3cross_vcmul_assoc_r. rewrite v3cross_self. rewrite vcmul_0_r.
+    rewrite v3cross_vscal_assoc_r. rewrite v3cross_self. rewrite vscal_0_r.
     rewrite vopp_vzero. rewrite vadd_0_r. auto. }
   unfold a'. unfold a_perp'. rewrite H1. rewrite H2. rewrite H3. auto.
 Qed.
@@ -60,13 +60,13 @@ Qed.
 Lemma rotaa_form1 : forall (aa : AxisAngle) (a : vec 3),
     let (θ, n) := aa in
     rotaa aa a =
-      ((cos θ) c* a + (sin θ) c* (n \x a) + (<a,n> * (1 - cos θ))%R c* n)%V.
+      ((cos θ) s* a + (sin θ) s* (n \x a) + (<a,n> * (1 - cos θ))%R s* n)%V.
 Proof.
   pose proof (vadd_AGroup 3) as HAGroup.
-  intros. destruct aa as [θ n]. unfold rotaa. rewrite vcmul_vsub. agroup.
+  intros. destruct aa as [θ n]. unfold rotaa. rewrite vscal_vsub. agroup.
   unfold Rminus. rewrite Rmult_plus_distr_l. rewrite identityRight at 1.
-  rewrite vcmul_add. agroup. rewrite vcmul_assoc.
-  rewrite <- vcmul_opp. f_equal. autounfold with tA. ring.
+  rewrite vscal_add. agroup. rewrite vscal_assoc.
+  rewrite <- vscal_opp. f_equal. autounfold with tA. ring.
 Qed.
 
 (* Give any rotation axis n̂, rotation angle θ and any vector a.
@@ -78,7 +78,7 @@ Qed.
 Definition aa2mat (aa : AxisAngle) : smat 3 :=
   let (θ, n) := aa in
   let K := skew3 n in
-  mat1 + (sin θ) c* K + (1 - cos θ)%R c* (K * K).
+  mat1 + (sin θ) s* K + (1 - cos θ)%R s* (K * K).
 
 (** `aa2mat` has the same behavior as `rotaa` *)
 Lemma aa2mat_spec : forall (aa : AxisAngle) (a : vec 3),
@@ -89,15 +89,15 @@ Proof.
   intros. pose proof (rotaa_form1 aa a).
   destruct aa as [θ n]. intros. rewrite H; simpl in *.
   rewrite !mmulv_madd. rewrite mmulv_1_l.
-  rewrite !mmulv_mcmul. rewrite mmulv_assoc.
+  rewrite !mmulv_mscal. rewrite mmulv_assoc.
   rewrite <- !v3cross_eq_skew_mul_vec.
-  move2h (sin θ c* (n \x a))%V. symmetry. move2h (sin θ c* (n \x a))%V. agroup.
-  rewrite (commutative (<a,n>)). rewrite <- vcmul_assoc.
+  move2h (sin θ s* (n \x a))%V. symmetry. move2h (sin θ s* (n \x a))%V. agroup.
+  rewrite (commutative (<a,n>)). rewrite <- vscal_assoc.
   rewrite v3cross_a_ab_eq_minus. rewrite vdot_comm.
-  rewrite vcmul_vsub. agroup.
+  rewrite vscal_vsub. agroup.
   rewrite vunit_vdotR; auto.
-  unfold Rminus. rewrite vcmul_add. rewrite !vcmul_1_l. agroup.
-  rewrite vcmul_opp. agroup.
+  unfold Rminus. rewrite vscal_add. rewrite !vscal_1_l. agroup.
+  rewrite vscal_opp. agroup.
 Qed.
 
 (** The direct form of aa2mat. *)
@@ -159,11 +159,11 @@ Proof.
   intros. destruct aa as [θ n]. simpl.
   pose proof (madd_AGroup 3 3) as HAGroup. agroup.
   rewrite !mtrans_madd.
-  rewrite !mtrans_mcmul.
+  rewrite !mtrans_mscal.
   rewrite mtrans_mmul.
   rewrite mtrans_mat1.
   rewrite !mtrans_skew3, !skew3_vopp.
-  ra. rewrite mcmul_mopp. rewrite mcmul_opp.
+  ra. rewrite mscal_mopp. rewrite mscal_opp.
   rewrite <- mmul_mopp_l. rewrite <- mmul_mopp_r. agroup.
 Qed.
 
