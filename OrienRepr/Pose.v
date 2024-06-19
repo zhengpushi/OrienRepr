@@ -23,8 +23,8 @@
  *)
 
 
-(* Require Import AxisAngle. *)
-(* Require Import EulerAngle. *)
+Require Import AxisAngle.
+Require Import EulerAngle.
 (* Require Import Quaternion. *)
 Require Export RotationMatrix3D.
 
@@ -353,6 +353,7 @@ End hommat_eq.
 (* 在坐标系{A}中，点的初始位置是 ${}^Ap_1$，经平移或旋转后到达位置 ${}^Ap_2$。
    下面讨论从 ${}^Ap_1$ 到 ${}^Ap_2$ 的运动算子。*)
 
+(* ======================================================================= *)
 (** ** 平移算子 *)
 
 (** 在一个坐标系{A}中，移动矢量${}^Ap$，其对应的平移算子 Transl(p) 为 *)
@@ -361,6 +362,7 @@ Definition Transl (p : vec 3) : smat 4 :=
 
 (* 平移算子的使用: p_2 = Transl(p) * p_1 *)
 
+(* ======================================================================= *)
 (** ** 旋转算子 *)
 
 (* 有两种表示方法：
@@ -375,10 +377,11 @@ Definition Transl (p : vec 3) : smat 4 :=
 Section rotate_operator.
 
   (** 绕k轴旋转θ角的齐次旋转矩阵，或旋转算子 *)
-  Definition Rot (k : Axis) (theta : R) : smat 4 :=
+  Definition RotAxis (k : Axis) (theta : R) : smat 4 :=
     mconsrT (mconscT (rotateByAxis k theta) vzero) (vconsT vzero 1).
 End rotate_operator.
 
+(* ======================================================================= *)
 (** ** 运动算子的一般形式 *)
 
 (* 在坐标系{A}中，点p经过转动和平移，令其前、后的位置为${}^Ap_1$和${}^Ap_2$，则两者的
@@ -395,7 +398,7 @@ End rotate_operator.
 Module ex_3_4.
   Let p1 : vec 3 := l2v [3;7;0].
   Example p2 :=
-    let T1 := Rot AxisZ (deg2rad 30) in
+    let T1 := RotAxis AxisZ (deg2rad 30) in
     let T2 := Transl (l2v [10;0;0]) in
     let T3 := Transl (l2v [0;5;0]) in
     (T3 * T2 * T1) *v (e2h p1).
@@ -411,9 +414,11 @@ Module ex_3_4.
    - : float list = [9.09807621135331601; 12.5621778264910713; 0.; 1.] *)
 End ex_3_4.
 
+
 (* ########################################################################### *)
 (** * 变换矩阵的运算 *)
 
+(* ======================================================================= *)
 (** ** 变换矩阵相乘 *)
 
 (** 根据{B}相对于{A}的变换transB2A，以及{C}相对于{B}的变换transC2B，计算{C}相对于{A}
@@ -457,20 +462,34 @@ Proof.
   list_eq; try lra.
 Qed.
 
-Section ex_3_3.
-  Let T1 := Transl (l2v [1;-3;4]).
-  Let T2 := Rot AxisY (deg2rad 90).
-  Let T3 := Rot AxisZ (deg2rad 90).
+(* 相对于固定参考系vs运动坐标系，左乘vs右乘？
+   1. 变换顺序是从右至左时，运动是相对固定参考系而言的（左乘规则）
+   2. 变换顺序是从左至右时，运动是相对运动参考系而言的（右乘规则）
+   此处的“从左到右，从右到左”是指如何安排各次旋转对应的矩阵。*)
 
-  Goal T2 = l2m [[0;0;1;0];
-                 [0;1;0;0];
-                 [-1;0;0;0];
-                 [0;0;0;1]].
-  Proof.
-  Abort.
+(* 例如：在例3.3中，
+   先{B}绕{A}的zA轴转90度，即Rot(z,pi/2)，
+   再绕{A}的yA轴转90度，即Rot(y,pi/2)，
+   再相对{A}平移[1 -3 4]^T，记 Transl(1 -3 4)。*)
+Section ex_3_3.
+  Let Tr := Transl (l2v [1;-3;4]).
+  Let Roty := RotAxis AxisY (deg2rad 90).
+  Let Rotz := RotAxis AxisZ (deg2rad 90).
+
+  (* 求{B}相对于{A}的位姿tBA *)
+ 
+ (* 1. 按照绕固定参考坐标系{A}来理解，则使用左乘从右到左的逐个使用 Rotz, Roty, Tr。 *)
+  Let tBA := Tr * Roty * Rotz.
+  
+  (* 2. 按照绕运动参考系{B}来理解，
+     首先{B}与{A}是重合的，从左到右依次进行以下变换：
+     首先{B}相对于{A}移动 1i-3j+4k，然后绕yB转90度，然后绕zB转90度。
+     此时，使用右乘，从左到右的逐个使用 Tr, Roty, Rotz *)
+  Let tBA' := Tr * Roty * Rotz.
+  
 End ex_3_3.
 
-
+(* ======================================================================= *)
 (** ** 变换矩阵求逆 *)
 
 (* 已知{B}相对于{A}的齐次变换矩阵 ${}^A_BT$，求{A}相对于{B}的齐次变换矩阵${}^B_AT$。
@@ -547,400 +566,307 @@ Proof.
   apply hommatWd_minvtble; auto.
 Qed.
 
-(** 齐次变换(transformation)：
-    设坐标系{B}和{A}不但原点不重合，而且姿态也不相同，用位姿poseB2A描述
-    {B}相对于{A}的位姿，则任意点p在{A}中的坐标pA可由p在{B}中的坐标pB得到 *)
-Definition homTrans {A B} (poseB2A : Pose A B) (pB : Point B)
-  : Point A :=
-  mkPoint (poseB2A *v pB + poseOffset poseB2A)%V.
+Module ex_3_5.
+  (* 两个坐标系{A}和{B}，用transB2A表示：{B}绕zA转30度，再沿xA移动4，沿yA移动3,
+     求transA2B，并说明它表示的变换 *)
+  Example transB2A := Transl (l2v [4;3;0]) * RotAxis AxisZ (deg2rad 30).
+  Example transA2B := transInv transB2A.
 
-(** 一般刚体变换的公式可以借由一个过渡坐标系{B}来得到 *)
+  (* 等价的变换：表示坐标系首先反向平移，然后反向旋转 *)
+  Example transA2B' := RotAxis AxisZ (deg2rad (-30)) * Transl (l2v [-4;-3;0]).
 
-(* 首先，分步骤进行详细推导 *)
-Section trans_spec1.
-  (* 假设有两个坐标系{A}和{B}，并且{B}相对于{A}的位姿是poseB2A，
-    任意点p在{A}和{B}中的坐标分别为pA和pB *)
-  Variable A B : Frame.
-  Variable poseB2A : Pose A B.
-  Variable pA : Point A.
-  Variable pB : Point B.
+  Example transB2A_value := m2l transB2A.
+  Example transA2B_value := m2l transA2B.
+  Example transA2B'_value := m2l transA2B'.
+  Extraction "ocaml_test_pose_ex_3_5.ml"
+    transB2A_value transA2B_value transA2B'_value.
+  (* 
+utop[1]> Coq_ex_3_5.transB2A_value;;
+- : float list list =
+[[0.866025403784438708; -0.499999999999999944; 0.; 4.];
+ [0.499999999999999944; 0.866025403784438708; 0.; 3.]; 
+ [0.; 0.; 1.; 0.];
+ [0.; 0.; 0.; 1.]]
 
-  (* 再假设有一个过渡坐标系{C}，使{C}的坐标原点与{B}的重合，而姿态与{A}的相同 *)
-  Variable C : Frame.
-  Let poseB2C : Pose C B := mkPose (mkOrien poseB2A) (mkPoint vzero).
-  Let poseC2A : Pose A C := mkPose (mkOrien mat1) (poseOffset poseB2A).
+utop[2]> Coq_ex_3_5.transA2B_value;;
+- : float list list =
+[[0.866025403784438708; 0.499999999999999944; 0.; -4.96410161513775439];
+ [-0.499999999999999944; 0.866025403784438708; 0.; -0.598076211353316234];
+ [0.; 0.; 1.; 0.]; 
+ [0.; 0.; 0.; 1.]] 
 
-  (* 再设 p在{C}中的坐标为pC *)
-  Variable pC : Point C.
+utop[3]> Coq_ex_3_5.transA2B'_value;;
+- : float list list =
+[[0.866025403784438708; 0.499999999999999944; 0.; -4.96410161513775439];
+ [-0.499999999999999944; 0.866025403784438708; 0.; -0.598076211353316234];
+ [0.; 0.; 1.; 0.]; [0.; 0.; 0.; 1.]]
+*)
+End ex_3_5.
 
-  (* 显然，如下关系式成立：
-     1. pC可由对pB进行坐标旋转得到
-     2. pA可由pC进行坐标平移得到 *)
-  Hypotheses pC_eq_rotate : pC = rotate poseB2C pB.
-  Hypotheses pA_eq_transl : pA = transl poseC2A pC.
-
-  (* 证明 trans 函数的定义是合理的 *)
-  Goal pA = trans poseB2A pB.
-  Proof.
-    rewrite pA_eq_transl. rewrite pC_eq_rotate.
-    unfold transl, rotate, trans. simpl. auto.
-  Qed.
-End trans_spec1.
-
-(* 写成一个引理 *)
-Lemma trans_spec1 : forall (A B C : Frame) (poseB2A : Pose A B)
-                      (pA : Point A) (pB : Point B) (pC : Point C),
-    let poseB2C : Pose C B := mkPose (mkOrien poseB2A) (mkPoint vzero) in
-    let poseC2A : Pose A C := mkPose (mkOrien mat1) (poseOffset poseB2A) in
-    pC = rotate poseB2C pB ->
-    pA = transl poseC2A pC ->
-    pA = trans poseB2A pB.
-Proof.
-  intros. rewrite H0. rewrite H.
-  unfold transl, rotate, trans. simpl. auto.
-Qed.
-
-(** 当姿态为零时，一般刚体变换等价于坐标平移 *)
-Lemma trans_eq_transl : forall A B (poseB2A : Pose A B) (pB : Point B),
-    poseOrien poseB2A = mkOrien mat1 ->
-    trans poseB2A pB = transl (poseOffset poseB2A) pB.
-Proof.
-  intros. destruct poseB2A as [orien offset]. simpl in *.
-  destruct orien as [orienB2A]. inv H.
-  unfold trans, transl. simpl. rewrite mmulv_1_l. auto.
-Qed.
-
-(** 当原点相同时，一般刚体变换等价于坐标旋转 *)
-Lemma trans_eq_rotate : forall A B (poseB2A : Pose A B) (pB : Point B),
-    poseOffset poseB2A = mkPoint vzero ->
-    trans poseB2A pB = rotate (poseOrien poseB2A) pB.
-Proof.
-  intros. destruct poseB2A as [orien offset]. simpl in *.
-  destruct offset as [offsetB2A]. inv H.
-  unfold trans, rotate. simpl. rewrite vadd_0_r. auto.
-Qed.
-
-(**   *)
-Check h2e.
 (* ======================================================================= *)
-(** ** Test *)
+(** ** 变换方程 *)
 
-？
+Section trans_equation.
+  (* {B} 基座坐标系（又称基座框） base
+     {W} 腕坐标系     wrist
+     {T} 工作坐标系   tool
+     {S} 工作站坐标系 station
+     {G} 目标坐标系   goal *)
 
-(* --------------------------------------------------------------- *)
-(* Definitions of Euler Angles and it's Rotation 
-  5.2.1 ~ 5.2.2
+  Variable tSB : smat 4.        (* {S}相对于{B}的位姿 *)
+  Variable tGS : smat 4.
+  Variable tWB : smat 4.
+  Variable tTW : smat 4.
+  Variable tTG : smat 4.
 
-  1. We define the Euler Angles according it's most commonly used definition 
-    method.
-  2. We also show the singularities of Euler Angles at two moments.
-    (1). from formula (5.6), we guess that there exist singularity.
-    (2). Given different value to θ in formula (5.9), we get different solution 
-      directly. A more strong evidence.
-  3. We give the final rotation matrix under this definition of Euler Angles.
+  (* 已知4个位姿时，可计算 tTG *)
+  Hypotheses H1 : tTG = tGS\-1 * tSB\-1 * tWB * tTW.
+  (* 根据空间尺寸链形式，可得变换方程 *)
+  Hypotheses H2 : tWB * tTW = tSB * tGS * tTG.
+
+  (* 变换方程中的任一变换矩阵都可用其余的变换矩阵来表示 *)
+  Goal hommatWd tTW ->
+       tWB = tSB * tGS * tTG * (tTW\-1).
+  Proof.
+    intros. rewrite <- H2. rewrite mmul_assoc.
+    rewrite mmul_minvAM_r, mmul_1_r; auto.
+    apply hommatWd_minvtble; auto.
+  Qed.
+End trans_equation.
+
+(* ======================================================================= *)
+(** ** 刚体变换群 *)
+
+(* 变换矩阵T完全由位置矢量p和旋转矩阵R所决定，
+   因此，任一刚体的位姿由 (p,R): p∈R^3, R∈SO(3) 所决定。
+   由矩阵乘法可定义刚体变换群SE(3) *)
+
+(* 定义：刚体变换群SE(3)定义为乘积空间 R^3 × SO(3)，即
+   SE(3) = {(p,R): p∈R^3, R∈SO(3)} = R^3 × SO(3)
+   也称SE(3)为三维空间的特殊欧式群(special euclidean group)。
+   可证明它满足群公理。 *)
+
+(* 刚体变换群SE(3)和旋转群SO(3)都是光滑流形，且矩阵乘法运算和求逆运算都是光滑映射，
+   都构成李群，均为不可交换李群。推广到n维空间中，则有：
+   SE(n) = {(p,R): p∈R^n, R∈SO(n)} = R^n × SO(n)
+   当n=3时，SE(3)表示空间运动，用齐次变换矩阵表示，单位元为I4；
+   当n=2时，SE(2)表示刚体平面运动，单位元为I3。 *)
+
+(* SE(3)的子群还包含圆柱运动群。略 *)
+
+
+(* ########################################################################### *)
+(** * 欧拉角与RPY角 *)
+
+(* 下面介绍欧拉角和RPY角方法，将旋转矩阵用3个独立的参数表示 *)
+
+(* ======================================================================= *)
+(** ** 绕固定轴x-y-z旋转（RPY角） *)
+
+(* RPY角是描述船舶在海上航行时姿态的一种方法。
+   船的行驶方向取为z轴的方向，绕z轴的旋转称为回转(roll)，记为α角；
+   船右侧为y轴的方向，绕y轴的...俯仰(pitch)，记为β角；
+   指向天空的是x轴的方向，绕x轴的...偏转(yaw)，记为γ角。
+   在机器人、飞行器上，有类似的规定方法。习惯上，称这种方法为RPY角方法。 *)
+
+(* 绕固定轴x-y-z旋转的RPY角法，描述坐标系{B}的方法的规则如下：
+   {B}的初始方位与参考系{A}重合。首先将{B}绕xA转γ角，再绕yA转β角，再绕zA转α角。
+   因为三次旋转都是相对固定坐标系{A}的，按照“从右到左”的原则，则相应的旋转矩阵
+   R_xyz(γ,β,α) = Rz(α)Ry(β)Rx(γ) *)
+Section RPY.
+  Variable α β γ : R.
+  Notation sα := (sin α). Notation cα := (cos α).
+  Notation sβ := (sin β). Notation cβ := (cos β).
+  Notation sγ := (sin γ). Notation cγ := (cos γ).
+
+  (* 记作 Space-x-y-z（注意，需要从右到左的作用，即 Rz*Ry*Rz) *)
+  Let Sxyz : smat 3 :=
+        l2m [[cα * cβ; cα * sβ * sγ - sα * cγ; cα * sβ * cγ + sα * sγ];
+             [sα * cβ; sα * sβ * sγ + cα * cγ; sα * sβ * cγ - cα * sγ];
+             [- sβ; cβ * sγ; cβ * cγ]]%R.
+
+  (* RPY，等于 S123，即绕 xA,yA,zA 轴旋转 γ,β,α角，等于从右到左的乘积 Rz*Ry*Rx *)
+  Goal Sxyz = S123 γ β α.
+  Proof. meq; ring. Qed.
+
+  (* RPY，等于B321，即绕 zB,yB,xB 轴旋转 α,β,γ角，等于从左到右的乘积 Rz*Ry*Rx *)
+  Goal Sxyz = B321 α β γ.
+  Proof. meq; ring. Qed.
+End RPY.
+
+(* RPY角的反解，略 *)
+
+(* ======================================================================= *)
+(** ** z-y-x的欧拉角 *)
+
+(* 注，所有的欧拉角都是绕运动轴的 *)
+
+(* z-y-x欧拉角法，描述坐标系{B}的方位的规则为：
+   {B}的初始方位与参考系{A}重合。首先将{B}绕zB轴转α角，在绕yB轴转β角，再绕xB角转γ角。
+   因为所有的转动都是相对运动坐标系进行，根据“从左到右”的原则来安排歌词旋转对应的矩阵
+   R_zyx(α,β,γ) = Rz(α)Ry(β)Rx(γ) *)
+Section zyx.
+  Let Bzyx (α β γ : R) : smat 3 := Rz α * Ry β * Rx γ.
+
+  (* 这一结果与绕固定轴x-y-z旋转的结果完全相同。这是因为：
+     若绕固定轴旋转的顺序与绕运动轴旋转的顺序相反，并且旋转的角度也对应相对，则所得到的
+     变换矩阵是相同的。*)
+
+  Goal forall α β γ, Bzyx α β γ = B321 α β γ.
+  Proof. intros; meq; ring. Qed.
+End zyx.
+
+(* ======================================================================= *)
+(** ** z-y-z的欧拉角 *)
+
+Section zyz.
+  Let Bzyz (α β γ : R) : smat 3 := Rz α * Ry β * Rz γ.
+
+  Goal forall α β γ, Bzyz α β γ = B323 α β γ.
+  Proof. intros; meq; ring. Qed.
+End zyz.
+
+(* 总结：
+   1. RPY角方法中是相对固定坐标系旋转的，而欧拉角方法中是相对运动坐标系旋转的。
+   2. 总共有24种排列，其中12种为绕固定轴RPY设定法，12种为欧拉角设定法。
+   3. 因为RPY角与欧拉角对偶，实际上只有12种不同的旋转矩阵。*)
+
+
+(* ########################################################################### *)
+(** * 旋转变换通式 *)
+
+(* 讨论绕过原点的任意轴k旋转θ角的变换矩阵 *)
+
+(* ======================================================================= *)
+(** ** 旋转变换通式，即轴角公式 *)
+
+(** 绕任意轴的旋转公式 *)
+Definition Rot (k : vec 3) (θ : R) : smat 3 :=
+  let s := sin θ in
+  let c := cos θ in
+  let vc := (1 - c)%R in
+  l2m [[k.x * k.x * vc + c; k.y * k.x * vc - k.z * s; k.z * k.x * vc + k.y * s];
+       [k.x * k.y * vc + k.z * s; k.y * k.y * vc + c; k.z * k.y * vc - k.x * s];
+       [k.x * k.z * vc - k.y * s; k.y * k.z * vc + k.x * s; k.z * k.z * vc + c]]%R.
+
+Lemma Rot_eq_Rx : forall θ, Rot (l2v [1;0;0]) θ = Rx θ.
+Proof. intros. meq; ring. Qed.
+
+Lemma Rot_eq_Ry : forall θ, Rot (l2v [0;1;0]) θ = Ry θ.
+Proof. intros. meq; ring. Qed.
+
+Lemma Rot_eq_Rz : forall θ, Rot (l2v [0;0;1]) θ = Rz θ.
+Proof. intros. meq; ring. Qed.
+
+(** Rot 等于 aa2matM（这是在 AxisAngle 中推导得到的结果） *)
+Lemma Rot_eq_aa2matM : forall k θ, Rot k θ = aa2matM (mkAA θ k).
+Proof. intros. v2e k. meq; ra. Qed.
+
+(** 当k单位向量时，Rot 等于 aa2mat (罗德里格斯公式)，计算更高效 *)
+Lemma Rot_eq_aa2mat : forall k θ, vunit k -> Rot k θ = aa2mat (mkAA θ k).
+Proof.
+  intros. pose proof (v3unit_sqr_x k H).
+  v2e k. cbv in H0. meq; ra. all: rewrite H0; ra.
+Qed.
+
+Example ex_3_6 := m2l (Rot (l2v [1/sqrt 3; 1/sqrt 3; 1/sqrt 3]) (deg2rad 120)).
+Extraction "ocaml_test_pose_ex_3_6.ml" ex_3_6.
+(* val ex_3_6 : float list list =
+  [[3.33066907387546962e-16; 0.; 1.00000000000000022];
+   [1.00000000000000022; 3.33066907387546962e-16; 0.];
+   [0.; 1.00000000000000022; 3.33066907387546962e-16]] *)
+
+(* Rot的推导 *)
+Section Rot_spec.
+  (* 任给过原点的单位矢量 k 作为旋转轴，以及转角θ，求旋转矩阵 R(k,θ) *)
+  Variable k : vec 3.
+  Variable θ : R.
+
+  (* 即，求{B}相对于{A}的姿态。
+     定义辅助坐标系{A'}和{B'}，分别与{A}和{B}固连，
+     但是，{A'}与{B'}的z轴与k重合，并且旋转之前{B'}与{A'}重合。因此：
+     tA'A = tB'B = ..
  *)
-Module EA_RotM.
+End Rot_spec.
 
-  (* We will use the basic rotaiton matrix here *)
-  Import BasicRotMat.
+(* ======================================================================= *)
+(** ** 等效转轴和等效转角 *)
 
-  (** WE DON't USE THE DEFINITIONS WITH TIME, because this is not something 
-    that must be done now. And it will increase the complexicity in other 
-    related module, like Singularity-Verification below.
-    &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& **)
-  
-  (*
-  (* Euler angles over time *)
-  Parameter f_ψ : R -> R.   (* yaw angle, rotated by X axis *)
-  Parameter f_θ : R -> R.   (* pitch angle, rotated by Y axis *)
-  Parameter f_φ : R -> R.   (* roll angle, rotated by Z axis *)
+(* 反向问题是，根据旋转矩阵求等效转轴 k 与等效转角 θ *)
 
-  (* Euler angle rates over time *)
-  Parameter f_φ' : R -> R.
-  Parameter f_θ' : R -> R.
-  Parameter f_ψ' : R -> R.
+(* 给定旋转矩阵
+       [nx ox ax]
+   R = [ny oy ay]
+       [nz oz az]，使其等于Rot矩阵，则
+   1. 将矩阵主对角线元素相加，得
+      nx+oy+nz = (kx^2+ky^2+kz^2)Versθ + 3cosθ = 1 + 2 * cosθ
+      于是，cosθ = 1/2 (nx + oy + az - 1)
+   2. 再将方程两边矩阵的非对角线元素成对相减得
+      oz - ay = 2 * kx * sinθ
+      ax - nz = 2 * ky * sinθ
+      ny - ox = 2 * kz * sinθ
+      若将以上方程两边平方后相加，的
+      (oz-ay)^2 + (ay-nz)^2 + (ny-ox)^2 = 4*(sinθ)^2
+      可解得 
+             sinθ = ±(1/2) sqrt((oz-ay)^2 + (ax-nz)^2 + (ny-ox)^2)
+             tanθ = ±\frac{sqrt((oz-ay)^2 + (ax-nz)^2 + (ny-ox)^2)}{nx+oy+ax-1}
+      另外，k可直接由上面的方程组得到
+        kx=(oz-ay)/(2*sinθ), ky=(ax-nz)/(2*sinθ), kz=(ny-ox)/(2*sinθ) *)
 
-  (* A given time value, then we got the corresponding Euler angle and Euler 
-    angle rate *)
-  Parameter t : R.
-  
-  Definition φ : R := f_φ t.
-  Definition θ : R := f_θ t.
-  Definition ψ : R := f_ψ t.
-  Definition Θ : matrix 3 1 := [[φ], [θ], [ψ]].
-  
-  Definition θ' : R := f_θ' t.
-  Definition φ' : R := f_φ' t.
-  Definition ψ' : R := f_ψ' t.
-  Definition Θ' : matrix 3 1 := [[φ'], [θ'], [ψ']]. 
-   *)
-  
-  (** WE USE THE DEFINITIONS WITHOUT TIME, because this is simple and enough to 
-    use.
-    &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&**)
+(** cosθ of rotation matrix A *)
+Definition getRotAngleCos (A : smat 3) : R :=
+  (1/2) * (A.11 + A.22 + A.33 - 1).
 
-  (* Given Euler angle *)
-  Parameter φ : R.
-  Parameter θ : R.
-  Parameter ψ : R.
-  Definition Θ : vec 3 := mk_mat_3_1 φ θ ψ.
-  
-  (* Given Euler angle rate *)
-  Parameter θ' : R.
-  Parameter φ' : R.
-  Parameter ψ' : R.
-  Definition Θ' : vec 3 := mk_mat_3_1 φ' θ' ψ'. 
-  
-  (* The unit vectors of ABCF looking from the ABCF itself *)
-  Definition b1_b : vec 3 := e1.
-  Definition b2_b : vec 3 := e2.
-  Definition b3_b : vec 3 := e3.
-  
-  Definition b1_b_direct : vec 3 := mk_mat_3_1 1 0 0.
-  
-  Lemma f_5_2_b1_b : b1_b = b1_b_direct.
-  Proof. auto. Qed.
-  
-  (* rotation from CFn to ABCF *)
-  (* Nitice that, we simplify a small process of Rx and RxT, and so on *)
-  Definition R_n2b : mat 3 3 := Rx φ.
-  Definition n1_b : vec 3 := mmul R_n2b b1_b.
-  Definition n2_b : vec 3 := mmul R_n2b b2_b.
-  Definition n3_b : vec 3 := mmul R_n2b b3_b.
-  
-  Definition n2_b_direct : vec 3 := (mk_mat_3_1 0 (cos φ) (-sin φ))%R.
-  
-  Lemma f_5_2_n2_b : n2_b == n2_b_direct.
-  Proof. lma. Qed.
-  
-  (* rotation from CFk to ABCF *)
-  Definition R_k2b : mat 3 3 := mmul (Rx φ) (Ry θ).
-  
-  Definition k1_b : vec 3 := mmul R_k2b b1_b.
-  Definition k2_b : vec 3 := mmul R_k2b b2_b.
-  Definition k3_b : vec 3 := mmul R_k2b b3_b.
-  
-  Definition k3_b_direct : vec 3 :=
-    (mk_mat_3_1 (-sin θ) (sin φ * cos θ) (cos θ * cos φ))%R.
-  
-  Lemma f_5_2_k3_b : k3_b == k3_b_direct.
-  Proof. lma. Qed.
+(** sinθ of rotation matrix A *)
+Definition getRotAngleSin (A : smat 3) : R :=
+  let n := A&1 in
+  let o := A&2 in
+  let a := A&3 in
+  (1/2) * sqrt ((o.z-a.y)² + (a.x-n.z)² + (n.y-o.x)²).
 
-  (** Relationship Between Euler-Angle Rates and Body-Axis Rates **)
+(** tanθ of rotation matrix A *)
+Definition getRotAngleTan (A : smat 3) : R :=
+  let n := A&1 in
+  let o := A&2 in
+  let a := A&3 in
+  (sqrt ((o.z-a.y)² + (a.x-n.z)² + (n.y-o.x)²)) / (n.x+o.y+a.z-1).
 
-  (* angular velocity of the aircraft body *)
-  Parameter ωx_b ωy_b ωz_b : R.
-  Definition ω_b : vec 3 := mk_mat_3_1 ωx_b ωy_b ωz_b.
-  
-  (* verify the fomula 5.4, 5.5 *)
-  Section f_5_4_to_5_5.
-    
-    (* Relationship *)
-    Hypothesis f_5_1 : ω_b = ((ψ' c* k3_b) + (θ' c* n2_b)) + (φ' c* b1_b).
-
-    Lemma f_5_4 :
-      let m : mat 3 3 := (mk_mat_3_3 
-                            1 0 (-sin θ)
-                            0 (cos φ) (cos θ * sin φ)
-                            0 (-sin φ) (cos θ * cos φ))%R in
-      ω_b == mmul m Θ'.
-    Proof.
-      rewrite f_5_1. lma.
-    Qed.
-    
-    (* verify the formula 5.5.
-      1. Now, we find that there are cos θ in the denominator. When cos θ equal 
-        to zero, then there will be singularities.
-     *)
-    Definition W : mat 3 3 := (mk_mat_3_3 
-                                 1 (tan θ * sin φ) (tan θ * cos φ)
-                                 0 (cos φ) (-sin φ)
-                                 0 (sin φ / cos θ) (cos φ / cos θ))%R.
-
-    Lemma f_5_5 : cos θ <> 0 -> Θ' == mmul W ω_b.
-    Proof.
-      intros. rewrite f_5_4. lma. unfold Θ',W. apply meq_iff; simpl.
-      repeat apply list_equality; auto;
-        unfold ListAux.ldot; simpl; repeat trigo_simp.
-      unfold RingTypeR.A, add, mul. ring_simplify.
-    (*       Search tan.
-      Opaque sin.
-      autounfold with coordinate; ring_simplify;
-      autorewrite with coordinate; try ring_simplify;
-      trigo_simp; try assumption.
-      Qed. *)
-    Admitted.
-    
-  End f_5_4_to_5_5.
-  
-  (* Rotation Matrix from ABCF to EFCF *)
-  Definition R_b_e : mat 3 3 :=
-    ((Rz ψ) ⊤) × (((Ry θ) ⊤) × ((Rx φ) ⊤)).
-
-  Definition R_b_e_direct : mat 3 3 := mk_mat_3_3
-                                         (cos θ * cos ψ) 
-                                         (cos ψ * sin θ * sin φ - sin ψ * cos φ)%R
-                                         (cos ψ * sin θ * cos φ + sin φ * sin ψ)%R
-                                         (cos θ * sin ψ)
-                                         (sin ψ * sin θ * sin φ + cos ψ * cos φ)%R
-                                         (sin ψ * sin θ * cos φ - cos ψ * sin φ)%R
-                                         (-sin θ)%R (sin φ * cos θ) (cos φ * cos θ).
-
-  Lemma f_5_9 : R_b_e = R_b_e_direct.
-  Proof.
-    unfold R_b_e,R_b_e_direct. apply meq_iff. simpl.
-    unfold ListAux.ldot; simpl.
-    repeat apply list_equality;
-      unfold RingTypeR.A, add, sub, mul; trigo_simp.
-  Qed.
-  
-  (* verify that the matrix satisfies SO3 *)
-  Lemma R_b_e_so3 : forall a : R, so3 R_b_e.
-  Proof.
-    rewrite f_5_9.
-    intro. unfold so3; split.
-    - apply meq_iff. simpl.
-      unfold ListAux.ldot; simpl.
-      repeat apply list_equality;
-        unfold RingTypeR.A, add, sub, mul; trigo_simp.
-  (*    
-      unfold Ring simpl_mat_AxB;
-      autounfold with coordinate; ring_simplify;
-      autorewrite with coordinate; try ring_simplify;
-      repeat rewrite -> Rsqr_pow2; ring_simplify; trigo_simp.
-    - unfold m_3x3_det; simpl; simpl_etype. 
-      ring_simplify. trigo_simp.
-    Qed.
-   *)
-  Admitted.
-  
-  (* Assume a rotation matrix *)
-  Parameter r11 r12 r13 r21 r22 r23 r31 r32 r33 : R.
-  Definition R_b_e_hyp : mat 3 3 := mk_mat_3_3
-                                      r11 r12 r13
-                                      r21 r22 r23
-                                      r31 r32 r33.
-  
-  (* (5.10), Trigonometrics of euler angles deriving by hypothesis *)
-  Definition φ_trigo_by_hyp := tan φ = r32 / r33.
-  Definition θ_trigo_by_hyp := sin θ = (-r31)%R.
-  Definition ψ_trigo_by_hyp := tan ψ = r21 / r11.
-  
-  (* Note that, when we verify the formula, we found the condition that 
-    must satisfy. for example, the denomination can't be zero. *)
-  Lemma f_5_10_correct : cos φ <> 0 /\ cos θ <> 0 /\ cos ψ <> 0 ->
-                         R_b_e_hyp = R_b_e -> (φ_trigo_by_hyp /\ θ_trigo_by_hyp /\ ψ_trigo_by_hyp).
-  Proof.
-    rewrite f_5_9.
-    unfold R_b_e_hyp,R_b_e_direct,φ_trigo_by_hyp,θ_trigo_by_hyp,ψ_trigo_by_hyp.
-    intros [Ha1 [Ha2 Ha3]].
-    intros H; injection H as H11 H12 H13 H21 H22 H23 H31 H32 H33.
-    repeat split.
-    - rewrite H32,H33. unfold tan; field. split; auto.
-    - rewrite H31. trigo_simp.
-    - rewrite H21,H11. unfold tan; field. split; auto.
-  Qed.
-
-  (* (5.11) calculate the euler angles under the hypothesis *)
-  Definition φ_by_hyp := φ = atan (r32 / r33).
-  Definition θ_by_hyp := θ = asin (-r31).
-  Definition ψ_by_hyp := ψ = atan (r21 / r11).
-  
-  (* Note that, the boundary conditions are very important in engineering. *)
-  
-  (* Some constraints are required when using formula (5.11). *)
-  Lemma f_5_11_correct : cos φ <> 0 /\ cos θ <> 0 /\ cos ψ <> 0 ->
-                         - (PI / 2) < φ < PI / 2 ->
-                         - (PI / 2) <= θ <= PI / 2 ->
-                         - (PI / 2) < ψ < PI / 2 ->
-                         R_b_e_hyp = R_b_e -> (φ_by_hyp /\ θ_by_hyp /\ ψ_by_hyp).
-  Proof.
-    rewrite f_5_9.
-    unfold R_b_e_hyp,R_b_e_direct,φ_by_hyp,θ_by_hyp,ψ_by_hyp.
-    intros [Ha1 [Ha2 Ha3]].
-    intros Hb Hc Hd.
-    intros H; injection H as H11 H12 H13 H21 H22 H23 H31 H32 H33.
-    repeat split.
-    - rewrite H32,H33.
-      (* 1. tan_atan/atan_tan are ready in coq new version.
-         2. and the definition of asin. This function was considered as an 
-          axiom in the previous time.
-        So, Coq is a fast developping platform,
-        we can see lots of new library and fix after each update, great! *)
-      assert (sin φ * cos θ / (cos φ * cos θ) = tan φ).
-      { unfold tan. field. split; auto. }
-      rewrite H. rewrite atan_tan; auto.
-    - rewrite H31. rewrite Ropp_involutive. rewrite asin_sin; auto.
-    - rewrite H21,H11.
-      assert (cos θ * sin ψ / (cos θ * cos ψ) = tan ψ).
-      { unfold tan. field. split; auto. }
-      rewrite H. rewrite atan_tan; auto.
-  Qed.
-  
-  (* There are some problems with this method:
-    1. There are several preconditions must be satisfied before we can use 
-      these formulas, but these constraints are too strong.
-      (1). the codomain of function atan or asin is [-pi/2, pi/2], but in 
-        actual situation, the values range between -pi and pi.
-    2. when θ = (+/-)pi/2, then r11=r21=r32=r33=0, then ψ and φ cannot be 
-      uniquely determined. Because we cannot use formulas (5.11) at all caused 
-      by denomintor is zero.
-    
-    So, we need to fix the result using other method. *)
-  Definition R_b_e_θ_eq_pi_2 := mk_mat_3_3
-                                   0 (-sin(ψ - φ))%R (cos(ψ - φ))
-                                   0 (cos(ψ - φ)) (sin(ψ - φ))
-                                   (-1) 0 0.
-  
-  Definition R_b_e_θ_eq_neg_pi_2 := mk_mat_3_3
-                                       0 (-sin(ψ + φ))%R (-cos(ψ + φ))%R
-                                       0 (cos(ψ + φ)) (-sin(ψ + φ))%R
-                                       1 0 0.
-  
-  (* verify the formula 5.12 *)
-  Lemma R_b_e_θ_eq_pi_2_correct : θ = (PI / 2) -> 
-                                   R_b_e = R_b_e_θ_eq_pi_2.
-  Proof. 
-    intros. unfold R_b_e_θ_eq_pi_2. rewrite f_5_9. unfold R_b_e_direct.
-    apply meq_iff; simpl.
-    rewrite H; trigo_simp.
-    repeat apply list_equality; trigo_simp.
-    (*   Qed. *)
-  Admitted.
-  
-  Lemma R_b_e_θ_eq_neg_pi_2_correct : θ = (- (PI / 2))%R -> 
-                                       R_b_e = R_b_e_θ_eq_neg_pi_2.
-  Proof.
-    intros. unfold R_b_e_θ_eq_neg_pi_2. rewrite f_5_9. unfold R_b_e_direct. 
-    rewrite H; trigo_simp.
-    (*   Qed. *)
-  Admitted.
-  
-  (* verify the formula 5.12 *)
-  Lemma f_5_12_correct : (θ = (PI / 2) -> R_b_e = R_b_e_θ_eq_pi_2)
-                         /\ (θ = (- (PI / 2))%R -> R_b_e = R_b_e_θ_eq_neg_pi_2).
-  Proof.
-    split.
-    apply R_b_e_θ_eq_pi_2_correct.
-    apply R_b_e_θ_eq_neg_pi_2_correct.
-  Qed.
-  
-
-End EA_RotM.
-
-(* --------------------------------------------------------------- *)
-(* 5.2.2 (Part II) The Calculate Euler Angles from Rotation 
-  
-  1. We give a set of basic formulas but singular.
-  2. We show a complex algorithm to eliminate the singularity.
- *)
-Module CalcEulerAnglesByRotation
-
-       
-  End CalcEulerAnglesByRotation
-  
+(** Rotation axis of rotation matrix A *)
+Definition getRotAxis (A : smat 3) (θ : R) : vec 3 :=
+  let n := A&1 in
+  let o := A&2 in
+  let a := A&3 in
+  let s2 := (2 * sin θ)%R in
+  l2v [(o.z-a.y)/s2; (a.x-n.z)/s2; (n.y-o.x)/s2].
 
 
-  Require Import Extraction.
-  Extraction "coordinate.ml" Get_Attitude_from_RotationMatrix_Complex.f_5_14_findBest.
+(* 计算转轴和转角时的注意事项：
+   1. 多值性：k和θ的值不是唯一的。例如(-k,-θ)和(k,θ)对应了同样的矩阵。
+      另外，(k,θ+n*2π) (其中n为整数) 和(k,θ)也对应了同一个旋转矩阵。
+      因此，一般选择θ在[0,π)之间。
+   2. 病态情况：当θ很小时，计算k的公式中的分子和分母都很小，转轴难以确定。
+      当θ接近0度和180度时，转轴完全不能确定。需要寻求另外的方法求解。*)
 
+Module ex_3_7.
+  Let tBA := Ry (deg2rad 90) * Rz (deg2rad 90).
+  
+  Example cosTheta := getRotAngleCos tBA.
+  Example sinTheta := getRotAngleSin tBA.
+  Example tanTheta := getRotAngleTan tBA.
+
+  Example theta1 := acos cosTheta.
+  Example theta2 := asin sinTheta.
+  Example theta3 := atan tanTheta.
+
+  Example axis1 := v2l (getRotAxis tBA theta1).
+  Example axis2 := v2l (getRotAxis tBA theta2).
+  Example axis3 := v2l (getRotAxis tBA theta3).
+End ex_3_7.
+Extraction "ocaml_test_pose_ex_3_7.ml" ex_3_7.
+
+
+(* ======================================================================= *)
+(** ** 齐次变换通式 *)
+
+(* 可以证明，任何一组绕过原点的轴线的复合转动总是等价于绕某一过原点的轴线的转动
+   R(k,θ)，这是欧拉定理 *)

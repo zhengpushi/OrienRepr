@@ -254,7 +254,8 @@ val vconsT : int -> 'a1 vec -> 'a1 -> 'a1 vec
 
 val vsum : ('a1 -> 'a1 -> 'a1) -> 'a1 -> int -> 'a1 vec -> 'a1
 
-val vdot : ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> 'a1 vec -> 'a1 vec -> 'a1
+val vdot :
+  ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> 'a1 vec -> 'a1 vec -> 'a1
 
 val l2m : 'a1 -> int -> int -> 'a1 list list -> 'a1 vec vec
 
@@ -265,38 +266,46 @@ val mconscT : int -> int -> 'a1 vec vec -> 'a1 vec -> 'a1 vec vec
 val mat1 : 'a1 -> 'a1 -> int -> 'a1 vec vec
 
 val mmul :
-  ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> int -> int -> 'a1 vec vec -> 'a1 vec vec -> 'a1 vec vec
+  ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> int -> int -> 'a1 vec vec ->
+  'a1 vec vec -> 'a1 vec vec
 
-val mmulv : ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> int -> 'a1 vec vec -> 'a1 vec -> 'a1 vec
+val mmulv :
+  ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> int -> 'a1 vec vec -> 'a1 vec
+  -> 'a1 vec
 
-val v2l0 : int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA list
+val v2l0 :
+  int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA list
 
-val l2v0 : int -> NormedOrderedFieldElementTypeR.tA list -> NormedOrderedFieldElementTypeR.tA vec
+val l2v0 :
+  int -> NormedOrderedFieldElementTypeR.tA list -> NormedOrderedFieldElementTypeR.tA vec
 
 val vzero0 : int -> NormedOrderedFieldElementTypeR.tA vec
 
 val vconsT0 :
-  int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA -> NormedOrderedFieldElementTypeR.tA vec
+  int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA ->
+  NormedOrderedFieldElementTypeR.tA vec
 
-val l2m0 : int -> int -> NormedOrderedFieldElementTypeR.tA list list -> NormedOrderedFieldElementTypeR.tA vec vec
+val l2m0 :
+  int -> int -> NormedOrderedFieldElementTypeR.tA list list ->
+  NormedOrderedFieldElementTypeR.tA vec vec
 
 val mconsrT0 :
-  int -> int -> NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA vec ->
-  NormedOrderedFieldElementTypeR.tA vec vec
+  int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
+  NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec vec
 
 val mconscT0 :
-  int -> int -> NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA vec ->
-  NormedOrderedFieldElementTypeR.tA vec vec
+  int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
+  NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec vec
 
 val mat0 : int -> NormedOrderedFieldElementTypeR.tA vec vec
 
 val mmul0 :
-  int -> int -> int -> NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA vec vec ->
-  NormedOrderedFieldElementTypeR.tA vec vec
+  int -> int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
+  NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA vec vec
 
 val mmulv0 :
-  int -> int -> NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA vec ->
-  NormedOrderedFieldElementTypeR.tA vec
+  int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
+  NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec
 
 val deg2rad : RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R
 
@@ -311,13 +320,15 @@ type axis =
 | AxisY
 | AxisZ
 
-val rotateByAxis : axis -> RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec
+val rotateByAxis :
+  axis -> RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec
 
 val e2h : NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec
 
-val transl : NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec vec
+val transl :
+  NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec vec
 
-val rot : axis -> RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec
+val rotAxis : axis -> RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec
 
 module Coq_ex_3_4 :
  sig

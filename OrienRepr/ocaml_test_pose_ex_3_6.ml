@@ -84,11 +84,10 @@ module Coq_Pos =
 
   let rec add x y =
     match x with
-    | XI p ->
-      (match y with
-       | XI q0 -> XO (add_carry p q0)
-       | XO q0 -> XI (add p q0)
-       | XH -> XO (succ p))
+    | XI p -> (match y with
+               | XI q0 -> XO (add_carry p q0)
+               | XO q0 -> XI (add p q0)
+               | XH -> XO (succ p))
     | XO p -> (match y with
                | XI q0 -> XI (add p q0)
                | XO q0 -> XO (add p q0)
@@ -102,16 +101,14 @@ module Coq_Pos =
 
   and add_carry x y =
     match x with
-    | XI p ->
-      (match y with
-       | XI q0 -> XI (add_carry p q0)
-       | XO q0 -> XO (add_carry p q0)
-       | XH -> XI (succ p))
-    | XO p ->
-      (match y with
-       | XI q0 -> XO (add_carry p q0)
-       | XO q0 -> XI (add p q0)
-       | XH -> XO (succ p))
+    | XI p -> (match y with
+               | XI q0 -> XI (add_carry p q0)
+               | XO q0 -> XO (add_carry p q0)
+               | XH -> XI (succ p))
+    | XO p -> (match y with
+               | XI q0 -> XO (add_carry p q0)
+               | XO q0 -> XI (add p q0)
+               | XH -> XO (succ p))
     | XH -> (match y with
              | XI q0 -> XI (succ q0)
              | XO q0 -> XO (succ q0)
@@ -221,16 +218,14 @@ module Coq_Pos =
 
   let rec compare_cont r x y =
     match x with
-    | XI p ->
-      (match y with
-       | XI q0 -> compare_cont r p q0
-       | XO q0 -> compare_cont Gt p q0
-       | XH -> Gt)
-    | XO p ->
-      (match y with
-       | XI q0 -> compare_cont Lt p q0
-       | XO q0 -> compare_cont r p q0
-       | XH -> Gt)
+    | XI p -> (match y with
+               | XI q0 -> compare_cont r p q0
+               | XO q0 -> compare_cont Gt p q0
+               | XH -> Gt)
+    | XO p -> (match y with
+               | XI q0 -> compare_cont Lt p q0
+               | XO q0 -> compare_cont r p q0
+               | XH -> Gt)
     | XH -> (match y with
              | XH -> r
              | _ -> Lt)
@@ -252,12 +247,8 @@ module Coq_Pos =
          | XI b' ->
            (match compare a' b' with
             | Eq -> (a, (XH, XH))
-            | Lt ->
-              let (g, p) = ggcdn n0 (sub b' a') a in
-              let (ba, aa) = p in (g, (aa, (add aa (XO ba))))
-            | Gt ->
-              let (g, p) = ggcdn n0 (sub a' b') b in
-              let (ab, bb) = p in (g, ((add bb (XO ab)), bb)))
+            | Lt -> let (g, p) = ggcdn n0 (sub b' a') a in let (ba, aa) = p in (g, (aa, (add aa (XO ba))))
+            | Gt -> let (g, p) = ggcdn n0 (sub a' b') b in let (ab, bb) = p in (g, ((add bb (XO ab)), bb)))
          | XO b0 -> let (g, p) = ggcdn n0 a b0 in let (aa, bb) = p in (g, (aa, (XO bb)))
          | XH -> (XH, (a, XH)))
       | XO a0 ->
@@ -291,11 +282,10 @@ module Coq_Pos =
   let rec of_nat n =
     (fun fO fS n -> if n=0 then fO () else fS (n-1))
       (fun _ -> XH)
-      (fun x ->
-      (fun fO fS n -> if n=0 then fO () else fS (n-1))
-        (fun _ -> XH)
-        (fun _ -> succ (of_nat x))
-        x)
+      (fun x -> (fun fO fS n -> if n=0 then fO () else fS (n-1))
+                  (fun _ -> XH)
+                  (fun _ -> succ (of_nat x))
+                  x)
       n
 
   (** val of_succ_nat : int -> positive **)
@@ -360,37 +350,33 @@ module Z =
 
   let rec pos_sub x y =
     match x with
-    | XI p ->
-      (match y with
-       | XI q0 -> double (pos_sub p q0)
-       | XO q0 -> succ_double (pos_sub p q0)
-       | XH -> Zpos (XO p))
+    | XI p -> (match y with
+               | XI q0 -> double (pos_sub p q0)
+               | XO q0 -> succ_double (pos_sub p q0)
+               | XH -> Zpos (XO p))
     | XO p ->
       (match y with
        | XI q0 -> pred_double (pos_sub p q0)
        | XO q0 -> double (pos_sub p q0)
        | XH -> Zpos (Coq_Pos.pred_double p))
-    | XH ->
-      (match y with
-       | XI q0 -> Zneg (XO q0)
-       | XO q0 -> Zneg (Coq_Pos.pred_double q0)
-       | XH -> Z0)
+    | XH -> (match y with
+             | XI q0 -> Zneg (XO q0)
+             | XO q0 -> Zneg (Coq_Pos.pred_double q0)
+             | XH -> Z0)
 
   (** val add : z -> z -> z **)
 
   let add x y =
     match x with
     | Z0 -> y
-    | Zpos x' ->
-      (match y with
-       | Z0 -> x
-       | Zpos y' -> Zpos (Coq_Pos.add x' y')
-       | Zneg y' -> pos_sub x' y')
-    | Zneg x' ->
-      (match y with
-       | Z0 -> x
-       | Zpos y' -> pos_sub y' x'
-       | Zneg y' -> Zneg (Coq_Pos.add x' y'))
+    | Zpos x' -> (match y with
+                  | Z0 -> x
+                  | Zpos y' -> Zpos (Coq_Pos.add x' y')
+                  | Zneg y' -> pos_sub x' y')
+    | Zneg x' -> (match y with
+                  | Z0 -> x
+                  | Zpos y' -> pos_sub y' x'
+                  | Zneg y' -> Zneg (Coq_Pos.add x' y'))
 
   (** val opp : z -> z **)
 
@@ -409,16 +395,14 @@ module Z =
   let mul x y =
     match x with
     | Z0 -> Z0
-    | Zpos x' ->
-      (match y with
-       | Z0 -> Z0
-       | Zpos y' -> Zpos (Coq_Pos.mul x' y')
-       | Zneg y' -> Zneg (Coq_Pos.mul x' y'))
-    | Zneg x' ->
-      (match y with
-       | Z0 -> Z0
-       | Zpos y' -> Zneg (Coq_Pos.mul x' y')
-       | Zneg y' -> Zpos (Coq_Pos.mul x' y'))
+    | Zpos x' -> (match y with
+                  | Z0 -> Z0
+                  | Zpos y' -> Zpos (Coq_Pos.mul x' y')
+                  | Zneg y' -> Zneg (Coq_Pos.mul x' y'))
+    | Zneg x' -> (match y with
+                  | Z0 -> Z0
+                  | Zpos y' -> Zneg (Coq_Pos.mul x' y')
+                  | Zneg y' -> Zpos (Coq_Pos.mul x' y'))
 
   (** val compare : z -> z -> comparison **)
 
@@ -503,15 +487,11 @@ module Z =
     | XI a' ->
       let (q0, r) = pos_div_eucl a' b in
       let r' = add (mul (Zpos (XO XH)) r) (Zpos XH) in
-      if ltb r' b
-      then ((mul (Zpos (XO XH)) q0), r')
-      else ((add (mul (Zpos (XO XH)) q0) (Zpos XH)), (sub r' b))
+      if ltb r' b then ((mul (Zpos (XO XH)) q0), r') else ((add (mul (Zpos (XO XH)) q0) (Zpos XH)), (sub r' b))
     | XO a' ->
       let (q0, r) = pos_div_eucl a' b in
       let r' = mul (Zpos (XO XH)) r in
-      if ltb r' b
-      then ((mul (Zpos (XO XH)) q0), r')
-      else ((add (mul (Zpos (XO XH)) q0) (Zpos XH)), (sub r' b))
+      if ltb r' b then ((mul (Zpos (XO XH)) q0), r') else ((add (mul (Zpos (XO XH)) q0) (Zpos XH)), (sub r' b))
     | XH -> if leb (Zpos (XO XH)) b then (Z0, (Zpos XH)) else ((Zpos XH), Z0)
 
   (** val div_eucl : z -> z -> z * z **)
@@ -532,10 +512,9 @@ module Z =
       (match b with
        | Z0 -> (Z0, a)
        | Zpos _ ->
-         let (q0, r) = pos_div_eucl a' b in
-         (match r with
-          | Z0 -> ((opp q0), Z0)
-          | _ -> ((opp (add q0 (Zpos XH))), (sub b r)))
+         let (q0, r) = pos_div_eucl a' b in (match r with
+                                             | Z0 -> ((opp q0), Z0)
+                                             | _ -> ((opp (add q0 (Zpos XH))), (sub b r)))
        | Zneg b' -> let (q0, r) = pos_div_eucl a' (Zpos b') in (q0, (opp r)))
 
   (** val div : z -> z -> z **)
@@ -551,21 +530,13 @@ module Z =
     | Zpos a0 ->
       (match b with
        | Z0 -> ((abs a), ((sgn a), Z0))
-       | Zpos b0 ->
-         let (g, p) = Coq_Pos.ggcd a0 b0 in
-         let (aa, bb) = p in ((Zpos g), ((Zpos aa), (Zpos bb)))
-       | Zneg b0 ->
-         let (g, p) = Coq_Pos.ggcd a0 b0 in
-         let (aa, bb) = p in ((Zpos g), ((Zpos aa), (Zneg bb))))
+       | Zpos b0 -> let (g, p) = Coq_Pos.ggcd a0 b0 in let (aa, bb) = p in ((Zpos g), ((Zpos aa), (Zpos bb)))
+       | Zneg b0 -> let (g, p) = Coq_Pos.ggcd a0 b0 in let (aa, bb) = p in ((Zpos g), ((Zpos aa), (Zneg bb))))
     | Zneg a0 ->
       (match b with
        | Z0 -> ((abs a), ((sgn a), Z0))
-       | Zpos b0 ->
-         let (g, p) = Coq_Pos.ggcd a0 b0 in
-         let (aa, bb) = p in ((Zpos g), ((Zneg aa), (Zpos bb)))
-       | Zneg b0 ->
-         let (g, p) = Coq_Pos.ggcd a0 b0 in
-         let (aa, bb) = p in ((Zpos g), ((Zneg aa), (Zneg bb))))
+       | Zpos b0 -> let (g, p) = Coq_Pos.ggcd a0 b0 in let (aa, bb) = p in ((Zpos g), ((Zneg aa), (Zpos bb)))
+       | Zneg b0 -> let (g, p) = Coq_Pos.ggcd a0 b0 in let (aa, bb) = p in ((Zpos g), ((Zneg aa), (Zneg bb))))
  end
 
 type q = { qnum : z; qden : positive }
@@ -668,16 +639,17 @@ module RbaseSymbolsImpl =
     __
  end
 
+(** val rminus : RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R **)
+
+let rminus = (-.)
+
 (** val iPR_2 : positive -> RbaseSymbolsImpl.coq_R **)
 
 let rec iPR_2 = function
 | XI p0 ->
-  RbaseSymbolsImpl.coq_Rmult
-    (RbaseSymbolsImpl.coq_Rplus RbaseSymbolsImpl.coq_R1 RbaseSymbolsImpl.coq_R1)
+  RbaseSymbolsImpl.coq_Rmult (RbaseSymbolsImpl.coq_Rplus RbaseSymbolsImpl.coq_R1 RbaseSymbolsImpl.coq_R1)
     (RbaseSymbolsImpl.coq_Rplus RbaseSymbolsImpl.coq_R1 (iPR_2 p0))
-| XO p0 ->
-  RbaseSymbolsImpl.coq_Rmult
-    (RbaseSymbolsImpl.coq_Rplus RbaseSymbolsImpl.coq_R1 RbaseSymbolsImpl.coq_R1) (iPR_2 p0)
+| XO p0 -> RbaseSymbolsImpl.coq_Rmult (RbaseSymbolsImpl.coq_Rplus RbaseSymbolsImpl.coq_R1 RbaseSymbolsImpl.coq_R1) (iPR_2 p0)
 | XH -> RbaseSymbolsImpl.coq_Rplus RbaseSymbolsImpl.coq_R1 RbaseSymbolsImpl.coq_R1
 
 (** val iPR : positive -> RbaseSymbolsImpl.coq_R **)
@@ -728,6 +700,10 @@ let sin = Float.sin
 
 let pI = Float.pi
 
+(** val sqrt : RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R **)
+
+let sqrt = Float.sqrt
+
 type 'tA dec = 'tA -> 'tA -> bool
   (* singleton inductive, whose constructor was Build_Dec *)
 
@@ -735,11 +711,6 @@ type 'tA dec = 'tA -> 'tA -> bool
 
 let dec0 dec1 =
   dec1
-
-(** val nat_eq_Dec : int dec **)
-
-let nat_eq_Dec =
-  (=)
 
 (** val nat_lt_Dec : int dec **)
 
@@ -754,23 +725,6 @@ module NormedOrderedFieldElementTypeR =
 
   let coq_Azero =
     iZR Z0
-
-  (** val coq_Aadd :
-      RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R **)
-
-  let coq_Aadd =
-    RbaseSymbolsImpl.coq_Rplus
-
-  (** val coq_Aone : tA **)
-
-  let coq_Aone =
-    iZR (Zpos XH)
-
-  (** val coq_Amul :
-      RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R **)
-
-  let coq_Amul =
-    RbaseSymbolsImpl.coq_Rmult
  end
 
 type fin = int
@@ -786,16 +740,6 @@ let fin2nat _ f =
 let nat2finS n i =
   let s = dec0 nat_lt_Dec i (Stdlib.Int.succ n) in if s then i else 0
 
-(** val nat2fin : int -> int -> fin **)
-
-let nat2fin _ i =
-  i
-
-(** val fPredRange : int -> fin -> fin **)
-
-let fPredRange n i =
-  nat2fin n (fin2nat (Stdlib.Int.succ n) i)
-
 (** val finseq : int -> fin list **)
 
 let finseq n =
@@ -803,19 +747,6 @@ let finseq n =
     (fun _ -> [])
     (fun n0 -> map (nat2finS n0) (seq 0 n))
     n
-
-(** val seqsumAux : ('a1 -> 'a1 -> 'a1) -> int -> (int -> 'a1) -> 'a1 -> 'a1 **)
-
-let rec seqsumAux aadd n f acc =
-  (fun fO fS n -> if n=0 then fO () else fS (n-1))
-    (fun _ -> acc)
-    (fun n' -> seqsumAux aadd n' f (aadd (f n') acc))
-    n
-
-(** val seqsum : ('a1 -> 'a1 -> 'a1) -> 'a1 -> int -> (int -> 'a1) -> 'a1 **)
-
-let seqsum aadd azero n f =
-  seqsumAux aadd n f azero
 
 type 'tA vec = fin -> 'tA
 
@@ -829,11 +760,6 @@ let vrepeat _ a _ =
 let vzero azero n =
   vrepeat n azero
 
-(** val v2f : 'a1 -> int -> 'a1 vec -> int -> 'a1 **)
-
-let v2f azero n a i =
-  if dec0 nat_lt_Dec i n then a (nat2fin n i) else azero
-
 (** val l2v : 'a1 -> int -> 'a1 list -> 'a1 vec **)
 
 let l2v azero n l i =
@@ -844,246 +770,139 @@ let l2v azero n l i =
 let v2l n a =
   map a (finseq n)
 
-(** val vmap2 : int -> ('a1 -> 'a2 -> 'a3) -> 'a1 vec -> 'a2 vec -> 'a3 vec **)
+(** val m2l : int -> int -> 'a1 vec vec -> 'a1 list list **)
 
-let vmap2 _ f a b i =
-  f (a i) (b i)
-
-(** val vconsT : int -> 'a1 vec -> 'a1 -> 'a1 vec **)
-
-let vconsT n a x i =
-  let s = dec0 nat_lt_Dec (fin2nat (Stdlib.Int.succ n) i) n in
-  if s then a (fPredRange n i) else x
-
-(** val vsum : ('a1 -> 'a1 -> 'a1) -> 'a1 -> int -> 'a1 vec -> 'a1 **)
-
-let vsum aadd azero n a =
-  seqsum aadd azero n (v2f azero n a)
-
-(** val vdot :
-    ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> 'a1 vec -> 'a1 vec -> 'a1 **)
-
-let vdot aadd azero amul n a b =
-  vsum aadd azero n (vmap2 n amul a b)
+let m2l r c m =
+  map (v2l c) (v2l r m)
 
 (** val l2m : 'a1 -> int -> int -> 'a1 list list -> 'a1 vec vec **)
 
 let l2m azero r c d =
   l2v (vzero azero c) r (map (l2v azero c) d)
 
-(** val mconsrT : int -> int -> 'a1 vec vec -> 'a1 vec -> 'a1 vec vec **)
-
-let mconsrT r _ a a0 =
-  vconsT r a a0
-
-(** val mconscT : int -> int -> 'a1 vec vec -> 'a1 vec -> 'a1 vec vec **)
-
-let mconscT r c m a =
-  vmap2 r (vconsT c) m a
-
-(** val mat1 : 'a1 -> 'a1 -> int -> 'a1 vec vec **)
-
-let mat1 azero aone n i j =
-  if dec0 nat_eq_Dec (fin2nat n i) (fin2nat n j) then aone else azero
-
-(** val mmul :
-    ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> int -> int -> 'a1 vec vec ->
-    'a1 vec vec -> 'a1 vec vec **)
-
-let mmul aadd azero amul _ c _ m n i j =
-  vdot aadd azero amul c (m i) (fun k -> n k j)
-
-(** val mmulv :
-    ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> int -> 'a1 vec vec -> 'a1
-    vec -> 'a1 vec **)
-
-let mmulv aadd azero amul _ c m a i =
-  vdot aadd azero amul c (m i) a
-
-(** val v2l0 :
-    int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA list **)
-
-let v2l0 =
-  v2l
-
-(** val l2v0 :
-    int -> NormedOrderedFieldElementTypeR.tA list -> NormedOrderedFieldElementTypeR.tA vec **)
+(** val l2v0 : int -> NormedOrderedFieldElementTypeR.tA list -> NormedOrderedFieldElementTypeR.tA vec **)
 
 let l2v0 n l =
   l2v NormedOrderedFieldElementTypeR.coq_Azero n l
 
-(** val vzero0 : int -> NormedOrderedFieldElementTypeR.tA vec **)
-
-let vzero0 n =
-  vzero NormedOrderedFieldElementTypeR.coq_Azero n
-
-(** val vconsT0 :
-    int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA ->
-    NormedOrderedFieldElementTypeR.tA vec **)
-
-let vconsT0 =
-  vconsT
-
-(** val l2m0 :
-    int -> int -> NormedOrderedFieldElementTypeR.tA list list ->
-    NormedOrderedFieldElementTypeR.tA vec vec **)
+(** val l2m0 : int -> int -> NormedOrderedFieldElementTypeR.tA list list -> NormedOrderedFieldElementTypeR.tA vec vec **)
 
 let l2m0 r c dl =
   l2m NormedOrderedFieldElementTypeR.coq_Azero r c dl
 
-(** val mconsrT0 :
-    int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
-    NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec vec **)
+(** val m2l0 : int -> int -> NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA list list **)
 
-let mconsrT0 =
-  mconsrT
-
-(** val mconscT0 :
-    int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
-    NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec vec **)
-
-let mconscT0 =
-  mconscT
-
-(** val mat0 : int -> NormedOrderedFieldElementTypeR.tA vec vec **)
-
-let mat0 n =
-  mat1 NormedOrderedFieldElementTypeR.coq_Azero NormedOrderedFieldElementTypeR.coq_Aone n
-
-(** val mmul0 :
-    int -> int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
-    NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA vec vec **)
-
-let mmul0 r c s m n =
-  mmul NormedOrderedFieldElementTypeR.coq_Aadd NormedOrderedFieldElementTypeR.coq_Azero
-    NormedOrderedFieldElementTypeR.coq_Amul r c s m n
-
-(** val mmulv0 :
-    int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
-    NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec **)
-
-let mmulv0 r c m a =
-  mmulv NormedOrderedFieldElementTypeR.coq_Aadd NormedOrderedFieldElementTypeR.coq_Azero
-    NormedOrderedFieldElementTypeR.coq_Amul r c m a
+let m2l0 =
+  m2l
 
 (** val deg2rad : RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R **)
 
 let deg2rad d =
   rdiv (RbaseSymbolsImpl.coq_Rmult d pI) (iZR (Zpos (XO (XO (XI (XO (XI (XI (XO XH)))))))))
 
-(** val rx : RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec **)
+(** val rot :
+    NormedOrderedFieldElementTypeR.tA vec -> RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec **)
 
-let rx _UU03b8_ =
-  l2m0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
-    (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-    (((iZR (Zpos XH)) :: ((iZR Z0) :: ((iZR Z0) :: []))) :: (((iZR Z0) :: ((cos _UU03b8_) :: (
-    (RbaseSymbolsImpl.coq_Ropp (sin _UU03b8_)) :: []))) :: (((iZR Z0) :: ((sin _UU03b8_) :: (
-    (cos _UU03b8_) :: []))) :: [])))
+let rot k _UU03b8_ =
+  let s = sin _UU03b8_ in
+  let c = cos _UU03b8_ in
+  let vc = rminus (iZR (Zpos XH)) c in
+  l2m0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
+    (((RbaseSymbolsImpl.coq_Rplus
+        (RbaseSymbolsImpl.coq_Rmult
+          (RbaseSymbolsImpl.coq_Rmult (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) 0))
+            (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) 0))) vc) c) :: ((rminus
+                                                                                 (RbaseSymbolsImpl.coq_Rmult
+                                                                                   (RbaseSymbolsImpl.coq_Rmult
+                                                                                     (k
+                                                                                       (nat2finS (Stdlib.Int.succ
+                                                                                         (Stdlib.Int.succ 0))
+                                                                                         (Stdlib.Int.succ 0)))
+                                                                                     (k
+                                                                                       (nat2finS (Stdlib.Int.succ
+                                                                                         (Stdlib.Int.succ 0)) 0))) vc)
+                                                                                 (RbaseSymbolsImpl.coq_Rmult
+                                                                                   (k
+                                                                                     (nat2finS (Stdlib.Int.succ
+                                                                                       (Stdlib.Int.succ 0)) (Stdlib.Int.succ
+                                                                                       (Stdlib.Int.succ 0)))) s)) :: (
+    (RbaseSymbolsImpl.coq_Rplus
+      (RbaseSymbolsImpl.coq_Rmult
+        (RbaseSymbolsImpl.coq_Rmult
+          (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+          (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) 0))) vc)
+      (RbaseSymbolsImpl.coq_Rmult (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ 0))) s)) :: []))) :: ((
+    (RbaseSymbolsImpl.coq_Rplus
+      (RbaseSymbolsImpl.coq_Rmult
+        (RbaseSymbolsImpl.coq_Rmult (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) 0))
+          (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ 0)))) vc)
+      (RbaseSymbolsImpl.coq_Rmult (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+        s)) :: ((RbaseSymbolsImpl.coq_Rplus
+                  (RbaseSymbolsImpl.coq_Rmult
+                    (RbaseSymbolsImpl.coq_Rmult (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ 0)))
+                      (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ 0)))) vc) c) :: ((rminus
+                                                                                                             (RbaseSymbolsImpl.coq_Rmult
+                                                                                                               (RbaseSymbolsImpl.coq_Rmult
+                                                                                                                 (k
+                                                                                                                   (nat2finS
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   0))
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   0))))
+                                                                                                                 (k
+                                                                                                                   (nat2finS
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   0))
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   0)))) vc)
+                                                                                                             (RbaseSymbolsImpl.coq_Rmult
+                                                                                                               (k
+                                                                                                                 (nat2finS
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   0)) 0)) s)) :: []))) :: ((
+    (rminus
+      (RbaseSymbolsImpl.coq_Rmult
+        (RbaseSymbolsImpl.coq_Rmult (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) 0))
+          (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ (Stdlib.Int.succ 0))))) vc)
+      (RbaseSymbolsImpl.coq_Rmult (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ 0))) s)) :: ((RbaseSymbolsImpl.coq_Rplus
+                                                                                                                   (RbaseSymbolsImpl.coq_Rmult
+                                                                                                                   (RbaseSymbolsImpl.coq_Rmult
+                                                                                                                   (k
+                                                                                                                   (nat2finS
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   0))
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   0)))
+                                                                                                                   (k
+                                                                                                                   (nat2finS
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   0))
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   0))))) vc)
+                                                                                                                   (RbaseSymbolsImpl.coq_Rmult
+                                                                                                                   (k
+                                                                                                                   (nat2finS
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   (Stdlib.Int.succ
+                                                                                                                   0)) 0)) s)) :: (
+    (RbaseSymbolsImpl.coq_Rplus
+      (RbaseSymbolsImpl.coq_Rmult
+        (RbaseSymbolsImpl.coq_Rmult
+          (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+          (k (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ (Stdlib.Int.succ 0))))) vc) c) :: []))) :: [])))
 
-(** val ry : RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec **)
+(** val ex_3_6 : NormedOrderedFieldElementTypeR.tA list list **)
 
-let ry _UU03b8_ =
-  l2m0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
-    (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-    (((cos _UU03b8_) :: ((iZR Z0) :: ((sin _UU03b8_) :: []))) :: (((iZR Z0) :: ((iZR (Zpos
-                                                                                  XH)) :: (
-    (iZR Z0) :: []))) :: (((RbaseSymbolsImpl.coq_Ropp (sin _UU03b8_)) :: ((iZR Z0) :: (
-    (cos _UU03b8_) :: []))) :: [])))
-
-(** val rz : RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec **)
-
-let rz _UU03b8_ =
-  l2m0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
-    (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-    (((cos _UU03b8_) :: ((RbaseSymbolsImpl.coq_Ropp (sin _UU03b8_)) :: ((iZR Z0) :: []))) :: ((
-    (sin _UU03b8_) :: ((cos _UU03b8_) :: ((iZR Z0) :: []))) :: (((iZR Z0) :: ((iZR Z0) :: (
-    (iZR (Zpos XH)) :: []))) :: [])))
-
-type axis =
-| AxisX
-| AxisY
-| AxisZ
-
-(** val rotateByAxis :
-    axis -> RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec **)
-
-let rotateByAxis k theta =
-  match k with
-  | AxisX -> rx theta
-  | AxisY -> ry theta
-  | AxisZ -> rz theta
-
-(** val e2h :
-    NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec **)
-
-let e2h v =
-  l2v0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-    ((v (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) 0)) :: ((v
-                                                                  (nat2finS (Stdlib.Int.succ
-                                                                    (Stdlib.Int.succ 0))
-                                                                    (Stdlib.Int.succ 0))) :: (
-    (v
-      (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ (Stdlib.Int.succ 0)))) :: (
-    (iZR (Zpos XH)) :: []))))
-
-(** val transl :
-    NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec vec **)
-
-let transl p =
-  mconsrT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
-    (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-    (mconscT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
-      (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-      (mat0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) p)
-    (vconsT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-      (vzero0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) (iZR (Zpos XH)))
-
-(** val rotAxis :
-    axis -> RbaseSymbolsImpl.coq_R -> NormedOrderedFieldElementTypeR.tA vec vec **)
-
-let rotAxis k theta =
-  mconsrT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
-    (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-    (mconscT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
-      (Stdlib.Int.succ (Stdlib.Int.succ 0))) (rotateByAxis k theta)
-      (vzero0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))))
-    (vconsT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-      (vzero0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) (iZR (Zpos XH)))
-
-module Coq_ex_3_4 =
- struct
-  (** val p1 : NormedOrderedFieldElementTypeR.tA vec **)
-
-  let p1 =
-    l2v0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-      ((iZR (Zpos (XI XH))) :: ((iZR (Zpos (XI (XI XH)))) :: ((iZR Z0) :: [])))
-
-  (** val p2 : NormedOrderedFieldElementTypeR.tA vec **)
-
-  let p2 =
-    let t1 = rotAxis AxisZ (deg2rad (iZR (Zpos (XO (XI (XI (XI XH))))))) in
-    let t2 =
-      transl
-        (l2v0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-          ((iZR (Zpos (XO (XI (XO XH))))) :: ((iZR Z0) :: ((iZR Z0) :: []))))
-    in
-    let t3 =
-      transl
-        (l2v0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-          ((iZR Z0) :: ((iZR (Zpos (XI (XO XH)))) :: ((iZR Z0) :: []))))
-    in
-    mmulv0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-      (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-      (mmul0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-        (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-        (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-        (mmul0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-          (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-          (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) t3 t2)
-        t1) (e2h p1)
-
-  (** val p2_value : RbaseSymbolsImpl.coq_R list **)
-
-  let p2_value =
-    v2l0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) p2
- end
+let ex_3_6 =
+  m2l0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
+    (rot
+      (l2v0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
+        ((rdiv (iZR (Zpos XH)) (sqrt (iZR (Zpos (XI XH))))) :: ((rdiv (iZR (Zpos XH)) (sqrt (iZR (Zpos (XI XH))))) :: (
+        (rdiv (iZR (Zpos XH)) (sqrt (iZR (Zpos (XI XH))))) :: [])))) (deg2rad (iZR (Zpos (XO (XO (XO (XI (XI (XI XH))))))))))

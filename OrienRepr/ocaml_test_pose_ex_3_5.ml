@@ -766,6 +766,11 @@ module NormedOrderedFieldElementTypeR =
   let coq_Aone =
     iZR (Zpos XH)
 
+  (** val coq_Aopp : RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R **)
+
+  let coq_Aopp =
+    RbaseSymbolsImpl.coq_Ropp
+
   (** val coq_Amul :
       RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R -> RbaseSymbolsImpl.coq_R **)
 
@@ -790,6 +795,11 @@ let nat2finS n i =
 
 let nat2fin _ i =
   i
+
+(** val fSuccRange : int -> fin -> fin **)
+
+let fSuccRange n i =
+  nat2finS n (fin2nat n i)
 
 (** val fPredRange : int -> fin -> fin **)
 
@@ -844,10 +854,25 @@ let l2v azero n l i =
 let v2l n a =
   map a (finseq n)
 
+(** val vmap : int -> ('a1 -> 'a2) -> 'a1 vec -> 'a2 vec **)
+
+let vmap _ f a i =
+  f (a i)
+
 (** val vmap2 : int -> ('a1 -> 'a2 -> 'a3) -> 'a1 vec -> 'a2 vec -> 'a3 vec **)
 
 let vmap2 _ f a b i =
   f (a i) (b i)
+
+(** val vtail : int -> 'a1 vec -> 'a1 **)
+
+let vtail n a =
+  a (nat2finS n n)
+
+(** val vremoveT : int -> 'a1 vec -> 'a1 vec **)
+
+let vremoveT n a i =
+  a (fSuccRange n i)
 
 (** val vconsT : int -> 'a1 vec -> 'a1 -> 'a1 vec **)
 
@@ -860,16 +885,36 @@ let vconsT n a x i =
 let vsum aadd azero n a =
   seqsum aadd azero n (v2f azero n a)
 
+(** val vopp : ('a1 -> 'a1) -> int -> 'a1 vec -> 'a1 vec **)
+
+let vopp aopp n a =
+  vmap n aopp a
+
 (** val vdot :
     ('a1 -> 'a1 -> 'a1) -> 'a1 -> ('a1 -> 'a1 -> 'a1) -> int -> 'a1 vec -> 'a1 vec -> 'a1 **)
 
 let vdot aadd azero amul n a b =
   vsum aadd azero n (vmap2 n amul a b)
 
+(** val m2l : int -> int -> 'a1 vec vec -> 'a1 list list **)
+
+let m2l r c m =
+  map (v2l c) (v2l r m)
+
 (** val l2m : 'a1 -> int -> int -> 'a1 list list -> 'a1 vec vec **)
 
 let l2m azero r c d =
   l2v (vzero azero c) r (map (l2v azero c) d)
+
+(** val mtrans : int -> int -> 'a1 vec vec -> 'a1 vec vec **)
+
+let mtrans _ _ m i j =
+  m j i
+
+(** val mtailc : int -> int -> 'a1 vec vec -> 'a1 vec **)
+
+let mtailc _ c m i =
+  vtail c (m i)
 
 (** val mconsrT : int -> int -> 'a1 vec vec -> 'a1 vec -> 'a1 vec vec **)
 
@@ -880,6 +925,16 @@ let mconsrT r _ a a0 =
 
 let mconscT r c m a =
   vmap2 r (vconsT c) m a
+
+(** val mremoverT : int -> int -> 'a1 vec vec -> 'a1 vec vec **)
+
+let mremoverT r _ m =
+  vremoveT r m
+
+(** val mremovecT : int -> int -> 'a1 vec vec -> 'a1 vec vec **)
+
+let mremovecT _ c m i =
+  vremoveT c (m i)
 
 (** val mat1 : 'a1 -> 'a1 -> int -> 'a1 vec vec **)
 
@@ -900,12 +955,6 @@ let mmul aadd azero amul _ c _ m n i j =
 let mmulv aadd azero amul _ c m a i =
   vdot aadd azero amul c (m i) a
 
-(** val v2l0 :
-    int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA list **)
-
-let v2l0 =
-  v2l
-
 (** val l2v0 :
     int -> NormedOrderedFieldElementTypeR.tA list -> NormedOrderedFieldElementTypeR.tA vec **)
 
@@ -916,6 +965,12 @@ let l2v0 n l =
 
 let vzero0 n =
   vzero NormedOrderedFieldElementTypeR.coq_Azero n
+
+(** val vremoveT0 :
+    int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec **)
+
+let vremoveT0 =
+  vremoveT
 
 (** val vconsT0 :
     int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA ->
@@ -931,6 +986,20 @@ let vconsT0 =
 let l2m0 r c dl =
   l2m NormedOrderedFieldElementTypeR.coq_Azero r c dl
 
+(** val m2l0 :
+    int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
+    NormedOrderedFieldElementTypeR.tA list list **)
+
+let m2l0 =
+  m2l
+
+(** val mtailc0 :
+    int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
+    NormedOrderedFieldElementTypeR.tA vec **)
+
+let mtailc0 =
+  mtailc
+
 (** val mconsrT0 :
     int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
     NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec vec **)
@@ -944,6 +1013,33 @@ let mconsrT0 =
 
 let mconscT0 =
   mconscT
+
+(** val mremoverT0 :
+    int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
+    NormedOrderedFieldElementTypeR.tA vec vec **)
+
+let mremoverT0 =
+  mremoverT
+
+(** val mremovecT0 :
+    int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
+    NormedOrderedFieldElementTypeR.tA vec vec **)
+
+let mremovecT0 =
+  mremovecT
+
+(** val mtrans0 :
+    int -> int -> NormedOrderedFieldElementTypeR.tA vec vec ->
+    NormedOrderedFieldElementTypeR.tA vec vec **)
+
+let mtrans0 =
+  mtrans
+
+(** val vopp0 :
+    int -> NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec **)
+
+let vopp0 n a =
+  vopp NormedOrderedFieldElementTypeR.coq_Aopp n a
 
 (** val mat0 : int -> NormedOrderedFieldElementTypeR.tA vec vec **)
 
@@ -999,6 +1095,9 @@ let rz _UU03b8_ =
     (sin _UU03b8_) :: ((cos _UU03b8_) :: ((iZR Z0) :: []))) :: (((iZR Z0) :: ((iZR Z0) :: (
     (iZR (Zpos XH)) :: []))) :: [])))
 
+type pose = { poseOrien : NormedOrderedFieldElementTypeR.tA vec vec;
+              poseOffset : NormedOrderedFieldElementTypeR.tA vec }
+
 type axis =
 | AxisX
 | AxisY
@@ -1013,18 +1112,17 @@ let rotateByAxis k theta =
   | AxisY -> ry theta
   | AxisZ -> rz theta
 
-(** val e2h :
-    NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec **)
+(** val hommat2pose : NormedOrderedFieldElementTypeR.tA vec vec -> pose **)
 
-let e2h v =
-  l2v0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-    ((v (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) 0)) :: ((v
-                                                                  (nat2finS (Stdlib.Int.succ
-                                                                    (Stdlib.Int.succ 0))
-                                                                    (Stdlib.Int.succ 0))) :: (
-    (v
-      (nat2finS (Stdlib.Int.succ (Stdlib.Int.succ 0)) (Stdlib.Int.succ (Stdlib.Int.succ 0)))) :: (
-    (iZR (Zpos XH)) :: []))))
+let hommat2pose hommatB2A =
+  { poseOrien =
+    (mremovecT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
+      (Stdlib.Int.succ (Stdlib.Int.succ 0)))
+      (mremoverT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
+        (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) hommatB2A)); poseOffset =
+    (vremoveT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
+      (mtailc0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+        (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) hommatB2A)) }
 
 (** val transl :
     NormedOrderedFieldElementTypeR.tA vec -> NormedOrderedFieldElementTypeR.tA vec vec **)
@@ -1050,40 +1148,71 @@ let rotAxis k theta =
     (vconsT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
       (vzero0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) (iZR (Zpos XH)))
 
-module Coq_ex_3_4 =
+(** val transInv :
+    NormedOrderedFieldElementTypeR.tA vec vec -> NormedOrderedFieldElementTypeR.tA vec vec **)
+
+let transInv transB2A0 =
+  let poseB2A = hommat2pose transB2A0 in
+  let r = poseB2A.poseOrien in
+  let p = poseB2A.poseOffset in
+  mconsrT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
+    (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+    (mconscT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
+      (Stdlib.Int.succ (Stdlib.Int.succ 0)))
+      (mtrans0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
+        (Stdlib.Int.succ (Stdlib.Int.succ 0))) r)
+      (vopp0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
+        (mmulv0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
+          (Stdlib.Int.succ (Stdlib.Int.succ 0)))
+          (mtrans0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))) (Stdlib.Int.succ
+            (Stdlib.Int.succ (Stdlib.Int.succ 0))) r) p)))
+    (vconsT0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
+      (vzero0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) (iZR (Zpos XH)))
+
+module Coq_ex_3_5 =
  struct
-  (** val p1 : NormedOrderedFieldElementTypeR.tA vec **)
+  (** val transB2A : NormedOrderedFieldElementTypeR.tA vec vec **)
 
-  let p1 =
-    l2v0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-      ((iZR (Zpos (XI XH))) :: ((iZR (Zpos (XI (XI XH)))) :: ((iZR Z0) :: [])))
-
-  (** val p2 : NormedOrderedFieldElementTypeR.tA vec **)
-
-  let p2 =
-    let t1 = rotAxis AxisZ (deg2rad (iZR (Zpos (XO (XI (XI (XI XH))))))) in
-    let t2 =
-      transl
-        (l2v0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-          ((iZR (Zpos (XO (XI (XO XH))))) :: ((iZR Z0) :: ((iZR Z0) :: []))))
-    in
-    let t3 =
-      transl
-        (l2v0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
-          ((iZR Z0) :: ((iZR (Zpos (XI (XO XH)))) :: ((iZR Z0) :: []))))
-    in
-    mmulv0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+  let transB2A =
+    mmul0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
       (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-      (mmul0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-        (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-        (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-        (mmul0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-          (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
-          (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) t3 t2)
-        t1) (e2h p1)
+      (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+      (transl
+        (l2v0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
+          ((iZR (Zpos (XO (XO XH)))) :: ((iZR (Zpos (XI XH))) :: ((iZR Z0) :: [])))))
+      (rotAxis AxisZ (deg2rad (iZR (Zpos (XO (XI (XI (XI XH))))))))
 
-  (** val p2_value : RbaseSymbolsImpl.coq_R list **)
+  (** val transA2B : NormedOrderedFieldElementTypeR.tA vec vec **)
 
-  let p2_value =
-    v2l0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) p2
+  let transA2B =
+    transInv transB2A
+
+  (** val transA2B' : NormedOrderedFieldElementTypeR.tA vec vec **)
+
+  let transA2B' =
+    mmul0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+      (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+      (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+      (rotAxis AxisZ (deg2rad (iZR (Zneg (XO (XI (XI (XI XH))))))))
+      (transl
+        (l2v0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))
+          ((iZR (Zneg (XO (XO XH)))) :: ((iZR (Zneg (XI XH))) :: ((iZR Z0) :: [])))))
+
+  (** val transB2A_value : NormedOrderedFieldElementTypeR.tA list list **)
+
+  let transB2A_value =
+    m2l0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+      (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) transB2A
+
+  (** val transA2B_value : NormedOrderedFieldElementTypeR.tA list list **)
+
+  let transA2B_value =
+    m2l0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+      (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) transA2B
+
+  (** val transA2B'_value : NormedOrderedFieldElementTypeR.tA list list **)
+
+  let transA2B'_value =
+    m2l0 (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0))))
+      (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ (Stdlib.Int.succ 0)))) transA2B'
  end
