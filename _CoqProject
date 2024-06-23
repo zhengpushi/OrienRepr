@@ -18,6 +18,7 @@ OrienRepr/Orien3D.v
 OrienRepr/Quaternion.v
 OrienRepr/Pose2D.v
 OrienRepr/Pose3D.v
+OrienRepr/Pose.v
 
 # OrienRepr/rvctool.v
 # OrienRepr/RVC/PoseInterface.v

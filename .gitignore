@@ -12,3 +12,5 @@
 **/.nra.cache
 **/.csdp.cache
 **/*.cmi
+**/ocaml_test*.ml
+**/ocaml_test*.mli

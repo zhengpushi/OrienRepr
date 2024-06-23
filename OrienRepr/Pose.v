@@ -28,6 +28,10 @@ Require Import EulerAngle.
 (* Require Import Quaternion. *)
 Require Export RotationMatrix3D.
 
+Local Notation "a .x" := (a.1) (at level 25) : vec_scope.
+Local Notation "a .y" := (a.2) (at level 25) : vec_scope.
+Local Notation "a .z" := (a.3) (at level 25) : vec_scope.
+
 
 (* ########################################################################### *)
 (** * Pose representation of rigid-body 刚体位姿描述 *)
@@ -134,43 +138,40 @@ Qed.
 (** Example 3.1 (page 39) *)
 Module ex_3_1.
 
-  Section ex_3_1.
-    (* 两个坐标系{A}和{B}，刚开始{B}和{A}重合，然后{B}绕{A}的z轴转30度，
+  (* 两个坐标系{A}和{B}，刚开始{B}和{A}重合，然后{B}绕{A}的z轴转30度，
      然后沿{A}的x轴移动10个单位，并沿{A}的y轴移动5个单位。
      求{B}相对于{A}的位置向量和旋转矩阵 *)
 
-    (* 定义{B}相对于{A}的位姿 *)
-    Let orienB2A : smat 3 := Rz (deg2rad 30).
-    Let offsetB2A : vec 3 := l2v [10;5;0].
-    Let poseB2A : Pose := mkPose orienB2A offsetB2A.
+  (* 定义{B}相对于{A}的位姿 *)
+  Example orienB2A : smat 3 := Rz (deg2rad 30).
+  Example offsetB2A : vec 3 := l2v [10;5;0].
+  Example poseB2A : Pose := mkPose orienB2A offsetB2A.
 
-    (* 假设p点在{B}中的坐标 *)
-    Let pB : vec 3 := l2v [3;7;0].
+  (* 假设p点在{B}中的坐标 *)
+  Example pB : vec 3 := l2v [3;7;0].
 
-    (* 求p点在{A}中的坐标 *)
-    Example pA : vec 3 := transform poseB2A pB.
+  (* 求p点在{A}中的坐标 *)
+  Example pA : vec 3 := transform poseB2A pB.
 
-    (* 验证这些结果与教材上一致 *)
+  (* 验证这些结果与教材上一致 *)
 
-    (* 1. 先验证旋转矩阵的结果 *)
-    Lemma orienB2A_eq :
-      orienB2A =
-        l2m [[(sqrt 3)/2; -1/2; 0]; [1/2; (sqrt 3)/2; 0]; [0; 0; 1]].
-    Proof.
-      cbn. replace (deg2rad 30) with (PI/6) by (cbv; ra).
-      meq.
-      (* Tips: 如何让 
+  (* 1. 先验证旋转矩阵的结果 *)
+  Lemma orienB2A_eq :
+    orienB2A =
+      l2m [[(sqrt 3)/2; -1/2; 0]; [1/2; (sqrt 3)/2; 0]; [0; 0; 1]].
+  Proof.
+    cbn. replace (deg2rad 30) with (PI/6) by (cbv; ra).
+    meq.
+    (* Tips: 如何让 
        cos (PI * / ((R1 + R1) * (R1 + (R1 + R1)))) 
        自动化简为 cos (PI/6)，以便使用重写，从而自动证明 *)
-      (* 目前只好先手动进行 *)
-      - pose proof cos_PI6. cbv in H. rewrite <- H. f_equal. field.
-      - pose proof sin_PI6. cbv in H.
-        rewrite <- Ropp_mult_distr_l. rewrite <- H. f_equal. f_equal. field.
-      - pose proof sin_PI6. cbv in H. rewrite <- H. f_equal. field.
-      - pose proof cos_PI6. cbv in H. rewrite <- H. f_equal. field.
-    Qed.
-
-  End ex_3_1.
+    (* 目前只好先手动进行 *)
+    - pose proof cos_PI6. cbv in H. rewrite <- H. f_equal. field.
+    - pose proof sin_PI6. cbv in H.
+      rewrite <- Ropp_mult_distr_l. rewrite <- H. f_equal. f_equal. field.
+    - pose proof sin_PI6. cbv in H. rewrite <- H. f_equal. field.
+    - pose proof cos_PI6. cbv in H. rewrite <- H. f_equal. field.
+  Qed.
 
   (* 2. 对于pA的值，教材上给的是浮点数近似值，我们可以在OCaml中计算来比较 *)
   Example pA_value : list R := v2l pA.
@@ -396,14 +397,14 @@ End rotate_operator.
 (* 例3.4：在{A}中，点p的运动轨迹如下：初始位置 ${}^Ap_1=[3 7 0]^T$，绕z轴旋转30度，
    沿x轴平移10，沿y轴平移5。求运动后的位置${}^Ap_2$。*)
 Module ex_3_4.
-  Let p1 : vec 3 := l2v [3;7;0].
+  Example p1 : vec 3 := l2v [3;7;0].
   Example p2 :=
     let T1 := RotAxis AxisZ (deg2rad 30) in
     let T2 := Transl (l2v [10;0;0]) in
     let T3 := Transl (l2v [0;5;0]) in
     (T3 * T2 * T1) *v (e2h p1).
 
-  (* 对于p2的值，教材上给的是浮点数近似值，我们可以在OCaml中计算来比较 *)
+    (* 对于p2的值，教材上给的是浮点数近似值，我们可以在OCaml中计算来比较 *)
   Example p2_value : list R := v2l p2.
 
   (* 首先抽取代码 *)
@@ -505,31 +506,33 @@ Definition transInv (transB2A : smat 4) : smat 4 :=
     (vconsT vzero 1).
 
 Module transInv_spec_manual.
-  Variable transB2A : smat 4.
-  Let transA2B := transInv transB2A.
-  Hypotheses transB2A_hom : hommatWd transB2A.
-  Let poseB2A : Pose := hommat2pose transB2A.
-  Let R_B2A : smat 3 := poseOrien poseB2A.
-  Let p_B2A : vec 3 := poseOffset poseB2A.
-  Let R_A2B : smat 3 := R_B2A\-1.
-  Variable p_A2B : vec 3.
-  Hypotheses p_B2B_zero : transform (mkPose R_A2B p_A2B) p_B2A = vzero.
+  Section transInv_spec.
+    Variable transB2A : smat 4.
+    Let transA2B := transInv transB2A.
+    Hypotheses transB2A_hom : hommatWd transB2A.
+    Let poseB2A : Pose := hommat2pose transB2A.
+    Let R_B2A : smat 3 := poseOrien poseB2A.
+    Let p_B2A : vec 3 := poseOffset poseB2A.
+    Let R_A2B : smat 3 := R_B2A\-1.
+    Variable p_A2B : vec 3.
+    Hypotheses p_B2B_zero : transform (mkPose R_A2B p_A2B) p_B2A = vzero.
 
-  Lemma poseB2A_wd : poseWd poseB2A.
-  Proof. unfold poseB2A. apply hommat2pose_keep_wd. apply transB2A_hom. Qed.
+    Lemma poseB2A_wd : poseWd poseB2A.
+    Proof. unfold poseB2A. apply hommat2pose_keep_wd. apply transB2A_hom. Qed.
     
-  Goal transA2B = pose2hommat (mkPose R_A2B p_A2B).
-  Proof.
-    unfold transA2B, transInv, pose2hommat. f_equal. f_equal.
-    - unfold R_A2B. replace (R_B2A\-1) with (R_B2A\T); auto.
-      unfold R_B2A. rewrite poseOrien_inv_eq_trans; auto. apply poseB2A_wd.
-    - simpl.
-      assert (p_A2B = - R_A2B *v p_B2A)%V.
-      { pose proof p_B2B_zero. unfold transform in H. simpl in H.
-        apply vadd_eq0_imply_vopp_l in H. auto. }
-      rewrite H. f_equal. f_equal. unfold R_A2B. unfold R_B2A.
-      rewrite poseOrien_inv_eq_trans; auto. apply poseB2A_wd.
-  Qed.
+    Goal transA2B = pose2hommat (mkPose R_A2B p_A2B).
+    Proof.
+      unfold transA2B, transInv, pose2hommat. f_equal. f_equal.
+      - unfold R_A2B. replace (R_B2A\-1) with (R_B2A\T); auto.
+        unfold R_B2A. rewrite poseOrien_inv_eq_trans; auto. apply poseB2A_wd.
+      - simpl.
+        assert (p_A2B = - R_A2B *v p_B2A)%V.
+        { pose proof p_B2B_zero. unfold transform in H. simpl in H.
+          apply vadd_eq0_imply_vopp_l in H. auto. }
+        rewrite H. f_equal. f_equal. unfold R_A2B. unfold R_B2A.
+        rewrite poseOrien_inv_eq_trans; auto. apply poseB2A_wd.
+    Qed.
+  End transInv_spec.
 End transInv_spec_manual.
 
 Lemma transInv_eq_inv : forall transB2A : smat 4,
@@ -848,7 +851,7 @@ Definition getRotAxis (A : smat 3) (θ : R) : vec 3 :=
       当θ接近0度和180度时，转轴完全不能确定。需要寻求另外的方法求解。*)
 
 Module ex_3_7.
-  Let tBA := Ry (deg2rad 90) * Rz (deg2rad 90).
+  Example tBA := Ry (deg2rad 90) * Rz (deg2rad 90).
   
   Example cosTheta := getRotAngleCos tBA.
   Example sinTheta := getRotAngleSin tBA.
