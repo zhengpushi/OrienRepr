@@ -722,15 +722,15 @@ Proof.
   unfold q. rewrite Ha in *. cbv in H, H0. veq.
   (* 以下三部分一模一样，但为了看到过程，所以没有全部使用分号策略“;”。*)
   - field_simplify; ra; rewrite H0, cos2; try lra.
-    remember (θ / (1 + 1))%R as α. replace θ with (α + α)%R by lra.
+    remember (θ / (R1 + R1))%R as α. replace θ with (α + α)%R by lra.
     rewrite cos_plus, sin_plus. unfold Rminus. field_simplify; try lra.
     simp_pow. field_simplify. rewrite cos2. field_simplify; lra.
   - field_simplify; ra; rewrite H0, cos2; try lra.
-    remember (θ / (1 + 1))%R as α. replace θ with (α + α)%R by lra.
+    remember (θ / (R1 + R1))%R as α. replace θ with (α + α)%R by lra.
     rewrite cos_plus, sin_plus. unfold Rminus. field_simplify; try lra.
     simp_pow. field_simplify. rewrite cos2. field_simplify; lra.
   - field_simplify; ra; rewrite H0, cos2; try lra.
-    remember (θ / (1 + 1))%R as α. replace θ with (α + α)%R by lra.
+    remember (θ / (R1 + R1))%R as α. replace θ with (α + α)%R by lra.
     rewrite cos_plus, sin_plus. unfold Rminus. field_simplify; try lra.
     simp_pow. field_simplify. rewrite cos2. field_simplify; lra.
 Qed.
