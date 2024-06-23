@@ -532,7 +532,7 @@ Ltac v2e a :=
         intros.
         v2e C. rewrite Ha in *. apply Vector.v3eq_iff in H2. destruct H2,H3.
         apply Vector.v3eq_iff in H2,H3,H4. rewrite Ha0, Ha1,Ha2 in *. cbv in H2,H3,H4.
-        cbv. simp.
+        cbv. logic.
         - rewrite H8,H6. ra. rewrite atan_tan; auto.
         - rewrite H10. rewrite asin_sin; ra.
         - rewrite H9,H2. ra. rewrite atan_tan; ra.

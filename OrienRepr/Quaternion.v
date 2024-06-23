@@ -75,7 +75,7 @@ Definition si2q (w : R) (v : vec 3) : quat := mkQ w (v.1) (v.2) (v.3).
 Lemma si2q_spec : forall w v,
     let q := si2q w v in
     q.W = w /\ q.X = v.1 /\ q.Y = v.2 /\ q.Z = v.3.
-Proof. intros. v2e v. cbv in *. simp. Qed.
+Proof. intros. v2e v. cbv in *. rewrite Ha. auto. Qed.
 
 (** si2q is injective *)
 Lemma si2q_inj : forall w1 w2 v1 v2,
@@ -139,7 +139,7 @@ Lemma im2q_eq0_iff : forall v, im2q v = qzero <-> v = vzero.
 Proof.
   intros. v2e v. ra.
   - cbv in H. inv H. veq.
-  - cbv. cbv in H. apply v3eq_iff in H. simpl in *. simp. subst. auto.
+  - cbv. cbv in H. apply v3eq_iff in H. simpl in *. logic.
 Qed.
 
 (** im2q v <> qzero <-> v <> vzero *)
