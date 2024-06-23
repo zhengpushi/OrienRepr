@@ -1,10 +1,10 @@
 (*
-  Copyright 2022 ZhengPu Shi
+  Copyright 2022 Zhengpu Shi
   This file is part of VFCS. It is distributed under the MIT
   "expat license". You should have recieved a LICENSE file with it.
 
   file:       Quaternion_aijk_testZ.v
-  by:         ZhengPu Shi
+  by:         Zhengpu Shi
   date:       2021.01.05
   
   purpose:

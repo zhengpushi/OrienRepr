@@ -1,5 +1,5 @@
 (*
-  Copyright 2022 ZhengPu Shi
+  Copyright 2022 Zhengpu Shi
   This file is part of VFCS. It is distributed under the MIT
   "expat license". You should have recieved a LICENSE file with it.
 
@@ -86,9 +86,8 @@ Definition b1_b : matrix 3 1 := e1.
 Definition b2_b : matrix 3 1 := e2.
 Definition b3_b : matrix 3 1 := e3.
 
-(* NOTE, THESE MATRIX are same with the book, but I think Ry is WRONG.
-I don't fix it. *)
-   
+(* NOTE, THESE MATRIX have been fixed by me, this is different from the book. *)
+
 (* three basic rotate matrices, roatate an coordinate. [W' = R W] *)
 Definition Rx (α : R) : matrix 3 3 := 
   [[1,  0,        0      ],
@@ -96,9 +95,9 @@ Definition Rx (α : R) : matrix 3 3 :=
    [0,  -sin α,   cos α ]].
 
 Definition Ry (β : R) : matrix 3 3 := 
-  [[cos β,  0,  -sin β],
+  [[cos β,  0,  sin β],
    [0,      1,  0     ],
-   [sin β,  0,  cos β ]].
+   [-sin β,  0,  cos β ]].
 
 Definition Rz (γ : R) : matrix 3 3 := 
   [[cos γ,    sin γ,  0],
@@ -112,9 +111,9 @@ Definition Rx' (α : R) : matrix 3 3 :=
    [0,  sin α,   cos α ]].
 
 Definition Ry' (β : R) : matrix 3 3 := 
-  [[cos β,  0,  sin β],
+  [[cos β,  0,  -sin β],
    [0,      1,  0     ],
-   [-sin β,  0,  cos β ]].
+   [sin β,  0,  cos β ]].
 
 Definition Rz' (γ : R) : matrix 3 3 := 
   [[cos γ,    -sin γ,  0],
@@ -215,7 +214,7 @@ Module Relation_AttituteRate_AngularVelocityOfAricraftBody.
   
   Definition b1_b : matrix 3 1 := [[1], [0], [0]].
   Definition n2_b : matrix 3 1 := [[0], [cos φ], [-sin φ]].
-  Definition k3_b : matrix 3 1 := [[-sin θ], [sin φ * cos θ], [cos θ * cos φ]].
+  Definition k3_b : matrix 3 1 := [[sin θ], [sin φ * cos θ], [cos θ * cos φ]].
 
   (* verification of formula 5.2 *)
   Lemma f_5_2_n2b : n2_b = m_mul Rn_b e2.
@@ -234,7 +233,7 @@ Module Relation_AttituteRate_AngularVelocityOfAricraftBody.
   (* verification of fomula 5.4 *)
   Lemma f_5_4 :
     let m : matrix 3 3 := 
-      [[1, 0, -sin θ],
+      [[1, 0, sin θ],
        [0, cos φ, cos θ * sin φ],
        [0, -sin φ, cos θ * cos φ]] in
     ω_b = m_mul m Θ'.
@@ -242,7 +241,7 @@ Module Relation_AttituteRate_AngularVelocityOfAricraftBody.
 
   (* verification of formula 5.5 *)
   Definition W : matrix 3 3 := 
-    [[1, tan θ * sin φ, tan θ * cos φ],
+    [[1, -tan θ * sin φ, -tan θ * cos φ],
      [0, cos φ, -sin φ],
      [0, sin φ / cos θ, cos φ / cos θ]].
 
@@ -286,12 +285,12 @@ Module RotationMatrix_between_EFCF_and_ABCF.
 
   Definition R_b_e_direct : matrix 3 3 := [
     [cos θ * cos ψ, 
-     cos ψ * sin θ * sin φ - sin ψ * cos φ,
-     cos ψ * sin θ * cos φ + sin φ * sin ψ],
+     -cos ψ * sin θ * sin φ - sin ψ * cos φ,
+     -cos ψ * sin θ * cos φ + sin φ * sin ψ],
     [cos θ * sin ψ, 
-     sin ψ * sin θ * sin φ + cos ψ * cos φ,
-     sin ψ * sin θ * cos φ - cos ψ * sin φ],
-    [-sin θ, sin φ * cos θ, cos φ * cos θ]
+     -sin ψ * sin θ * sin φ + cos ψ * cos φ,
+     -sin ψ * sin θ * cos φ - cos ψ * sin φ],
+    [sin θ, sin φ * cos θ, cos φ * cos θ]
     ].
 
   Lemma f_5_9 : R_b_e = R_b_e_direct.
@@ -311,9 +310,9 @@ Module RotationMatrix_between_EFCF_and_ABCF.
 
   (* verification formula 5.12a *)
   Lemma R_b_e_postive : θ = PI / 2 -> R_b_e = 
-    [[0, -sin(ψ - φ), cos(ψ - φ)],
-     [0, cos(ψ - φ), sin(ψ - φ)],
-     [-1, 0, 0]].
+    [[0, -sin(ψ + φ), -cos(ψ + φ)],
+     [0, cos(ψ + φ), -sin(ψ + φ)],
+     [1, 0, 0]].
   Proof. 
     intros. rewrite f_5_9. unfold R_b_e_direct. rewrite H. trigo_simp.
     simpl_mat_AxB.
@@ -322,9 +321,9 @@ Module RotationMatrix_between_EFCF_and_ABCF.
   (* verification formula 5.12b, Note that formula in book is error,
    a13,a23 should add a negative sign. *)
   Lemma R_b_e_negative : θ = - (PI / 2) -> R_b_e = 
-    [[0, -sin(ψ + φ), -cos(ψ + φ)],
-     [0, cos(ψ + φ), -sin(ψ + φ)],
-     [1, 0, 0]].
+    [[0, -sin(ψ - φ), cos(ψ - φ)],
+     [0, cos(ψ - φ), sin(ψ - φ)],
+     [-1, 0, 0]].
   Proof.
     intros. rewrite f_5_9. unfold R_b_e_direct. rewrite H. trigo_simp.
     simpl_mat_AxB.

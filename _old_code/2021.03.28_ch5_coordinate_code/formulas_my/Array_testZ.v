@@ -1,33 +1,32 @@
 (*
-  Copyright 2022 ZhengPu Shi
+  Copyright 2022 Zhengpu Shi
   This file is part of VFCS. It is distributed under the MIT
   "expat license". You should have recieved a LICENSE file with it.
 
-  file:       Vector_testZ.v
-  author:     ZhengPu Shi
-  purpose:    Test code of vector and matrix
+  file:       Array_testZ.v
+  author:     Zhengpu Shi
+  purpose:    Test code of array and matrix
 
 *)
 
-From FlyCtrl Require Import Vector.
-Import Module_VectorZ.
+From FlyCtrl Require Import Array.
+Import Module_ArrayZ.
 Open Scope Z.
 
-
-Example v00 : vector 0 := tt.
-Example v00' : vector 1 := [1].
-Example v01 : vector 3 := [1,2,3].
-Example v11 : vector 3 := [4,5,6].
-Example v01' : vector 3 := (pair 1 (pair 2 (pair 3 tt))).
+Example v00 : array 0 := tt.
+Example v00' : array 1 := [1].
+Example v01 : array 3 := [1,2,3].
+Example v11 : array 3 := [4,5,6].
+Example v01' : array 3 := (pair 1 (pair 2 (pair 3 tt))).
 Example v01'' := [1,2,3].
 Print v01.
 Print v01'.
 Print v01''.
 (*
 v01 = [1, 2, 3]
-     : vector 3
+     : array 3
 v01' = [1, 2, 3]
-     : vector 3
+     : array 3
 v01'' = [1, 2, 3]
      : nat * (nat * (nat * unit))
 *)
@@ -42,25 +41,28 @@ Example m04 : matrix 3 2 := [[1,4],[2,5],[3,6]].
 Example m05 : matrix 3 3 := [[1,2,3],[4,5,6],[7,8,9]].
 
 
-Compute v_nth v01 0. (* = 1 : nat *)
-Compute v_nth v01 4. (* = 99 : nat *)
+Compute a_nth v01 0. (* = 1 : nat *)
+Compute a_nth v01 4. (* = 99 : nat *)
 
-Compute v_make 5 3.    (* = [3, 3, 3, 3, 3] : vector 5 *)
+Compute a_make 5 3.    (* = [3, 3, 3, 3, 3] : array 5 *)
 
-Compute v_make' 3 (fun i => (Z.of_nat i) + 1). (* = [1, 2, 3] : vector 3 *)
-Compute v_map1 v01 (fun x => x + 1).
+Compute a_make' 3 (fun i => (Z.of_nat i) + 1). (* = [1, 2, 3] : array 3 *)
 
-Compute v_map2 v01 v01 (fun x y => x + y).
+Compute a_topk 2 0 v11.
 
-Compute v_fold_l v01 add 0.
+Compute a_map1 v01 (fun x => x + 1).
 
-Compute v_fold_r v01 add 0.
+Compute a_map2 v01 v01 (fun x y => x + y).
 
-Compute v_dot v01 v01.
+Compute a_fold_l v01 add 0.
 
-Compute v_app v01 v11.
+Compute a_fold_r v01 add 0.
 
-Compute v_cmul 2 v01.
+Compute a_dot v01 v01.
+
+Compute a_app v01 v11.
+
+Compute a_cmul 2 v01.
 
 
 Compute m_nth m03 0 0.
@@ -89,9 +91,9 @@ Compute m_trans m04.
 Compute m03 '.
 Compute m03 ''.
 
-Compute v_mul_m_aux v01 m03.
+Compute cv_dotmul_m v01 m03.
 
-Compute m_mul_aux m04 m04.
+Compute m_dotmul_m m04 m04.
 
 Compute m_mul m03 m04.
 
@@ -100,12 +102,12 @@ Compute m_mul m04 m03.
 Compute rv_to_m v01.
 Compute cv_to_m v01.
 
-Compute v_mul_m v01 m04.
-Compute m_mul_v m03 v01.
+Compute a_mul_m v01 m04.
+Compute m_mul_a m03 v01.
 
-Compute m_app_r m03 m13.
+Compute m_cons_byRow m03 m13.
 
-Compute m_app_c m03 m13.
+Compute m_cons_byCol m03 m13.
 
 Compute m_cmul 3 m03.
 
@@ -118,17 +120,19 @@ Example ex_ZM_01 : matrix 2 3 := [[3,1,2],[0,-1,4]].
 Example ex_ZM_02 : matrix 3 1 := [[2],[-1],[4]].
 Example ex_ZM_03 : matrix 2 1 := [[13],[17]].
 Lemma ex_ZM_10 : m_mul ex_ZM_01 ex_ZM_02 = ex_ZM_03.
-Proof. auto. Qed.
+Proof.
+  compute. unfold T,Zero,add,mul in *. simpl_equal_of_tuples; ring. 
+Qed.
 
 Lemma ex_ZM_10' : m_mul ex_ZM_01 ex_ZM_02 = ex_ZM_03.
 Proof. 
   unfold m_mul.
-  unfold Vector.m_mul.
-  unfold Vector.m_mul_aux.
-  unfold Vector.v_mul_m_aux.
-  unfold Vector.v_dot.
-  simpl Vector.v_map2.
-  simpl Vector.v_fold_l.
+  unfold Array.m_mul.
+  unfold Array.m_dotmul_m.
+  unfold Array.cv_dotmul_m.
+  unfold Array.a_dot.
+  simpl Array.a_map2.
+  simpl Array.a_fold_l.
   unfold ex_ZM_03.
   reflexivity.
 Qed.

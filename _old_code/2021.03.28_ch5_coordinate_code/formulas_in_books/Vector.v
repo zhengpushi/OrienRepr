@@ -1,10 +1,10 @@
 (*
-  Copyright 2022 ZhengPu Shi
+  Copyright 2022 Zhengpu Shi
   This file is part of VFCS. It is distributed under the MIT
   "expat license". You should have recieved a LICENSE file with it.
 
   file:       Vector.v
-  author:     ZhengPu Shi
+  author:     Zhengpu Shi
   date:       2021.01.01
   purpose:
   1. vector (it is similiar with array, but fixed length

@@ -1,10 +1,10 @@
 (*
-  Copyright 2022 ZhengPu Shi
+  Copyright 2022 Zhengpu Shi
   This file is part of VFCS. It is distributed under the MIT
   "expat license". You should have recieved a LICENSE file with it.
 
   file:       quatuaternion_tttt.v
-  by:         ZhengPu Shi
+  by:         Zhengpu Shi
   purpose:    Quaternion implmentation based on tuple4.
   
   reference: 
