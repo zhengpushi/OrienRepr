@@ -118,6 +118,13 @@ Proof. intros. veq. Qed.
 Lemma im2q_q2im : forall q, q.W = 0 -> im2q (q2im q) = q.
 Proof. intros. destruct q. cbv in *. f_equal. auto. Qed.
 
+(* q1.W = q2.W -> q1.Im = q2.Im -> q1 = q2 *)
+Lemma qeq_if_W_Im : forall q1 q2, q1.W = q2.W -> q1.Im = q2.Im -> q1 = q2.
+Proof.
+  intros. unfold q2im in *. destruct q1,q2. simpl in *.
+  apply v3eq_iff in H0. cbv in H0. logic.
+Qed.
+
 
 (** ** Automation for quaternion *)
 
@@ -472,7 +479,7 @@ Lemma qconj_qconj (q : quat) : q \* \* = q.
 Proof. destruct q. lqa. Qed.
 
 (** (im2q v)\* = im2q (-v) *)
-Lemma qconj_im2q : forall (v : vec 3), qconj (im2q v) = im2q (-v)%V.
+Lemma qconj_im2q : forall (v : vec 3), (im2q v)\* = im2q (-v)%V.
 Proof. lqa. Qed.
 
 (** (p * q)\* = q\* * p\* *)
@@ -491,9 +498,25 @@ Proof. destruct p,q. lqa. Qed.
 Lemma qmul_qconj_comm (q : quat) : q * q\* = q\* * q.
 Proof. destruct q. lqa. Qed.
 
-(** Im (q * q\* ) = 0 *)
-Lemma qmul_qconj_Im0 (q : quat) : (q * q\*).Im = vzero.
+(** Im (q\* * q) = 0 *)
+Lemma qmul_qconj_l_Im0 (q : quat) : (q\* * q).Im = vzero.
 Proof. veq; ra. Qed.
+
+(** Im (q * q\* ) = 0 *)
+Lemma qmul_qconj_r_Im0 (q : quat) : (q * q\*).Im = vzero.
+Proof. veq; ra. Qed.
+
+(** qunit q -> q\* * q = qone *)
+Lemma qunit_qmul_qconj_l : forall q, qunit q -> q\* * q = qone.
+Proof.
+  intros. apply qeq_if_W_Im.
+  - destruct q. cbv in *. ra.
+  - rewrite qmul_qconj_l_Im0. veq.
+Qed.
+
+(** qunit q -> q * q\* = qone *)
+Lemma qunit_qmul_qconj_r : forall q, qunit q -> q * q\* = qone.
+Proof. intros. rewrite qmul_qconj_comm. rewrite qunit_qmul_qconj_l; auto. Qed.
 
 (** || q\* || = || q || *)
 Lemma qlen_qconj (q : quat) : || q\* || = || q ||.
@@ -701,9 +724,9 @@ Abort.
 (** * Rotate 3D vector by unit quaternion *)
 
 (** vector v (be wrapped to quaterion) is rotated by a quaternion q.
-      Note that: q must be a rotation quaternion *)
+    Note that: q must be a rotation quaternion *)
 (* Definition qrot (q : quat) (v : quat) : quat := q * v * q\-1. *)
-Definition qrot (q : quat) (v : quat) : quat := q * v * qconj q.
+Definition qrot (q : quat) (v : quat) : quat := q * v * q\*.
 
 (** vector form of qrot *)
 Definition qrotv (q : quat) (v : vec 3) : vec 3 := q2im (qrot q (im2q v)).
@@ -1262,198 +1285,60 @@ End qrot_spec_method3.
 
 (** Rotate twice: first by q1, then by q2 *)
 Lemma qrot_twice : forall (q1 q2 : quat) (v : quat),
-    q1 <> qzero -> q2 <> qzero -> qrot q2 (qrot q1 v) = qrot (q2 * q1) v.
+    qrot q2 (qrot q1 v) = qrot (q2 * q1) v.
 Proof.
   intros. unfold qrot. rewrite qconj_qmul, !qmul_assoc; auto.
 Qed.
 
 (** vector form *)
 Lemma qrot_twice_vec : forall (q1 q2 : quat) (v : vec 3),
-    qunit q1 -> qunit q2 ->
-    qrotv q2 (qrotv q1 v) = qrotv (q2 * q1) v.
+    qunit q1 -> qrotv q2 (qrotv q1 v) = qrotv (q2 * q1) v.
 Proof.
   intros. unfold qrotv.
   rewrite <- qrot_twice; try apply qunit_neq0; auto.
   unfold qrot. f_equal. f_equal. f_equal. rewrite im2q_q2im; auto.
-  pose proof (qrot_im2q_w0 q1 v H). unfold qrot in H1. auto.
+  pose proof (qrot_im2q_w0 q1 v H). unfold qrot in H0. auto.
 Qed.
 
 
-(** ** Dot product of quaternion *)
-Section qdot.
+(** ** 坐标系旋转的情况 *)
+Section qrotAxis.
 
-  Definition qdot (q1 q2 : quat) : quat :=
-    mkQ (q1.W * q1.W) (q1.X * q2.X) (q1.Y * q2.Y) (q1.Z * q2.Z).
+  (** 向量v(被包装为四元数)所在的坐标系旋转q，则新坐标系中v的向量如下。
+      注意，q必须是旋转四元数 *)
+  (* Definition qrotAxis (q : quat) (v : quat) : quat := q\-1 * v * q. *)
+  Definition qrotAxis (q : quat) (v : quat) : quat := q \* * v * q.
+
+  (* 由于旋转坐标系是旋转向量的逆过程，所以我们可以通过验证逆来说明此定义正确 *)
+  Lemma qrotAxis_qrot : forall q v, qunit q -> qrot q (qrotAxis q v) = v.
+  Proof.
+    intros. unfold qrot, qrotAxis.
+    rewrite <- !qmul_assoc. rewrite qunit_qmul_qconj_r; auto. rewrite qmul_1_l.
+    rewrite !qmul_assoc. rewrite qunit_qmul_qconj_r; auto. rewrite qmul_1_r. auto.
+  Qed.
+
+  Lemma qrot_qrotAxis : forall q v, qunit q -> qrotAxis q (qrot q v) = v.
+  Proof.
+    intros. unfold qrot, qrotAxis.
+    rewrite <- !qmul_assoc. rewrite qunit_qmul_qconj_l; auto. rewrite qmul_1_l.
+    rewrite !qmul_assoc. rewrite qunit_qmul_qconj_l; auto. rewrite qmul_1_r. auto.
+  Qed.
   
-End qdot.
+  (** 坐标系旋转q时，某向量在旧坐标系下的坐标 v 在新坐标系下为 *)
+  Definition qrotvAxis (q : quat) (v : vec 3) : vec 3 := q2im (qrotAxis q (im2q v)).
 
+  (* 验证 qrotvAxis 和 qrot 语义等价即可 *)
+  Lemma qrotvAxis_eq_qrotv : forall q v, qrotvAxis q v = q2im (qrotAxis q (im2q v)).
+  Proof. auto. Qed.
 
-(** ** Logrithm of quaternion *)
-Section qlog.
-
-  (* Definition qlog (q : quat) : quat := *)
-  (*   let a := quat_to_aa q in *)
-  (*   let θ : R := aa_angle a in *)
-  (*   let n : vec 3 := aa_axis a in *)
-  (*   let α : R := θ / 2 in *)
-  (*   si2q 0 (α s* n)%V. *)
-  Parameter qlog : quat -> quat.
-
-End qlog.
-
-
-(** ** Exponential of quaternion *)
-Section qexp.
-
-  (* Definition qexp (q : quat) : quat := *)
-  (*   let a := quat_to_aa q in *)
-  (*   quat_of_aa a. *)
-  Parameter qexp : quat -> quat.
-
-  (* Lemma qexp_qlog : forall a : axisangle, *)
-  (*     qexp  *)
-  Axiom qexp_qlog : forall q : quat, qexp (qlog q) = q.
-
-End qexp.
-
-(** ** Exponentiation of quaternion *)
-Section qpower.
-
-  (* 四元数被取幂，含义是：当 t 从 0 变换到 1 时，q^t 从 qone 变化到 q *)
-  (* 例如，若 q 表示绕 x 顺时针转 30度，则 q^2 表示绕 x 顺时针转 60度，q^{-1/3} 表示
-     绕 x 逆时针转 10度。在此语境下，qinv 与 q^{-1} 是一致的。*)
-
-  (* 另外，四元数使用最短弧表示角位移，无法表示多圈旋转。实际上四元数只捕获最终结果。
-     某些情况，我们关心旋转的总量，而不仅是最终结果（例如角速度）。
-     此时，四元数不是正确的工具，可使用指数映射，或轴角格式。*)
-  
-  Definition qpower' (q : quat) (t : R) : quat := qexp (t s* qlog q).
-
-  (* 理解 q^t 的插值（Interpolate）为什么会从qone到q。
-     对数运算实际上将四元数转换为指数映射格式（except因子2）。
-     当用 t s* q 时，效果是角度乘以 t，
-     当用 exp q 时，“撤销”对数运算所做的事，从指数矢量重新计算新的 w 和 v。 *)
-
-  (* 虽然 qpow 的公式是正式的数学定义，并在理论上很优雅，但直接转为代码则很复杂。
-     以下是如何在C语言中计算 q^t 的值，并没有按公式那样使用单个指数映射，而是
-     分别计算了轴和角。
-
-     // 要插值的四元数
-     float w, x, y, z;
-     // 指数
-     float exponent;
-     // 检查四元数，防止除零
-     if (fabs(w) < 0.9999f) {
-        // 提取半角 alpha = theta / 2
-        float alpha = acos (w);
-        // 计算新的 alpha 值
-        float newAlpha = alpha * exponent;
-        // 计算新的 w 值
-        w = cos (newAlpha);
-        // 计算新的xyz值
-        float mult = sin(newAlpha) / sin(alpha);
-        x *= mult;
-        y *= mult;
-        z *= mult;
-     }
-
-     注意，上述代码中，检查四元数单位元（即 [1 0 0 0] ）是必要的，因为 w = ±1 的值导致
-     alpha 为 0 或 π，sin(alpha) 得到0，将导致 mult 的除数为0。
-     由于四元素单位元的任何幂次还是它，所以忽略即可。
-     另外，计算 alpha 时，使用的是 acos 函数，它返回一个正角度，这没有问题。*)
-
-  Definition qpower (q : quat) (exponent : R) : quat :=
-    if (Rabs (q.X) <? 0.9999)
-    then
-      (let alpha : R := acos (q.W) in
-       let newAlpha : R := (alpha * exponent)%R in
-       let mult : R := (sin newAlpha) / (sin alpha) in
-       mkQ (cos newAlpha) (q.X * mult) (q.Y * mult) (q.Z * mult))
-    else q.
-  
-End qpower.
-
-
-(** ** Spherical Linear Interpolation 球面线性插值 *)
-Section qslerp.
-  (* 标准线性插值（Lerp, Linear Interpolation）公式：
-     lerp(q0,q1,t) = q0 + t * (q1 - q0)
-     三个步骤：
-     1. 计算差值 Δq = f(q0,q1)
-     2. 计算差值的一部分 q' = g(Δq,t)
-     3. 根据原始值和插值的这部分来调整 h(q0, q')
-   *)
-  
-  (* 四元数的存在还有一个理由，球面线性插值。它允许在两个朝向之间平滑插值。
-     Slerp避免了困扰欧拉角插值的所有问题。
-     函数 slerp(q0,q1,t) 将根据t从0到1的变化返回从 q0 到 q1 插值的朝向。
-     可以使用与线性插值相同的思路来推导 Slerp：
-     1. 计算 q0 到 q1 的角位移：Δq = q1 * q0\-1
-     2. 使用四元数指数，计算这个插值的一部分：(Δq)^t
-     3. 使用四元素乘法来调整初始值：(Δq)^t * q0
-     所以，理论上的四元数 Slerp 公式：slerp(q0,q1,t) = (q1 * q0\-1)^t * q0 *)
-
-  (* 在实践中，使用数学上等效，但计算上更有效的公式（不使用指数，而是另一个直接的公式）。
-     为推导这个替代公式，首先将四元数解释为存在于四维欧几里得空间中。
-     我们感兴趣的所有四元数都是单位四元数，所以它们位于四维超球面(Hypersphere)上。
-     基本思想是绕连接两个四元数的弧进行插值。这两个弧沿着四维超球面，所以
-     称为球面线性插值。*)
-
-  (* 实际的四元数Slerp公式：
-     slerp(q0,q1,t) = [sin(1-t)ω / sin ω] q0 + [sin tω / sin ω] q1
-     剩下的问题是，计算 ω (两个四元数之间的“角度”）。可将四元数点积视为返回的 cos ω。
-     
-     还有两个问题要考虑：
-     1. 四元数 q 和 -q 表示相同的方向，但在 slerp 时产生不同的结果。
-        该问题在2D和3D不会发生，而在4维超球面中。。。解决方案是选择 q0 和 q1 的符号，
-        使得点积非负。结果是始终选择从 q0 到 q1 的最短旋转弧。
-     2. 当 q0 和 q1 很接近时，ω很小，所以 sin ω 很小，可能导致除零问题。
-        此时，若 sin ω很小，则使用简单的线性插值。
-   *)
-
-  (** 将作者给出的C语言程序转换为Coq程序。*)
-
-  (* 计算四元数之间的“角度的余弦”，并处理符号问题 *)
-  Definition qslerp_cosOmega (q0 q1 : quat) : quat * quat * R :=
-    (* 使用点积计算两个四元数之间的“角度的余弦” *)
-    let cosOmega : R := (q0.W * q1.W + q0.X * q1.X + q0.Y * q1.Y + q0.Z * q1.Z)%R in
-    (* 若点积为负，则将其中一个输入的四元数变负，以取得最短四维“弧” *)
-    if (cosOmega <? 0)
-    then (q0, -q1, (-cosOmega)%R)
-    else (q0, q1, cosOmega).
-
-  (* 计算插值参数 k0,k1 *)
-  Definition qslerp_parameter (q0 q1 : quat) (cosOmega : R) (t : R) : R * R :=
-    (* 检查是否很接近，若是则使用线性插值，避免除零 *)
-    if (cosOmega >? 0.9999)
-    then (
-        let k0 : R := (1 - t)%R in
-        let k1 : R := t in
-        (k0, k1))
-    else (
-        (* 计算角度的正弦 *)
-        let sinOmega : R := sqrt (1 - cosOmega * cosOmega) in
-        (* 根据正弦和余弦计算角度 *)
-        let omega : R := atan2 sinOmega cosOmega in
-        (* 计算分母的倒数 *)
-        let oneOverSinOmega : R := 1 / sinOmega in
-        let k0 : R := (sin ((1 - t) * omega) * oneOverSinOmega)%R in
-        let k1 : R := (sin (t * omega) * oneOverSinOmega)%R in
-        (k0, k1)).
-  
-  Definition qslerp (q0 q1 : quat) (t : R) : quat :=
-    (* 计算角度的余弦 *)
-    let '(q0,q1,cosOmega) := qslerp_cosOmega q0 q1 in
-    (* 计算插值参数 *)
-    let '(k0, k1) := qslerp_parameter q0 q1 cosOmega t in
-    (* 插值 *)
-    let w := (q0.W * k0 + q1.W * k1)%R in
-    let x := (q0.X * k0 + q1.X * k1)%R in
-    let y := (q0.Y * k0 + q1.Y * k1)%R in
-    let z := (q0.Z * k0 + q1.Z * k1)%R in
-    mkQ w x y z.
-
-End qslerp.
+  (** 坐标系相继旋转q1和q2时，向量在就坐标系下的坐标v在新坐标系下为 *)
+  Lemma qrotAxis_twice : forall q1 q2 v,
+      qrotAxis q2 (qrotAxis q1 v) = qrotAxis (q1 * q2) v. 
+  Proof.
+    intros. unfold qrotAxis. rewrite qconj_qmul, !qmul_assoc; auto.
+  Qed.
+    
+End qrotAxis.
 
 
 (** ** 四元数与旋转矩阵 *)
@@ -1464,6 +1349,19 @@ Definition q2m (q : quat) : smat 3 :=
        [2*x*y+2*w*z; w^2-x^2+y^2-z^2; 2*y*z-2*w*x];
        [2*x*z-2*w*y; 2*y*z+2*w*x; w^2-x^2-y^2+z^2]]%R.
 
+(**            [1 0]
+    quint q -> [0 C] = qmatL (q\-1) * qmatR q, where C = q2m q *)
+Lemma q2m_eq : forall q,
+    let C := q2m q in
+    qunit q ->
+    mconsrH (vconsH 1 vzero) (mconscH vzero C) = (qmatL q * qmatR (q\-1))%M.
+Proof.
+  intros. rewrite qinv_eq_qconj; auto. destruct q. cbv in H.
+  assert ((W0 * W0 + X0 * X0 + Y0 * Y0 + Z0 * Z0)%R = 1) by ra.
+  meq. all: try lra.
+Qed.
+
+(** qrotv q v = (q2m q) * v *)
 Lemma q2m_spec : forall (q : quat) (v : vec 3),
     qunit q -> qrotv q v = ((q2m q) *v v)%M.
 Proof. intros. unfold qrotv,qrot. destruct q. v2e v. veq; ra. Qed.
@@ -1504,7 +1402,7 @@ Admitted.
 Lemma q2m_m2q_id : forall (M : smat 3), morth M -> q2m (m2q M) = M.
 Proof.
   intros.
-  v2e M. meq.
+  v2eALL M. meq.
   (* - ra. destruct Rle_Dec. *)
 Admitted.
 
@@ -1515,7 +1413,64 @@ Proof.
   - rewrite q2m_m2q_id; easy.
   - apply m2q_qunit; auto.
 Qed.
+
+(* 四元数与欧拉角
+   1. 可借助旋转矩阵实现：四元数 <=> 旋转矩阵 <=> 欧拉角
+   2. 也可直接推导
+ *)
+
+Section euler2quat.
+  Variable euler : vec 3.
+  Notation ϕ := (euler.1). Notation θ := (euler.2). Notation ψ := (euler.3).
+  Notation ϕ2 := (ϕ/2). Notation θ2 := (θ/2). Notation ψ2 := (ψ/2).
+  Notation cϕ2 := (cos ϕ2).  Notation sϕ2 := (sin ϕ2).
+  Notation cθ2 := (cos θ2).  Notation sθ2 := (sin θ2).
+  Notation cψ2 := (cos ψ2).  Notation sψ2 := (sin ψ2).
+
+  (* ZYX欧拉角到四元数 *)
+  Definition euler2quat : quat :=
+    mkQ
+      (cϕ2 * cθ2 * cψ2 + sϕ2 * sθ2 * sψ2)
+      (sϕ2 * cθ2 * cψ2 - cϕ2 * sθ2 * sψ2)
+      (cϕ2 * sθ2 * cψ2 + sϕ2 * cθ2 * sψ2)
+      (cϕ2 * cθ2 * sψ2 - sϕ2 * sθ2 * cψ2).
+
+  (* 分别绕三个坐标轴旋转所对应的四元数 *)
+  Let qx := aa2quat (mkAA ϕ v3i).
+  Let qy := aa2quat (mkAA θ v3j).
+  Let qz := aa2quat (mkAA ψ v3k).
+
+  (* ZYX欧拉角对应的四元数等于三次旋转的四元数乘积 *)
+  Lemma euler2quat_eq : euler2quat = qz * qy * qx.
+  Proof.
+    intros.
+    remember (euler #0). remember (euler #1). remember (euler #2).
+    v2e euler. subst. cbv in qx,qy,qz. unfold qx,qy,qz.
+    unfold euler2quat. subst. cbv. f_equal; ra.
+  Qed.
   
+  (* ZYX欧拉角对应的四元数的旋转效果等价于三次相继旋转 *)
+  Lemma euler2quat_spec : forall v, qrot euler2quat v = qrot qz (qrot qy (qrot qx v)).
+  Proof. intros. rewrite !qrot_twice. rewrite euler2quat_eq. auto. Qed.
+End euler2quat.
+
+Section quat2euler.
+  Variable q : quat.
+  Notation q0 := (q.W). Notation q1 := (q.X).
+  Notation q2 := (q.Y). Notation q3 := (q.Z).
+
+  (* 当 ϕ∈[-π,π], θ∈[-π/2,π/2], ψ∈[-π,π] 时，四元数q对应的欧拉角如下 *)
+  Definition quat2euler : vec 3 :=
+    let phi := atan ((2 * (q0 * q1 + q2 * q3)) / (1 - 2 * (q1² + q2²))) in
+    let theta := asin (2 * (q0 * q2 - q1 * q3)) in
+    let psi := atan ((2 * (q0 * q3 + q1 * q2)) / (1 - 2 * (q2² + q3²))) in
+    l2v [phi; theta; psi].
+
+  (* ToDo: spec *)
+
+  (* ToDo: 当θ=±π/2时的情形 *)
+  
+End quat2euler.
 
 (* Extract Constant Rabst => "__". *)
 (* Extract Constant Rrepr => "__". *)
@@ -1529,3 +1484,4 @@ Qed.
 (* Extraction "quat.ml" mk_mat_3_1. (* Why so many warning? *) *)
 (* Recursive Extraction mkQ mkQ quat_of_t4 qmul qconj qinv qlen rot_by_quat. *)
 (* Extraction "quat.ml" mkQ mkQ quat_of_t4 qmul qconj qinv. qlen rot_by_quat. *)
+

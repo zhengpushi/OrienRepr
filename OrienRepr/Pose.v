@@ -8,7 +8,7 @@
   date      : 2024.06.12
 
   reference :
-  1. 机器人学：建模、控制与视觉
+  1. 《机器人学：建模、控制与视觉》，华中科技大学，熊有伦
 
   remark    :
   1. 将“点的坐标”、“姿态”、“位姿”设计成了依赖类型，依赖于坐标系，从而避免一部分错误。
@@ -20,12 +20,19 @@
      用户完全有可能写错，需要使用电路分析中的原理来加以验证。
   3. 此处对坐标、姿态、位姿等概念使用依赖类型，有一定的作用。
      而且，在一般的上下文中，这些概念对应的值是唯一的，所以更加有用。
+  4. 一个重要的结论
+     坐标系{B}相对于{A}的姿态 R_B2A，可以分解为三次简单的变换，但有两种不同的理解方式：
+     (1) 运动是相对于固定参考系而言的，则变换矩阵的乘积顺序从右至左
+     (2) 运动是相对于运动坐标系而言的，则变换矩阵的乘积顺序从左至右
+     这二者的结果是相同的。
+     例如，{B}分别绕自身z轴，y轴，x轴旋转，则 R = Rz * Ry * Rx (这是从左至右的乘)
+     还可以理解为 {B}分别绕{A}的x轴，y轴，z轴旋转，则 R = Rz * Ry * Rx (这是从右至左的乘)
  *)
 
 
-Require Import AxisAngle.
-Require Import EulerAngle.
-(* Require Import Quaternion. *)
+Require Export AxisAngle.
+Require Export EulerAngle.
+Require Export Quaternion.
 Require Export RotationMatrix3D.
 
 Local Notation "a .x" := (a.1) (at level 25) : vec_scope.
@@ -682,7 +689,7 @@ Section RPY.
   Notation sβ := (sin β). Notation cβ := (cos β).
   Notation sγ := (sin γ). Notation cγ := (cos γ).
 
-  (* 记作 Space-x-y-z（注意，需要从右到左的作用，即 Rz*Ry*Rz) *)
+  (* 记作 Space-x-y-z（注意，需要从右到左的作用，即 Rz*Ry*Rx) *)
   Let Sxyz : smat 3 :=
         l2m [[cα * cβ; cα * sβ * sγ - sα * cγ; cα * sβ * cγ + sα * sγ];
              [sα * cβ; sα * sβ * sγ + cα * cγ; sα * sβ * cγ - cα * sγ];

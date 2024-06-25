@@ -16,6 +16,7 @@ OrienRepr/RotationMatrix3D.v
 OrienRepr/EulerAngle.v
 OrienRepr/Orien3D.v
 OrienRepr/Quaternion.v
+OrienRepr/QuaternionAdvanced.v
 OrienRepr/Pose2D.v
 OrienRepr/Pose3D.v
 OrienRepr/Pose.v

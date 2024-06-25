@@ -402,6 +402,48 @@ Section EulerAngle24.
 
 End EulerAngle24.
 
+(** Because the relativity, the 24 ways are actually only 12 ways.
+    B123 = S321, B132 = S231, B213 = S312, B231 = S132, B312 = S213, B321 = S123,
+    B121 = S121, B131 = S131, B212 = S212, B232 = S232, B313 = S313, B323 = S323 *)
+Section EulerAngle24_only_half.
+  Variable a1 a2 a3 : R.
+
+  Lemma B123_eq_S321 : B123 a1 a2 a3 = S321 a3 a2 a1.
+  Proof. meq; ring. Qed.
+  
+  Lemma B132_eq_S231 : B132 a1 a3 a2 = S231 a2 a3 a1.
+  Proof. meq; ring. Qed.
+  
+  Lemma B213_eq_S312 : B213 a2 a1 a3 = S312 a3 a1 a2.
+  Proof. meq; ring. Qed.
+  
+  Lemma B231_eq_S132 : B231 a2 a3 a1 = S132 a1 a3 a2.
+  Proof. meq; ring. Qed.
+
+  Lemma B312_eq_S213 : B312 a3 a1 a2 = S213 a2 a1 a3.
+  Proof. meq; ring. Qed.
+
+  Lemma B321_eq_S123 : B321 a3 a2 a1 = S123 a1 a2 a3.
+  Proof. meq; ring. Qed.
+
+  Lemma B121_eq_S121 : B121 a1 a2 a1 = S121 a1 a2 a1.
+  Proof. meq; ring. Qed.
+
+  Lemma B131_eq_S131 : B131 a1 a3 a1 = S131 a1 a3 a1.
+  Proof. meq; ring. Qed.
+
+  Lemma B212_eq_S212 : B212 a2 a1 a2 = S212 a2 a1 a2.
+  Proof. meq; ring. Qed.
+
+  Lemma B232_eq_S232 : B232 a2 a3 a2 = S232 a2 a3 a2.
+  Proof. meq; ring. Qed.
+
+  Lemma B313_eq_S313 : B313 a3 a1 a3 = S313 a3 a1 a3.
+  Proof. meq; ring. Qed.
+
+  Lemma B323_eq_S323 : B323 a3 a2 a3 = S323 a3 a2 a3.
+  Proof. meq; ring. Qed.
+End EulerAngle24_only_half.
 
 (** Convert Rotation Matrix to Euler angles *)
 Module R2Euler.
