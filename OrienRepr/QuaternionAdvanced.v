@@ -16,7 +16,7 @@ Require Export Quaternion.
 Section qdot.
 
   Definition qdot (q1 q2 : quat) : quat :=
-    mkQ (q1.W * q1.W) (q1.X * q2.X) (q1.Y * q2.Y) (q1.Z * q2.Z).
+    l2v [q1.W * q1.W; q1.X * q2.X; q1.Y * q2.Y; q1.Z * q2.Z]%R.
   
 End qdot.
 
@@ -101,7 +101,7 @@ Section qpower.
       (let alpha : R := acos (q.W) in
        let newAlpha : R := (alpha * exponent)%R in
        let mult : R := (sin newAlpha) / (sin alpha) in
-       mkQ (cos newAlpha) (q.X * mult) (q.Y * mult) (q.Z * mult))
+       l2v [cos newAlpha; q.X * mult; q.Y * mult; q.Z * mult]%R)
     else q.
   
 End qpower.
@@ -180,11 +180,10 @@ Section qslerp.
     (* 计算插值参数 *)
     let '(k0, k1) := qslerp_parameter q0 q1 cosOmega t in
     (* 插值 *)
-    let w := (q0.W * k0 + q1.W * k1)%R in
-    let x := (q0.X * k0 + q1.X * k1)%R in
-    let y := (q0.Y * k0 + q1.Y * k1)%R in
-    let z := (q0.Z * k0 + q1.Z * k1)%R in
-    mkQ w x y z.
+    l2v [q0.W * k0 + q1.W * k1;
+         q0.X * k0 + q1.X * k1;
+         q0.Y * k0 + q1.Y * k1;
+         q0.Z * k0 + q1.Z * k1]%R.
 
 End qslerp.
 
