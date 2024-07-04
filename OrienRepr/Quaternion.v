@@ -1288,8 +1288,10 @@ Section qrotAxis.
 End qrotAxis.
 
 
-(** ** 四元数与旋转矩阵 *)
+(** ** Unit quaternions and rotation matrices 单位四元数和旋转矩阵 *)
 
+(** Convert a quaternion q_e2b (from {e} to {b}) to rotation matrix R_b2e ({b} to {e})
+    将{e}到{b}的旋转四元数q_e2b 转换为{b}相对于{e}的旋转矩阵 R_b2e *)
 Definition q2m (q : quat) : smat 3 :=
   let '(w,x,y,z) := (q.1,q.2,q.3,q.4) in
   l2m [[w^2+x^2-y^2-z^2; 2*x*y-2*w*z; 2*x*z+2*w*y];
@@ -1315,7 +1317,8 @@ Proof. intros. unfold qrotv,qrot. q2e q. v2e v. veq; ra. Qed.
 (* A special sign function *)
 Definition Rsign (r : R) : R := if r >=? 0 then 1 else (-1).
 
-(** One rotation matrix corresponds to two quaternions, namely q, -q *)
+(** Convert a rotation matrix to unit quaternion *)
+(* Note: one rotation matrix corresponds to two quaternions, namely q, -q *)
 Definition m2q (M : smat 3) : quat :=
   (let sign0 : R := 1 in
    let sign1 : R := sign0 * (Rsign (M.32 - M.23)) in
@@ -1326,30 +1329,57 @@ Definition m2q (M : smat 3) : quat :=
         sign2 * (1/2) * sqrt (1 - M.11 + M.22 - M.33);
         sign3 * (1/2) * sqrt (1 - M.11 - M.22 + M.33)])%R.
 
+(** morth M -> qunit (m2q M) *)
 Lemma m2q_qunit : forall (M : smat 3), morth M -> qunit (m2q M).
 Proof.
   intros.
+  (* use "morth M" to get useful results *)
   apply morth_iff_mrowsOrthonormal in H.
   hnf in H. destruct H as [H1 H2]. hnf in H1,H2.
   assert (@nat2finS 2 0 <> #1) as H01 by fin.
   assert (@nat2finS 2 0 <> #2) as H02 by fin.
   assert (@nat2finS 2 1 <> #2) as H12 by fin.
-  pose proof (H1 #0 #1 H01).
-  pose proof (H1 #0 #2 H02).
-  pose proof (H1 #1 #2 H12).
+  pose proof (H1 #0 #1 H01). pose proof (H1 #0 #2 H02). pose proof (H1 #1 #2 H12).
   pose proof (H2 #0). pose proof (H2 #1). pose proof (H2 #2).
-  clear H1 H2. v2eALL M. cbv in *. apply sqrt_eq1_if_eq1. field_simplify. ra.
-  (* destruct Rle_Dec. *)
-  (* repeat destruct dec. *)
-  (* I cann't prove it now *)
+  clear H1 H2 H01 H02 H12.
+  v2eALL M.
+  (* we will make a manual naming *)
+  rename a0 into a11. rename a4 into a12. rename a5 into a13.
+  rename a1 into a21. rename a6 into a22. rename a7 into a23.
+  rename a2 into a31. rename a8 into a32. rename a9 into a33.
+  cbv in *.
+  (* begin to proof *)
+  apply sqrt_eq1_if_eq1. field_simplify. autorewrite with R in *.
+  rewrite !Rsqr_sqrt. autoRbool; ra.
+  (* four inequalities:
+     1 - a11 - a22 + a33 >= 0
+     1 - a11 + a22 - a33 >= 0
+     1 + a11 - a22 - a33 >= 0
+     1 + a11 + a22 + a33 >= 0 *)
+  (* ToDo: I cannot prove these goals now *)
 Admitted.
 
-(** 此处应该有两个值，该引理暂无法证明 *)
+(* 此处应该有两个值，该引理暂无法证明 *)
 Lemma q2m_m2q_id : forall (M : smat 3), morth M -> q2m (m2q M) = M.
 Proof.
   intros.
-  v2eALL M. meq.
-  (* - ra. destruct Rle_Dec. *)
+  v2eALL M.
+  (* we will make a manual naming *)
+  rename a0 into a11. rename a4 into a12. rename a5 into a13.
+  rename a1 into a21. rename a6 into a22. rename a7 into a23.
+  rename a2 into a31. rename a8 into a32. rename a9 into a33.
+  meq.
+  all: ring_simplify; try rewrite !pow2_sqrt.
+  all: autoRbool; try lra.
+  (* let's check goal 5 *)
+  5:{
+    ra. cbv. field_simplify_eq.
+    replace (R1 + a11 + - a22 + - a33)%R with ((1 - a33) + (a11 - a22))%R by ring.
+    replace (R1 + - a11 + a22 + - a33)%R with ((1 - a33) - (a11 - a22))%R by ring.
+    replace (R1 + a11 + a22 + a33)%R with ((1 + a33) + (a11 + a22))%R by ring.
+    replace (R1 + - a11 +  -a22 + a33)%R with ((1 + a33) - (a11 + a22))%R by ring.
+    rewrite !Rmult_assoc. rewrite <- !sqrt_mult_alt.
+  (* ToDo: I cannot prove these goals now *)
 Admitted.
 
 Lemma m2q_spec : forall (M : smat 3) (v : vec 3),
