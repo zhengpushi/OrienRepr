@@ -22,7 +22,8 @@
      Here, we only focus on mostly used convension, ZYX euler angles.
      That is, intrinsic rotation by z-, y, and x-axis.
      This is equal to extrinsic rotation by x-, y-, and z-axis.
-     The rotation matrix are 
+     The rotation matrix is a multiplication of basic rotation matrices by 
+     reversed order. That is:
          R(ϕ,θ,ψ) = Rz(ψ) * Ry(θ) * Rx(ϕ)
  *)
 
@@ -63,7 +64,7 @@ Module xyzRPY_eq_zyxEULER.
        3. P2 绕 E 的 z 轴旋转 angz 得到目标点 P' 的坐标 p' = Rz(angy) * p2 
           于是 
                p' = Rz*Ry*Rx * p
-          换言之，按xyz外旋时，新的坐标相对于初始坐标应用了变换 Rz*Ry*Rx *)
+          换言之，按xyz外旋时，新的坐标相对于初始坐标应用了变换 Rz*Ry*Rx，是从右往左 *)
     Variable angx angy angz : R.
     Let p1 := Rx angx *v p.
     Let p2 := Ry angy *v p1.
@@ -99,7 +100,7 @@ Module xyzRPY_eq_zyxEULER.
                 =Rz*Ry*Rx*Ry\T*Rz\T*(Rz*Ry*p)
                 =Rz*Ry*Rx*p
                 =p'
-          换言之，按zyx内旋时，新的坐标相对于初始坐标应用了变换 Rz*Ry*Rx *)
+          换言之，按zyx内旋时，新的坐标相对于初始坐标应用了变换 Rz*Ry*Rx，是从左往右 *)
     Variable angx angy angz : R.
     Let q1 := Rz angz *v p.
     Let q2 := Rz angz *v Ry angy *v ((Rz angz)\-1) *v q1.
