@@ -16,6 +16,7 @@
      Kane's Method. page22, page484.
   6. James Diebel, Representing Attitude: Euler Angles, Unit Quaternions, and 
      Rotation Vectors.
+  7. https://petercorke.com/robotics/roll-pitch-yaw-angles/
 
   remark    :
 
@@ -92,7 +93,35 @@
   (1). 小角度变化经常被用来近似描述系统的动态特性，此时系统的响应可通过线性模型来预测和控制。
   (2). 角度变化很小(通常认为10度以内)时，可线性化处理，
      sin(α)->α, cos(α)->1, 高阶项sin(α)*sin(β)->0
-*)
+
+  4. 再次理解欧拉角和Roll-Pitch-Yaw角
+     参考：https://petercorke.com/robotics/roll-pitch-yaw-angles/
+     Euler angles vs roll-pitch-yaw angels
+     * 这里没有明确的对错，作者使用不精确的语言，并将特定领域的惯例视为严格的定义。
+     * 让我们回到基础知识。欧拉旋转定理（自 1775 年）指出，
+       一个 3D 坐标系相对于另一个 3D 坐标系的方向可以通过“绕三个轴连续旋转，使得
+       没有两个连续旋转绕同一轴”来描述。  然而，围绕三个轴的旋转有十二种不同的排列
+       满足欧拉的标准：XYX、XYZ、XZX、XZY、YXY、YXZ、YZX、YZY、ZXY、ZXZ、ZYX、ZYZ。
+     * 我们可以将这十二种排列分为两组，每组六种：
+       Eulerian (在Euler之后) 涉及到旋转轴的不连续的重复：XYX、XZX、YXY、YZY、ZXZ 或 ZYZ。
+       Cardanian（在Cardano之后，也称 Tait-Bryan 角）涉及绕所有三个轴的旋转：XYZ、XZY、YZX、YXZ、ZXY 或 ZYX。
+     * 在一些参考文献中，所有十二个序列都被称为欧拉角，但在这里我们将仅将上面的欧拉序列视为欧拉角。
+       有六种不同的序列可供选择，特定的角度序列是特定技术领域内的惯例。 
+       在航空航天中，欧拉角的约定是 ZYZ，其中相应的旋转矩阵是 R(ϕ,θ,ψ)=Rz(ϕ)Ry(θ)Rz(ψ)
+     * The Cardanian angles也称为roll,pitch and yaw angles (滚动角、俯仰角和偏航角)。
+       令人困惑的是，常用的有两个不同的版本：序列 XYZ 和 ZYX。教科书在这个问题上根本不一致。
+       如果存在任何不一致的模式，那就是移动机器人社区（无人机、地面车辆）使用 ZYX，而机器人操纵器社区使用 XYZ。
+     * 为什么会这样？ 当描述船舶、飞机和汽车等交通工具的姿态时，惯例是 x 轴指向前方，z 轴
+       指向上方或下方。这意味着根据叉积规则，y 轴必须指向侧面。
+       想象一下试图描述一架飞机的姿态。  
+       我们的参考姿态是飞机位于水平面上，机头指向世界坐标系x轴方向。  
+       我们要做的第一件事是将机头指向正确的罗盘航向，即在 xy 平面内并绕世界 z 轴旋转。
+       接下来我们将描述俯仰角，即正面相对于水平面的高度，它是绕新 y 轴的旋转。
+       最后，我们描述滚转，即绕车辆前轴的旋转，即绕新的 x 轴的旋转。  
+       这导致 ZYX 角度序列，其中旋转矩阵由下式给出 R(r,p,y)=Rz(y)Ry(p)Rx(r)
+     * 当描述机器人夹具的姿态时，如图2.16所示，约定是z轴指向前方，x轴指向上方或下方。
+       这导致 XYZ 角度序列 R(r,p,y)=Rx(y)Ry(p)Rz(r)
+ *)
 
 Require Export MathBase.
 Require Export AxisAngle.
@@ -445,167 +474,141 @@ Section EulerAngle24_only_half.
   Proof. meq; ring. Qed.
 End EulerAngle24_only_half.
 
-(** Convert Rotation Matrix to Euler angles *)
-Module R2Euler.
+(** Convert Rotation Matrix to Euler angles by S123 *)
+Module R2Euler_S123.
 
   Open Scope R.
   
-  (** 1. Body-three, 123 *)
-  Module B123.
+  (** 奇异性问题的存在性 *)
+  Section singularity.
 
-    (** 奇异性问题的存在性 *)
-    Section singularity.
+    (** Claim: If θ = kπ+π/2, then we can not uniquely determine ϕ and ψ. *)
 
-      (** Claim: If θ = kπ+π/2, then we can not uniquely determine ϕ and ψ. *)
+    (* Let's prove some simpler goals first. *)
+    
+    (** If θ = π/2, then the rotation matrix has following form. *)
+    Lemma S123_θ_eq_pi2 : forall (ϕ θ ψ : R),
+        θ = PI/2 ->
+        S123 ϕ θ ψ =
+          l2m [[0; - sin (ψ - ϕ); cos (ψ - ϕ)];
+               [0; cos (ψ - ϕ); sin (ψ - ϕ)];
+               [-1; 0; 0]].
+    Proof.
+      intros; rewrite H. pose proof cos_PI2. pose proof sin_PI2. cbv in H0, H1.
+      meq. all: try ra.
+    Qed.
 
-      (* Let's prove some simpler goals first. *)
-      
-      (** If θ = π/2, then the rotation matrix has following form. *)
-      Lemma B123_θ_eq_pi2 : forall (ϕ θ ψ : R),
-          θ = PI/2 ->
-          B123 ϕ θ ψ =
-            l2m [[0; 0; 1];
-                 [sin (ϕ + ψ); cos (ϕ + ψ); 0];
-                 [- cos (ϕ + ψ); sin (ϕ + ψ); 0]].
-      Proof.
-        intros; rewrite H.
-        pose proof cos_PI2. pose proof sin_PI2. cbv in H0, H1. meq; ra.
-      Qed.
+    (** If θ = -π/2, then the rotation matrix has following form. *)
+    Lemma S123_θ_eq_pi2_neg : forall (ϕ θ ψ : R),
+        θ = -PI/2 ->
+        S123 ϕ θ ψ =
+          l2m [[0; - sin (ψ + ϕ); - cos (ψ + ϕ)];
+               [0; cos (ψ + ϕ); - sin (ψ + ϕ)];
+               [1; 0; 0]].
+    Proof.
+      intros; rewrite H. pose proof cos_PI2. pose proof sin_PI2. cbv in H0, H1.
+      meq. all: try ra.
+    Qed.
 
-      (** If θ = -π/2, then the rotation matrix has following form. *)
-      Lemma B123_θ_eq_pi2_neg : forall (ϕ θ ψ : R),
-          θ = -PI/2 ->
-          B123 ϕ θ ψ =
-            l2m [[0; 0; -1];
-                 [sin (ψ - ϕ); cos (ψ - ϕ); 0];
-                 [cos (ψ - ϕ); - sin (ψ - ϕ); 0]].
-      Proof.
-        intros; rewrite H.
-        pose proof cos_PI2. pose proof sin_PI2. cbv in H0, H1. meq; ra.
-      Qed.
+    (** If θ = π/2, then there are infinite ϕ can generate a same matrix. *)
+    Lemma S123_singularity_ϕ_when_θ_eq_pi2 : forall (ϕ θ ψ : R),
+        θ = PI/2 -> forall ϕ', (exists ψ', S123 ϕ' θ ψ' = S123 ϕ θ ψ).
+    Proof.
+      intros. eexists. rewrite !S123_θ_eq_pi2; auto.
+      instantiate (1:=ψ - ϕ + ϕ'). repeat (f_equal; try lra).
+    Qed.
+    
+    (** If θ = -π/2, then there are infinite ϕ can generate a same matrix. *)
+    Lemma S123_singularity_ϕ_when_θ_eq_pi2_neg : forall (ϕ θ ψ : R),
+        θ = -PI/2 -> forall ϕ', (exists ψ', S123 ϕ' θ ψ' = S123 ϕ θ ψ).
+    Proof.
+      intros. eexists. rewrite !S123_θ_eq_pi2_neg; auto.
+      instantiate (1:=ψ + ϕ - ϕ'). repeat (f_equal; try lra).
+    Qed.
 
-      (** If θ = π/2, then there are infinite ϕ can generate a same matrix. *)
-      Lemma B123_singularity_ϕ_when_θ_eq_pi2 : forall (ϕ θ ψ : R),
-        θ = PI/2 -> forall ϕ', (exists ψ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
-      Proof.
-        intros. eexists. rewrite !B123_θ_eq_pi2; auto.
-        meq; ra. instantiate (1:=ψ + ϕ - ϕ'); ra.
-        all: ra; ring_simplify; ra; rewrite sin2; ra.
-      Qed.
-      
-      (** If θ = -π/2, then there are infinite ϕ can generate a same matrix. *)
-      Lemma B123_singularity_ϕ_when_θ_eq_pi2_neg : forall (ϕ θ ψ : R),
-        θ = -PI/2 -> forall ϕ', (exists ψ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
-      Proof.
-        intros. eexists. rewrite !B123_θ_eq_pi2_neg; auto.
-        meq; ra. instantiate (1:=ψ - ϕ + ϕ').
-        all: ra; ring_simplify; ra; rewrite sin2; ra.
-      Qed.
+    (** If θ = ±π/2, then there are infinite ϕ can generate a same matrix. *)
+    Theorem S123_singularity_ϕ : forall (ϕ θ ψ : R),
+        (θ = PI/2 \/ θ = -PI/2) -> forall ϕ', (exists ψ', S123 ϕ' θ ψ' = S123 ϕ θ ψ).
+    Proof.
+      intros. destruct H.
+      apply S123_singularity_ϕ_when_θ_eq_pi2; auto.
+      apply S123_singularity_ϕ_when_θ_eq_pi2_neg; auto.
+    Qed.
 
-      (** If θ = ±π/2, then there are infinite ϕ can generate a same matrix. *)
-      Theorem B123_singularity_ϕ : forall (ϕ θ ψ : R),
-        (θ = PI/2 \/ θ = -PI/2) -> forall ϕ', (exists ψ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
-      Proof.
-        intros. destruct H.
-        apply B123_singularity_ϕ_when_θ_eq_pi2; auto.
-        apply B123_singularity_ϕ_when_θ_eq_pi2_neg; auto.
-      Qed.
+    (** If θ = π/2, then there are infinite ψ can generate a same matrix. *)
+    Lemma S123_singularity_ψ_when_θ_eq_pi2 : forall (ϕ θ ψ : R),
+        θ = PI/2 -> forall ψ', (exists ϕ', S123 ϕ' θ ψ' = S123 ϕ θ ψ).
+    Proof.
+      intros. eexists. rewrite !S123_θ_eq_pi2; auto.
+      instantiate (1:=ψ' - ψ + ϕ). repeat (f_equal; try lra).
+    Qed.
+    
+    (** If θ = -π/2, then there are infinite ψ can generate a same matrix. *)
+    Lemma S123_singularity_ψ_when_θ_eq_pi2_neg : forall (ϕ θ ψ : R),
+        θ = -PI/2 -> forall ψ', (exists ϕ', S123 ϕ' θ ψ' = S123 ϕ θ ψ).
+    Proof.
+      intros. eexists. rewrite !S123_θ_eq_pi2_neg; auto.
+      instantiate (1:=ψ + ϕ - ψ'). repeat (f_equal; try lra).
+    Qed.
 
-      (** If θ = π/2, then there are infinite ψ can generate a same matrix. *)
-      Lemma B123_singularity_ψ_when_θ_eq_pi2 : forall (ϕ θ ψ : R),
-        θ = PI/2 -> forall ψ', (exists ϕ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
-      Proof.
-        intros. eexists. rewrite !B123_θ_eq_pi2; auto.
-        meq; ra. instantiate (1:=ψ + ϕ - ψ').
-        all: ra; ring_simplify; ra; rewrite sin2; ra.
-      Qed.
-                
-      (** If θ = -π/2, then there are infinite ψ can generate a same matrix. *)
-      Lemma B123_singularity_ψ_when_θ_eq_pi2_neg : forall (ϕ θ ψ : R),
-        θ = -PI/2 -> forall ψ', (exists ϕ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
-      Proof.
-        intros. eexists. rewrite !B123_θ_eq_pi2_neg; auto.
-        meq; ra. instantiate (1:=-ψ + ϕ + ψ').
-        all: ra; ring_simplify; ra; rewrite sin2; ra.
-      Qed.
+    (** If θ = ±π/2, then there are infinite ψ can generate a same matrix. *)
+    Theorem S123_singularity_ψ : forall (ϕ θ ψ : R),
+        (θ = PI/2 \/ θ = -PI/2) -> forall ψ', (exists ϕ', S123 ϕ' θ ψ' = S123 ϕ θ ψ).
+    Proof.
+      intros. destruct H.
+      apply S123_singularity_ψ_when_θ_eq_pi2; auto.
+      apply S123_singularity_ψ_when_θ_eq_pi2_neg; auto.
+    Qed.
+  End singularity.
 
-      (** If θ = ±π/2, then there are infinite ψ can generate a same matrix. *)
-      Theorem B123_singularity_ψ : forall (ϕ θ ψ : R),
-        (θ = PI/2 \/ θ = -PI/2) -> forall ψ', (exists ϕ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
-      Proof.
-        intros. destruct H.
-        apply B123_singularity_ψ_when_θ_eq_pi2; auto.
-        apply B123_singularity_ψ_when_θ_eq_pi2_neg; auto.
-      Qed.
-    End singularity.
+  (* 算法1：避开奇异点，小机动范围，即 roll,pitch,yaw ∈ (-π/2,π/2) *)
+  Module alg1.
+    Definition ϕ' (C : smat 3) := atan (C.32 / C.33).
+    Definition θ' (C : smat 3) := asin (-C.31).
+    Definition ψ' (C : smat 3) := atan (C.21 / C.11).
+    
+    Theorem alg_spec : forall (ϕ θ ψ : R) (C : smat 3),
+        -PI/2 < ϕ < PI/2 ->
+        -PI/2 < θ < PI/2 ->
+        -PI/2 < ψ < PI/2 ->
+        C = S123 ϕ θ ψ ->
+        ϕ' C = ϕ /\ θ' C = θ /\ ψ' C = ψ.
+    Proof.
+      intros. v2eALL C.
+      apply Vector.v3eq_iff in H2. destruct H2,H3.
+      apply Vector.v3eq_iff in H2,H3,H4. cbv in H2,H3,H4.
+      cbv. logic.
+      - rewrite H5,H6. ra. rewrite atan_tan; auto.
+      - rewrite H4. ra. rewrite asin_sin; ra.
+      - rewrite H3,H2. ra. rewrite atan_tan; ra.
+    Qed.
+  End alg1.
 
-    (* 算法1：避开奇异点，小机动范围，即 roll,pitch,yaw ∈ (-π/2,π/2) *)
-    Module alg1.
-      Definition ϕ' (C : smat 3) := atan (- C.23 / C.33).
-      Definition θ' (C : smat 3) := asin (C.13).
-      Definition ψ' (C : smat 3) := atan (- C.12 / C.11).
+  (* 算法2：避开奇异点，大机动范围，即 pitch ∈ (-π/2,π/2), roll,yaw ∈ (-π,π) *)
+  Module alg2.
+    Definition ϕ' (C : smat 3) := atan2 (C.32) (C.33).
+    Definition θ' (C : smat 3) := asin (- C.31).
+    Definition ψ' (C : smat 3) := atan2 (C.21) (C.11).
 
-Ltac v2e a :=
-  let a1 := fresh "a1" in
-  let a2 := fresh "a2" in
-  let a3 := fresh "a3" in
-  let a4 := fresh "a4" in
-  let Ha := fresh "Ha" in
-  match type of a with
-  | Vector.vec 2 =>
-      destruct (veq_exist_2 a) as (a1, (a2, Ha)); rewrite Ha; try clear a Ha;
-       try (v2e a1; v2e a2)
-  | Vector.vec 3 =>
-      destruct (veq_exist_3 a) as (a1, (a2, (a3, Ha))); rewrite Ha;
-      try clear a Ha;
-       try (v2e a1; v2e a2; v2e a3)
-  | Vector.vec 4 =>
-      destruct (veq_exist_4 a) as (a1, (a2, (a3, (a4, Ha)))); rewrite Ha; try clear a Ha;
-       try (v2e a1; v2e a2; v2e a3; v2e a4)
-  end.
-      
-      Theorem alg_spec : forall (ϕ θ ψ : R) (C : smat 3),
-          -PI/2 < ϕ < PI/2 ->
-          -PI/2 < θ < PI/2 ->
-          -PI/2 < ψ < PI/2 ->
-          C = B123 ϕ θ ψ ->
-          ϕ' C = ϕ /\ θ' C = θ /\ ψ' C = ψ.
-      Proof.
-        intros.
-        v2e C. rewrite Ha in *. apply Vector.v3eq_iff in H2. destruct H2,H3.
-        apply Vector.v3eq_iff in H2,H3,H4. rewrite Ha0, Ha1,Ha2 in *. cbv in H2,H3,H4.
-        cbv. logic.
-        - rewrite H8,H6. ra. rewrite atan_tan; auto.
-        - rewrite H10. rewrite asin_sin; ra.
-        - rewrite H9,H2. ra. rewrite atan_tan; ra.
-      Qed.
-    End alg1.
-
-    (* 算法2：避开奇异点，大机动范围，即 pitch ∈ (-π/2,π/2), roll,yaw ∈ (-π,π) *)
-    Module alg2.
-      Definition ϕ' (C : smat 3) := atan2 (- C.23) (C.33).
-      Definition θ' (C : smat 3) := asin (C.13).
-      Definition ψ' (C : smat 3) := atan2 (- C.12) (C.11).
-
-      Theorem alg_spec : forall (ϕ θ ψ : R) (C : smat 3),
-          -PI < ϕ < PI ->
-          -PI/2 < θ < PI/2 ->
-          -PI < ψ < PI ->
-          C = B123 ϕ θ ψ ->
-          ϕ' C = ϕ /\ θ' C = θ /\ ψ' C = ψ.
-      Proof.
-        intros. cbv. rewrite !H2; auto. cbv; ra.
-        assert (0 < cos θ). { apply cos_gt_0; try lra. }
-        repeat split.
-        - rewrite atan2_sin_cos_eq1; auto. lra.
-        - rewrite asin_sin; ra.
-        - rewrite !(Rmult_comm (cos θ)). rewrite atan2_sin_cos_eq1; auto. lra.
-      Qed.
-    End alg2.
-      
-    (* 算法3：保留奇异点，完整的机动范围，即 roll,pitch,yaw ∈ [-π,π] *)
-    Module alg3.
-      (* 该算法来自于 QQ's book, page94.
+    Theorem alg_spec : forall (ϕ θ ψ : R) (C : smat 3),
+        -PI < ϕ < PI ->
+        -PI/2 < θ < PI/2 ->
+        -PI < ψ < PI ->
+        C = S123 ϕ θ ψ ->
+        ϕ' C = ϕ /\ θ' C = θ /\ ψ' C = ψ.
+    Proof.
+      intros. cbv. rewrite !H2; auto. cbv; ra.
+      assert (0 < cos θ). { apply cos_gt_0; try lra. }
+      repeat split.
+      - rewrite atan2_sin_cos_eq1; auto. lra.
+      - rewrite asin_sin; ra.
+      - rewrite !(Rmult_comm (cos θ)). rewrite atan2_sin_cos_eq1; auto. lra.
+    Qed.
+  End alg2.
+  
+  (* 算法3：保留奇异点，完整的机动范围，即 roll,pitch,yaw ∈ [-π,π] *)
+  Module alg3.
+    (* 该算法来自于 QQ's book, page94.
          1. 当θ=±π/2时(此时 r11=r21=0)，ϕ和ψ不唯一，可以人为规定 ϕ = 0
          2. 当ϕ,ψ为边界时，即当 r11=r33=1, r21=r31=r32=0, 有两种可能
             (ϕ,θ,ψ) = (0,0,0);(π,π,π)，此时根据与上次的值相近的结果
@@ -617,91 +620,223 @@ Ltac v2e a :=
 
          思考"步骤3"的原理：
          1. 为何旋转矩阵之差异矩阵的范数最小时对应了所需的欧拉角？
-       *)
+     *)
+    
+    (** sign of a real number *)
+    Definition Rsign (r : R) : R := if r <? 0 then -1 else 1.
+    
+    Section sec.
+      (* Let's have a rotation matrix *)
+      Variable C : smat 3.
+
+      (* (5.13) When r11=r21=0, this is the answer *)
+      Definition case1_cond : bool := (C.11 =? 0) && (C.21 =? 0).
+
+      (* ϕ, θ, ψ = v.1, v.2, v.3 *)
+      Definition case1_values : vec 3 :=
+        l2v [0; (Rsign (-C.31)) * (PI / 2); atan2 (-C.12) (C.22)].
+
+      (* (5.15) possible euler angles *)
       
-      (** sign of a real number *)
-      Definition Rsign (r : R) : R := if r <? 0 then -1 else 1.
-      
-      Section sec.
-        (* Let's have a rotation matrix *)
-        Variable C : smat 3.
-
-        (* (5.13) When r11=r21=0, this is the answer *)
-        Definition case1_cond : bool := (C.11 =? 0) && (C.21 =? 0).
-
-        (* ϕ, θ, ψ = v.1, v.2, v.3 *)
-        Definition case1_values : vec 3 :=
-          l2v [0; (Rsign (-C.31)) * (PI / 2); atan2 (-C.12) (C.22)].
-
-        (* (5.15) possible euler angles *)
-        
-        (* 
+      (* 
            ϕ_0, θ_0, ψ_0 = m.11, m.21, m.31 
            ϕ_1, θ_1, ψ_1 = m.12, m.22, m.32 
-         *)
-        Definition case2_params : mat 3 2 :=
-          let θ_0 := asin (-C.31) in
-          l2m [[atan2 (C.32) (C.33); atan2 (-C.32) (-C.33)];
-               [θ_0; Rsign θ_0 * PI - θ_0];
-               [atan2 (C.21) (C.11); atan2 (-C.21) (-C.11)]].
+       *)
+      Definition case2_params : mat 3 2 :=
+        let θ_0 := asin (-C.31) in
+        l2m [[atan2 (C.32) (C.33); atan2 (-C.32) (-C.33)];
+             [θ_0; Rsign θ_0 * PI - θ_0];
+             [atan2 (C.21) (C.11); atan2 (-C.21) (-C.11)]].
 
-        (* (5.14) best composition of euler angles *)
-        Definition find_best : (R*R*R*R) :=
-          let gen_val (ϕ θ ψ : R) : R*R*R*R := (ϕ, θ, ψ, mnormF (C - B123 ϕ θ ψ)%M) in
-          let m := case2_params in
-          let a111 := gen_val (m.11) (m.21) (m.31) in
-          let a112 := gen_val (m.11) (m.21) (m.32) in
-          let a121 := gen_val (m.11) (m.22) (m.31) in
-          let a122 := gen_val (m.11) (m.22) (m.32) in
-          let a211 := gen_val (m.12) (m.21) (m.31) in
-          let a212 := gen_val (m.12) (m.21) (m.32) in
-          let a221 := gen_val (m.12) (m.22) (m.31) in
-          let a222 := gen_val (m.12) (m.22) (m.32) in
-          let l := [a111;a112;a121;a122;a211;a212;a221;a222] in
-          list_min a111
-            (fun x y => match x, y with (_,_,_,x1),(_,_,_,y1) => x1 <? y1 end)
-            l.
+      (* (5.14) best composition of euler angles *)
+      Definition find_best : (R*R*R*R) :=
+        let gen_val (ϕ θ ψ : R) : R*R*R*R := (ϕ, θ, ψ, mnormF (C - S123 ϕ θ ψ)%M) in
+        let m := case2_params in
+        let a111 := gen_val (m.11) (m.21) (m.31) in
+        let a112 := gen_val (m.11) (m.21) (m.32) in
+        let a121 := gen_val (m.11) (m.22) (m.31) in
+        let a122 := gen_val (m.11) (m.22) (m.32) in
+        let a211 := gen_val (m.12) (m.21) (m.31) in
+        let a212 := gen_val (m.12) (m.21) (m.32) in
+        let a221 := gen_val (m.12) (m.22) (m.31) in
+        let a222 := gen_val (m.12) (m.22) (m.32) in
+        let l := [a111;a112;a121;a122;a211;a212;a221;a222] in
+        list_min a111
+          (fun x y => match x, y with (_,_,_,x1),(_,_,_,y1) => x1 <? y1 end)
+          l.
 
-        Definition case2_values : vec 3 :=
-          let '(ϕ,θ,ψ,_) := find_best in
-          l2v [ϕ; θ; ψ].
+      Definition case2_values : vec 3 :=
+        let '(ϕ,θ,ψ,_) := find_best in
+        l2v [ϕ; θ; ψ].
 
-        (** If the matrix is identity matrix, there are two possible solutions *)
-        Definition case3_cond : bool :=
-          (C.11 =? 1) && (C.33 =? 1) && (C.21 =? 0) && (C.32 =? 0) && (C.31 =? 0).
-        
-        (** If the euler angles is {0,0,0} or {π,π,π}, then the matrix is identity matrix *)
-        Lemma case3_opts_1_eq_mat1 :
-          B123 0 0 0 = mat1.
-        Proof. meq; ra. Qed.
-        
-        Lemma case3_opts_2_eq_mat1 :
-          B123 PI PI PI = mat1.
-        Proof. meq; ra. Qed.
+      (** If the matrix is identity matrix, there are two possible solutions *)
+      Definition case3_cond : bool :=
+        (C.11 =? 1) && (C.33 =? 1) && (C.21 =? 0) && (C.32 =? 0) && (C.31 =? 0).
+      
+      (** If the euler angles is {0,0,0} or {π,π,π}, then the matrix is identity matrix *)
+      Lemma case3_opts_1_eq_mat1 :
+        S123 0 0 0 = mat1.
+      Proof. meq; ra. Qed.
+      
+      Lemma case3_opts_2_eq_mat1 :
+        S123 PI PI PI = mat1.
+      Proof. meq; ra. Qed.
 
-        Definition case3_values (old : vec 3) : vec 3 :=
-          (* 根据历史值，与之接近的是正解 *)
-          let closest (old opt1 opt2 : R) : R :=
-            if Rabs (old - opt1) <? Rabs (old - opt2) then opt1 else opt2 in
-          l2v [
-              closest (old.1) 0 PI;
-              closest (old.2) 0 PI;
-              closest (old.3) 0 PI
-            ].
+      Definition case3_values (old : vec 3) : vec 3 :=
+        (* 根据历史值，与之接近的是正解 *)
+        let closest (old opt1 opt2 : R) : R :=
+          if Rabs (old - opt1) <? Rabs (old - opt2) then opt1 else opt2 in
+        l2v [
+            closest (old.1) 0 PI;
+            closest (old.2) 0 PI;
+            closest (old.3) 0 PI
+          ].
 
-        (** final algorithm *)
-        Definition euler_angles (old : vec 3) : vec 3 :=
-          if case1_cond
-          then case1_values
-          else if case3_cond
-               then case3_values old
-               else case2_values.
+      (** final algorithm *)
+      Definition euler_angles (old : vec 3) : vec 3 :=
+        if case1_cond
+        then case1_values
+        else if case3_cond
+             then case3_values old
+             else case2_values.
 
-        (** This algorithm havn't been verified yet. *)
-        
-      End sec.
-    End alg3.
+      (** This algorithm havn't been verified yet. *)
+      
+    End sec.
+  End alg3.
     
-  End B123.
+End R2Euler_S123.
 
-End R2Euler.
+(** 2. Body-three, 123 *)
+Module R2Euler_B123.
+
+  Open Scope R_scope.
+
+  (** 奇异性问题的存在性 *)
+  Section singularity.
+
+    (** Claim: If θ = kπ+π/2, then we can not uniquely determine ϕ and ψ. *)
+
+    (* Let's prove some simpler goals first. *)
+    
+    (** If θ = π/2, then the rotation matrix has following form. *)
+    Lemma B123_θ_eq_pi2 : forall (ϕ θ ψ : R),
+        θ = PI/2 ->
+        B123 ϕ θ ψ =
+          l2m [[0; 0; 1];
+               [sin (ϕ + ψ); cos (ϕ + ψ); 0];
+               [- cos (ϕ + ψ); sin (ϕ + ψ); 0]].
+    Proof.
+      intros; rewrite H.
+      pose proof cos_PI2. pose proof sin_PI2. cbv in H0, H1. meq; ra.
+    Qed.
+
+    (** If θ = -π/2, then the rotation matrix has following form. *)
+    Lemma B123_θ_eq_pi2_neg : forall (ϕ θ ψ : R),
+        θ = -PI/2 ->
+        B123 ϕ θ ψ =
+          l2m [[0; 0; -1];
+               [sin (ψ - ϕ); cos (ψ - ϕ); 0];
+               [cos (ψ - ϕ); - sin (ψ - ϕ); 0]].
+    Proof.
+      intros; rewrite H.
+      pose proof cos_PI2. pose proof sin_PI2. cbv in H0, H1. meq; ra.
+    Qed.
+
+    (** If θ = π/2, then there are infinite ϕ can generate a same matrix. *)
+    Lemma B123_singularity_ϕ_when_θ_eq_pi2 : forall (ϕ θ ψ : R),
+        θ = PI/2 -> forall ϕ', (exists ψ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
+    Proof.
+      intros. eexists. rewrite !B123_θ_eq_pi2; auto.
+      instantiate (1:=ψ + ϕ - ϕ'). repeat (f_equal; try lra).
+    Qed.
+    
+    (** If θ = -π/2, then there are infinite ϕ can generate a same matrix. *)
+    Lemma B123_singularity_ϕ_when_θ_eq_pi2_neg : forall (ϕ θ ψ : R),
+        θ = -PI/2 -> forall ϕ', (exists ψ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
+    Proof.
+      intros. eexists. rewrite !B123_θ_eq_pi2_neg; auto.
+      instantiate (1:=ψ - ϕ + ϕ'). repeat (f_equal; try lra).
+    Qed.
+
+    (** If θ = ±π/2, then there are infinite ϕ can generate a same matrix. *)
+    Theorem B123_singularity_ϕ : forall (ϕ θ ψ : R),
+        (θ = PI/2 \/ θ = -PI/2) -> forall ϕ', (exists ψ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
+    Proof.
+      intros. destruct H.
+      apply B123_singularity_ϕ_when_θ_eq_pi2; auto.
+      apply B123_singularity_ϕ_when_θ_eq_pi2_neg; auto.
+    Qed.
+
+    (** If θ = π/2, then there are infinite ψ can generate a same matrix. *)
+    Lemma B123_singularity_ψ_when_θ_eq_pi2 : forall (ϕ θ ψ : R),
+        θ = PI/2 -> forall ψ', (exists ϕ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
+    Proof.
+      intros. eexists. rewrite !B123_θ_eq_pi2; auto.
+      instantiate (1:=ψ + ϕ - ψ'). repeat (f_equal; try lra).
+    Qed.
+    
+    (** If θ = -π/2, then there are infinite ψ can generate a same matrix. *)
+    Lemma B123_singularity_ψ_when_θ_eq_pi2_neg : forall (ϕ θ ψ : R),
+        θ = -PI/2 -> forall ψ', (exists ϕ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
+    Proof.
+      intros. eexists. rewrite !B123_θ_eq_pi2_neg; auto.
+      instantiate (1:=-ψ + ϕ + ψ'). repeat (f_equal; try lra).
+    Qed.
+
+    (** If θ = ±π/2, then there are infinite ψ can generate a same matrix. *)
+    Theorem B123_singularity_ψ : forall (ϕ θ ψ : R),
+        (θ = PI/2 \/ θ = -PI/2) -> forall ψ', (exists ϕ', B123 ϕ' θ ψ' = B123 ϕ θ ψ).
+    Proof.
+      intros. destruct H.
+      apply B123_singularity_ψ_when_θ_eq_pi2; auto.
+      apply B123_singularity_ψ_when_θ_eq_pi2_neg; auto.
+    Qed.
+  End singularity.
+
+  (* 算法1：避开奇异点，小机动范围，即 roll,pitch,yaw ∈ (-π/2,π/2) *)
+  Module alg1.
+    Definition ϕ' (C : smat 3) := atan (- C.23 / C.33).
+    Definition θ' (C : smat 3) := asin (C.13).
+    Definition ψ' (C : smat 3) := atan (- C.12 / C.11).
+    
+    Theorem alg_spec : forall (ϕ θ ψ : R) (C : smat 3),
+        -PI/2 < ϕ < PI/2 ->
+        -PI/2 < θ < PI/2 ->
+        -PI/2 < ψ < PI/2 ->
+        C = B123 ϕ θ ψ ->
+        ϕ' C = ϕ /\ θ' C = θ /\ ψ' C = ψ.
+    Proof.
+      intros. v2eALL C.
+      apply Vector.v3eq_iff in H2. destruct H2,H3.
+      apply Vector.v3eq_iff in H2,H3,H4. cbv in H2,H3,H4.
+      cbv. logic.
+      - rewrite H8,H6. ra. rewrite atan_tan; auto.
+      - rewrite H10. rewrite asin_sin; ra.
+      - rewrite H9,H2. ra. rewrite atan_tan; ra.
+    Qed.
+  End alg1.
+
+  (* 算法2：避开奇异点，大机动范围，即 pitch ∈ (-π/2,π/2), roll,yaw ∈ (-π,π) *)
+  Module alg2.
+    Definition ϕ' (C : smat 3) := atan2 (- C.23) (C.33).
+    Definition θ' (C : smat 3) := asin (C.13).
+    Definition ψ' (C : smat 3) := atan2 (- C.12) (C.11).
+
+    Theorem alg_spec : forall (ϕ θ ψ : R) (C : smat 3),
+        -PI < ϕ < PI ->
+        -PI/2 < θ < PI/2 ->
+        -PI < ψ < PI ->
+        C = B123 ϕ θ ψ ->
+        ϕ' C = ϕ /\ θ' C = θ /\ ψ' C = ψ.
+    Proof.
+      intros. cbv. rewrite !H2; auto. cbv; ra.
+      assert (0 < cos θ). { apply cos_gt_0; try lra. }
+      repeat split.
+      - rewrite atan2_sin_cos_eq1; auto. lra.
+      - rewrite asin_sin; ra.
+      - rewrite !(Rmult_comm (cos θ)). rewrite atan2_sin_cos_eq1; auto. lra.
+    Qed.
+  End alg2.
+
+End R2Euler_B123.
