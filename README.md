@@ -3,14 +3,21 @@
 
 Note that, project `OrienRepr` is part of project `VFCS` (Verified Flight Control System), but it is not published for now.
 
+The entrance of the project is OrienRepr/OrienRepr.v.
+For more details of different ORs, please check:
+* RotationMatrix3D.v
+* EulerAngle.v
+* AxisAngle.v
+* Quaternion.v
+
 ## Resources
 * Homepage: [OrienRepr project](https://zhengpushi.github.io/projects/OrienRepr).
 * Source-code: [OrienRepr github](https://github.com/zhengpushi/OrienRepr)
 
 
 ## Preparation
-This project need FinMatrix library, which is a formal matrix library in Coq.
-* There are two wasy to install FinMatrix
+This project need FinMatrix library, which is a formal matrix library in Coq, and also developed by us.
+* There are two ways to install FinMatrix
   * For stable version, use opam.
 	`opam install coq-finmatrix`
   * For newest version, use source code.

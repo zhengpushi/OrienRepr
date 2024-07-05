@@ -208,6 +208,52 @@ Definition e2q (e : vec 3) : vec 4 := m2q (e2m e).
 (* ########################################################################### *)
 (** * Examples *)
 
+(** 我们的库是简单的而又有统一类型的：
+    1. 简单性：与数学惯例保持一致的记号，如 v.1, v.2, m.11, m.12 等
+    2. 类型统一性，以及数学定义的直观性（相比于MathComp的做法）：
+       * 向量就是向量，而不是列矩阵或行矩阵，我们提供 mmulv 和 mvmul 运算，
+         同时也提供 cvec, rvec 等类型。
+       * 点积、叉积等运算不需要借助矩阵才能实现，而是直接定义
+         Print v3cross.
+       * 四元数是vec 4，做了一些改进。
+ *)
+
+(** 在Coq中可计算带来了符号推导的好处 *)
+Section executability_for_symbol_derivation.
+  (* 以S123矩阵推导为例，看我们如何自动得到这个结果 *)
+  Open Scope R_scope.
+  Variable ϕ θ ψ : R.
+
+  (* 这是已经定义和验证了的结果 *)
+  Eval cbv in m2l (S123 ϕ θ ψ).
+  (* = [[cos θ * cos ψ; sin ϕ * sin θ * cos ψ + - (sin ψ * cos ϕ); cos ϕ * sin θ * cos ψ + sin ψ * sin ϕ];
+        [cos θ * sin ψ; sin ϕ * sin θ * sin ψ + cos ψ * cos ϕ; cos ϕ * sin θ * sin ψ + - (cos ψ * sin ϕ)];
+        [- sin θ; sin ϕ * cos θ; cos ϕ * cos θ]]
+     : dlist tA *)
+
+  (* 我们可以假设一个矩阵，然后用交互式证明的方式来得到这个矩阵的表达式 *)
+  Variable a11 a12 a13 a21 a22 a23 a31 a32 a33 : R.
+  Let A : smat 3 := l2m [[a11;a12;a13];[a21;a22;a23];[a31;a32;a33]].
+  
+  Goal A = (Rz ψ * Ry θ * Rx ϕ)%M.
+  Proof.
+    (* 利用可计算性，以及我们开发的实数自动化功能 *)
+    meq; autorewrite with R.
+    (* 我们得到了一组待证目标，它们正是所需要的表达式
+       a11 = cos ψ * cos θ
+       a12 = - (sin ψ * cos ϕ) + cos ψ * sin θ * sin ϕ
+       a13 = sin ψ * sin ϕ + cos ψ * sin θ * cos ϕ
+       a21 = sin ψ * cos θ
+       a22 = cos ψ * cos ϕ + sin ψ * sin θ * sin ϕ
+       a23 = - (cos ψ * sin ϕ) + sin ψ * sin θ * cos ϕ
+       a31 = - sin θ
+       a32 = cos θ * sin ϕ
+       a33 = cos θ * cos ϕ *)
+  Abort.
+End executability_for_symbol_derivation.
+
+(** 还可以抽取出 OCaml 程序，见下一节 *)
+
 
 (* ########################################################################### *)
 (** * Extraction to OCaml code *)
