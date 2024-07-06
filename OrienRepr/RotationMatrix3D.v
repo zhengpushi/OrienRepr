@@ -3,7 +3,7 @@
   This file is part of OrienRepr. It is distributed under the MIT
   "expat license". You should have recieved a LICENSE file with it.
 
-  purpose   : Rotation Matrices in 3D
+  purpose   : Basic rotation matrices in 3D
   author    : Zhengpu Shi
   date      : 2023.04.01
   
@@ -111,13 +111,13 @@ Definition Rz (θ : R) : mat 3 3 :=
 (** ** Properties of 3D basic rotation matrices *)
 
 (** Rx,Ry,Rz are the special case of aa2mat. *)
-Theorem aa2mat_eq_Rx : forall θ : R, aa2mat (mkAA θ v3i) = Rx θ.
+Theorem aa2mat_eq_Rx : forall θ : R, aa2mat (mkAA v3i θ) = Rx θ.
 Proof. intros; meq; ra. Qed.
 
-Theorem aa2mat_eq_Ry : forall θ : R, aa2mat (mkAA θ v3j) = Ry θ.
+Theorem aa2mat_eq_Ry : forall θ : R, aa2mat (mkAA v3j θ) = Ry θ.
 Proof. intros; meq; ra. Qed.
 
-Theorem aa2mat_eq_Rz : forall θ : R, aa2mat (mkAA θ v3k) = Rz θ.
+Theorem aa2mat_eq_Rz : forall θ : R, aa2mat (mkAA v3k θ) = Rz θ.
 Proof. intros; meq; ra. Qed.
 
 (** Rx,Ry,Rz are orthogonal matrix *)

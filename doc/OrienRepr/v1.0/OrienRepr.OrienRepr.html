@@ -119,7 +119,7 @@
  Rotates vector `v` along the x-axis by `ang` (radians)  
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="rotx" class="idref" href="#rotx"><span class="id" title="definition">rotx</span></a> (<a id="ang:18" class="idref" href="#ang:18"><span class="id" title="binder">ang</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) (<a id="v:19" class="idref" href="#v:19"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 3 := <span class="id" title="notation">(</span><a class="idref" href="OrienRepr.RotationMatrix3D.html#Rx"><span class="id" title="definition">Rx</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#ang:18"><span class="id" title="variable">ang</span></a><span class="id" title="notation">)</span> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.OrienRepr.html#v:19"><span class="id" title="variable">v</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="rotx" class="idref" href="#rotx"><span class="id" title="definition">rotx</span></a> (<a id="ang:18" class="idref" href="#ang:18"><span class="id" title="binder">ang</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) : <span class="id" title="abbreviation">vec</span> 3 <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="abbreviation">vec</span> 3 := <span class="id" title="keyword">fun</span> <a id="v:19" class="idref" href="#v:19"><span class="id" title="binder">v</span></a> =&gt; <span class="id" title="notation">(</span><a class="idref" href="OrienRepr.RotationMatrix3D.html#Rx"><span class="id" title="definition">Rx</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#ang:18"><span class="id" title="variable">ang</span></a><span class="id" title="notation">)</span> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.OrienRepr.html#v:19"><span class="id" title="variable">v</span></a>.<br/>
 
 <br/>
 </div>
@@ -128,7 +128,7 @@
 Rotates vector `v` along the y-axis by `ang` (radians)  
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="roty" class="idref" href="#roty"><span class="id" title="definition">roty</span></a> (<a id="ang:20" class="idref" href="#ang:20"><span class="id" title="binder">ang</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) (<a id="v:21" class="idref" href="#v:21"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 3 := <span class="id" title="notation">(</span><a class="idref" href="OrienRepr.RotationMatrix3D.html#Ry"><span class="id" title="definition">Ry</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#ang:20"><span class="id" title="variable">ang</span></a><span class="id" title="notation">)</span> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.OrienRepr.html#v:21"><span class="id" title="variable">v</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="roty" class="idref" href="#roty"><span class="id" title="definition">roty</span></a> (<a id="ang:20" class="idref" href="#ang:20"><span class="id" title="binder">ang</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) : <span class="id" title="abbreviation">vec</span> 3 <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="abbreviation">vec</span> 3 := <span class="id" title="keyword">fun</span> <a id="v:21" class="idref" href="#v:21"><span class="id" title="binder">v</span></a> =&gt; <span class="id" title="notation">(</span><a class="idref" href="OrienRepr.RotationMatrix3D.html#Ry"><span class="id" title="definition">Ry</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#ang:20"><span class="id" title="variable">ang</span></a><span class="id" title="notation">)</span> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.OrienRepr.html#v:21"><span class="id" title="variable">v</span></a>.<br/>
 
 <br/>
 </div>
@@ -137,7 +137,7 @@ Rotates vector `v` along the y-axis by `ang` (radians)
 Rotates vector `v` along the z-axis by `ang` (radians)  
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="rotz" class="idref" href="#rotz"><span class="id" title="definition">rotz</span></a> (<a id="ang:22" class="idref" href="#ang:22"><span class="id" title="binder">ang</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) (<a id="v:23" class="idref" href="#v:23"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 3 := <span class="id" title="notation">(</span><a class="idref" href="OrienRepr.RotationMatrix3D.html#Rz"><span class="id" title="definition">Rz</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#ang:22"><span class="id" title="variable">ang</span></a><span class="id" title="notation">)</span> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.OrienRepr.html#v:23"><span class="id" title="variable">v</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="rotz" class="idref" href="#rotz"><span class="id" title="definition">rotz</span></a> (<a id="ang:22" class="idref" href="#ang:22"><span class="id" title="binder">ang</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) : <span class="id" title="abbreviation">vec</span> 3 <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="abbreviation">vec</span> 3 := <span class="id" title="keyword">fun</span> <a id="v:23" class="idref" href="#v:23"><span class="id" title="binder">v</span></a> =&gt; <span class="id" title="notation">(</span><a class="idref" href="OrienRepr.RotationMatrix3D.html#Rz"><span class="id" title="definition">Rz</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#ang:22"><span class="id" title="variable">ang</span></a><span class="id" title="notation">)</span> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.OrienRepr.html#v:23"><span class="id" title="variable">v</span></a>.<br/>
 
 <br/>
 </div>
@@ -146,7 +146,7 @@ Rotates vector `v` along the z-axis by `ang` (radians)
 Rotates vector `v` along the `ax`-axis by `ang` (radians)  
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="rotaa" class="idref" href="#rotaa"><span class="id" title="definition">rotaa</span></a> (<a id="ax:24" class="idref" href="#ax:24"><span class="id" title="binder">ax</span></a> : <span class="id" title="abbreviation">vec</span> 3) (<a id="ang:25" class="idref" href="#ang:25"><span class="id" title="binder">ang</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) (<a id="v:26" class="idref" href="#v:26"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 3 := <a class="idref" href="OrienRepr.AxisAngle.html#rotaa"><span class="id" title="definition">rotaa</span></a> (<a class="idref" href="OrienRepr.AxisAngle.html#mkAA"><span class="id" title="constructor">mkAA</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#ang:25"><span class="id" title="variable">ang</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#ax:24"><span class="id" title="variable">ax</span></a>) <a class="idref" href="OrienRepr.OrienRepr.html#v:26"><span class="id" title="variable">v</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="rotaa" class="idref" href="#rotaa"><span class="id" title="definition">rotaa</span></a> (<a id="aa:24" class="idref" href="#aa:24"><span class="id" title="binder">aa</span></a> : <span class="id" title="abbreviation">vec</span> 4) : <span class="id" title="abbreviation">vec</span> 3 <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="abbreviation">vec</span> 3 := <span class="id" title="keyword">fun</span> <a id="v:25" class="idref" href="#v:25"><span class="id" title="binder">v</span></a> =&gt; <a class="idref" href="OrienRepr.AxisAngle.html#rotaa"><span class="id" title="definition">rotaa</span></a> (<a class="idref" href="OrienRepr.AxisAngle.html#v2aa"><span class="id" title="definition">v2aa</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#aa:24"><span class="id" title="variable">aa</span></a>) <a class="idref" href="OrienRepr.OrienRepr.html#v:25"><span class="id" title="variable">v</span></a>.<br/>
 
 <br/>
 </div>
@@ -155,7 +155,7 @@ Rotates vector `v` along the `ax`-axis by `ang` (radians)
 Rotates vector `v` by rotation matrix `M` 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="rotByM" class="idref" href="#rotByM"><span class="id" title="definition">rotByM</span></a> (<a id="M:27" class="idref" href="#M:27"><span class="id" title="binder">M</span></a> : <span class="id" title="abbreviation">smat</span> 3) (<a id="v:28" class="idref" href="#v:28"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 3 := <a class="idref" href="OrienRepr.OrienRepr.html#M:27"><span class="id" title="variable">M</span></a> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.OrienRepr.html#v:28"><span class="id" title="variable">v</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="rotByM" class="idref" href="#rotByM"><span class="id" title="definition">rotByM</span></a> (<a id="M:26" class="idref" href="#M:26"><span class="id" title="binder">M</span></a> : <span class="id" title="abbreviation">smat</span> 3) (<a id="v:27" class="idref" href="#v:27"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 3 := <a class="idref" href="OrienRepr.OrienRepr.html#M:26"><span class="id" title="variable">M</span></a> <span class="id" title="notation">*</span><span class="id" title="notation">v</span> <a class="idref" href="OrienRepr.OrienRepr.html#v:27"><span class="id" title="variable">v</span></a>.<br/>
 
 <br/>
 </div>
@@ -164,7 +164,7 @@ Rotates vector `v` by rotation matrix `M`
 Rotates vector `v` by unit quaternion `q` 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="rotByQ" class="idref" href="#rotByQ"><span class="id" title="definition">rotByQ</span></a> (<a id="q:29" class="idref" href="#q:29"><span class="id" title="binder">q</span></a> : <span class="id" title="abbreviation">vec</span> 4) (<a id="v:30" class="idref" href="#v:30"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 3 := <a class="idref" href="OrienRepr.Quaternion.html#qrotv"><span class="id" title="definition">qrotv</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#q:29"><span class="id" title="variable">q</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#v:30"><span class="id" title="variable">v</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="rotByQ" class="idref" href="#rotByQ"><span class="id" title="definition">rotByQ</span></a> (<a id="q:28" class="idref" href="#q:28"><span class="id" title="binder">q</span></a> : <span class="id" title="abbreviation">vec</span> 4) (<a id="v:29" class="idref" href="#v:29"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 3 := <a class="idref" href="OrienRepr.Quaternion.html#qrotv"><span class="id" title="definition">qrotv</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#q:28"><span class="id" title="variable">q</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#v:29"><span class="id" title="variable">v</span></a>.<br/>
 
 <br/>
 </div>
@@ -173,7 +173,7 @@ Rotates vector `v` by unit quaternion `q`
 Rotates vector `v` by unit quaternion `q1` and followed by q2 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="rot2ByQ" class="idref" href="#rot2ByQ"><span class="id" title="definition">rot2ByQ</span></a> (<a id="q1:31" class="idref" href="#q1:31"><span class="id" title="binder">q1</span></a> <a id="q2:32" class="idref" href="#q2:32"><span class="id" title="binder">q2</span></a> : <span class="id" title="abbreviation">vec</span> 4) (<a id="v:33" class="idref" href="#v:33"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 3 := <a class="idref" href="OrienRepr.Quaternion.html#qrotv"><span class="id" title="definition">qrotv</span></a> (<a class="idref" href="OrienRepr.OrienRepr.html#q2:32"><span class="id" title="variable">q2</span></a> <a class="idref" href="OrienRepr.Quaternion.html#9c174e1b1323d0159783d41993a74ad6"><span class="id" title="notation">*</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#q1:31"><span class="id" title="variable">q1</span></a>)%<span class="id" title="var">quat</span> <a class="idref" href="OrienRepr.OrienRepr.html#v:33"><span class="id" title="variable">v</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="rot2ByQ" class="idref" href="#rot2ByQ"><span class="id" title="definition">rot2ByQ</span></a> (<a id="q1:30" class="idref" href="#q1:30"><span class="id" title="binder">q1</span></a> <a id="q2:31" class="idref" href="#q2:31"><span class="id" title="binder">q2</span></a> : <span class="id" title="abbreviation">vec</span> 4) (<a id="v:32" class="idref" href="#v:32"><span class="id" title="binder">v</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 3 := <a class="idref" href="OrienRepr.Quaternion.html#qrotv"><span class="id" title="definition">qrotv</span></a> (<a class="idref" href="OrienRepr.OrienRepr.html#q2:31"><span class="id" title="variable">q2</span></a> <a class="idref" href="OrienRepr.Quaternion.html#9c174e1b1323d0159783d41993a74ad6"><span class="id" title="notation">*</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#q1:30"><span class="id" title="variable">q1</span></a>)%<span class="id" title="var">quat</span> <a class="idref" href="OrienRepr.OrienRepr.html#v:32"><span class="id" title="variable">v</span></a>.<br/>
 
 <br/>
 </div>
@@ -195,17 +195,17 @@ Rotates vector `v` by unit quaternion `q1` and followed by q2
  Euler angles (roll,pitch,yaw) to rotation matrix 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="e2m" class="idref" href="#e2m"><span class="id" title="definition">e2m</span></a> (<a id="euler:34" class="idref" href="#euler:34"><span class="id" title="binder">euler</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">smat</span> 3 := <a class="idref" href="OrienRepr.EulerAngle.html#S123"><span class="id" title="definition">S123</span></a> (<a class="idref" href="OrienRepr.OrienRepr.html#euler:34"><span class="id" title="variable">euler</span></a><span class="id" title="notation">.1</span>) (<a class="idref" href="OrienRepr.OrienRepr.html#euler:34"><span class="id" title="variable">euler</span></a><span class="id" title="notation">.2</span>) (<a class="idref" href="OrienRepr.OrienRepr.html#euler:34"><span class="id" title="variable">euler</span></a><span class="id" title="notation">.3</span>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="e2m" class="idref" href="#e2m"><span class="id" title="definition">e2m</span></a> (<a id="euler:33" class="idref" href="#euler:33"><span class="id" title="binder">euler</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">smat</span> 3 := <a class="idref" href="OrienRepr.EulerAngle.html#S123"><span class="id" title="definition">S123</span></a> (<a class="idref" href="OrienRepr.OrienRepr.html#euler:33"><span class="id" title="variable">euler</span></a><span class="id" title="notation">.1</span>) (<a class="idref" href="OrienRepr.OrienRepr.html#euler:33"><span class="id" title="variable">euler</span></a><span class="id" title="notation">.2</span>) (<a class="idref" href="OrienRepr.OrienRepr.html#euler:33"><span class="id" title="variable">euler</span></a><span class="id" title="notation">.3</span>).<br/>
 
 <br/>
 </div>
 
 <div class="doc">
-Rotation matrix to euler angles. Note that M ∈ SO(3) 
+Rotation matrix to euler angles. Note that M must belogn to SO(3) 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="m2e" class="idref" href="#m2e"><span class="id" title="definition">m2e</span></a> (<a id="M:35" class="idref" href="#M:35"><span class="id" title="binder">M</span></a> : <span class="id" title="abbreviation">smat</span> 3) : <span class="id" title="abbreviation">vec</span> 3 :=<br/>
-&nbsp;&nbsp;<span class="id" title="definition">l2v</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">[</span></a><a class="idref" href="OrienRepr.EulerAngle.html#b8e29a20974bb5e3baabbc203559fabc"><span class="id" title="definition">R2Euler_S123.alg2.ϕ'</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#M:35"><span class="id" title="variable">M</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a> <a class="idref" href="OrienRepr.EulerAngle.html#045d85383f1a20fab446f2db081cba48"><span class="id" title="definition">R2Euler_S123.alg2.θ'</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#M:35"><span class="id" title="variable">M</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a> <a class="idref" href="OrienRepr.EulerAngle.html#6c860200c70f4ed638e800acd917006f"><span class="id" title="definition">R2Euler_S123.alg2</span></a><a class="idref" href="OrienRepr.EulerAngle.html#6c860200c70f4ed638e800acd917006f"><span class="id" title="definition">.ψ'</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#M:35"><span class="id" title="variable">M</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">]</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="m2e" class="idref" href="#m2e"><span class="id" title="definition">m2e</span></a> (<a id="M:34" class="idref" href="#M:34"><span class="id" title="binder">M</span></a> : <span class="id" title="abbreviation">smat</span> 3) : <span class="id" title="abbreviation">vec</span> 3 :=<br/>
+&nbsp;&nbsp;<span class="id" title="definition">l2v</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">[</span></a><a class="idref" href="OrienRepr.EulerAngle.html#b8e29a20974bb5e3baabbc203559fabc"><span class="id" title="definition">R2Euler_S123.alg2.ϕ'</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#M:34"><span class="id" title="variable">M</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a> <a class="idref" href="OrienRepr.EulerAngle.html#045d85383f1a20fab446f2db081cba48"><span class="id" title="definition">R2Euler_S123.alg2.θ'</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#M:34"><span class="id" title="variable">M</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a> <a class="idref" href="OrienRepr.EulerAngle.html#6c860200c70f4ed638e800acd917006f"><span class="id" title="definition">R2Euler_S123.alg2</span></a><a class="idref" href="OrienRepr.EulerAngle.html#6c860200c70f4ed638e800acd917006f"><span class="id" title="definition">.ψ'</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#M:34"><span class="id" title="variable">M</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">]</span></a>.<br/>
 
 <br/>
 </div>
@@ -215,29 +215,37 @@ Rotation matrix to euler angles. Note that M ∈ SO(3)
 
 <div class="paragraph"> </div>
 
- Axis-angle to rotation matrix by rodrigues formula. Note that axis is unit vector 
+ Axis-angle to rotation matrix by rodrigues formula. 
+    Note that axis must be unit 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="aa2m" class="idref" href="#aa2m"><span class="id" title="definition">aa2m</span></a> (<a id="axis:36" class="idref" href="#axis:36"><span class="id" title="binder">axis</span></a> : <span class="id" title="abbreviation">vec</span> 3) (<a id="angle:37" class="idref" href="#angle:37"><span class="id" title="binder">angle</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) : <span class="id" title="abbreviation">smat</span> 3 := <a class="idref" href="OrienRepr.AxisAngle.html#aa2mat"><span class="id" title="definition">aa2mat</span></a> (<a class="idref" href="OrienRepr.AxisAngle.html#mkAA"><span class="id" title="constructor">mkAA</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#angle:37"><span class="id" title="variable">angle</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#axis:36"><span class="id" title="variable">axis</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="a2m" class="idref" href="#a2m"><span class="id" title="definition">a2m</span></a> (<a id="aa:35" class="idref" href="#aa:35"><span class="id" title="binder">aa</span></a> : <span class="id" title="abbreviation">vec</span> 4) : <span class="id" title="abbreviation">smat</span> 3 := <a class="idref" href="OrienRepr.AxisAngle.html#aa2mat"><span class="id" title="definition">aa2mat</span></a> (<a class="idref" href="OrienRepr.AxisAngle.html#v2aa"><span class="id" title="definition">v2aa</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#aa:35"><span class="id" title="variable">aa</span></a>).<br/>
 
 <br/>
 </div>
 
 <div class="doc">
-Axis-angle to rotation matrix by direct formula. Note that axis is unit vector 
+Axis-angle to rotation matrix by direct formula. Note that axis must be unit 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="aa2m'" class="idref" href="#aa2m'"><span class="id" title="definition">aa2m'</span></a> (<a id="axis:38" class="idref" href="#axis:38"><span class="id" title="binder">axis</span></a> : <span class="id" title="abbreviation">vec</span> 3) (<a id="angle:39" class="idref" href="#angle:39"><span class="id" title="binder">angle</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>) : <span class="id" title="abbreviation">smat</span> 3 := <a class="idref" href="OrienRepr.AxisAngle.html#aa2matM"><span class="id" title="definition">aa2matM</span></a> (<a class="idref" href="OrienRepr.AxisAngle.html#mkAA"><span class="id" title="constructor">mkAA</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#angle:39"><span class="id" title="variable">angle</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#axis:38"><span class="id" title="variable">axis</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="a2m'" class="idref" href="#a2m'"><span class="id" title="definition">a2m'</span></a> (<a id="aa:36" class="idref" href="#aa:36"><span class="id" title="binder">aa</span></a> : <span class="id" title="abbreviation">vec</span> 4) : <span class="id" title="abbreviation">smat</span> 3 := <a class="idref" href="OrienRepr.AxisAngle.html#aa2matM"><span class="id" title="definition">aa2matM</span></a> (<a class="idref" href="OrienRepr.AxisAngle.html#v2aa"><span class="id" title="definition">v2aa</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#aa:36"><span class="id" title="variable">aa</span></a>).<br/>
 
 <br/>
 </div>
 
 <div class="doc">
-Rotation matrix to axis-angle 
+Rotation matrix to axis-angle (NOT SUPPORTED YET) 
 </div>
 <div class="code">
 
 <br/>
+</div>
+
+<div class="doc">
+Axis-angle to Euler angles. Note that axis must be unit 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="a2e" class="idref" href="#a2e"><span class="id" title="definition">a2e</span></a> (<a id="aa:37" class="idref" href="#aa:37"><span class="id" title="binder">aa</span></a> : <span class="id" title="abbreviation">vec</span> 4) : <span class="id" title="abbreviation">vec</span> 3 := <a class="idref" href="OrienRepr.OrienRepr.html#m2e"><span class="id" title="definition">m2e</span></a> (<a class="idref" href="OrienRepr.OrienRepr.html#a2m"><span class="id" title="definition">a2m</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#aa:37"><span class="id" title="variable">aa</span></a>).<br/>
 
 <br/>
 </div>
@@ -247,19 +255,17 @@ Rotation matrix to axis-angle
 
 <div class="paragraph"> </div>
 
- Unit quaternion to rotation matrix. Note that q is unit quaternions 
+ Unit quaternion to rotation matrix. Note that q must be unit 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="q2m" class="idref" href="#q2m"><span class="id" title="definition">q2m</span></a> (<a id="q:40" class="idref" href="#q:40"><span class="id" title="binder">q</span></a> : <span class="id" title="abbreviation">vec</span> 4) : <span class="id" title="abbreviation">smat</span> 3 := <a class="idref" href="OrienRepr.Quaternion.html#q2m"><span class="id" title="definition">q2m</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#q:40"><span class="id" title="variable">q</span></a>.<br/>
 
 <br/>
 </div>
 
 <div class="doc">
-Rotation matrix to unit quaternion. Note that M ∈ SO(3) 
+Rotation matrix to unit quaternion. Note that M must belong to SO(3) 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="m2q" class="idref" href="#m2q"><span class="id" title="definition">m2q</span></a> (<a id="M:41" class="idref" href="#M:41"><span class="id" title="binder">M</span></a> : <span class="id" title="abbreviation">smat</span> 3) : <span class="id" title="abbreviation">vec</span> 4 := <a class="idref" href="OrienRepr.Quaternion.html#m2q"><span class="id" title="definition">m2q</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#M:41"><span class="id" title="variable">M</span></a>.<br/>
 
 <br/>
 </div>
@@ -269,10 +275,10 @@ Rotation matrix to unit quaternion. Note that M ∈ SO(3)
 
 <div class="paragraph"> </div>
 
- Unit quaternion to euler angles. Note that q is unit quaternions 
+ Unit quaternion to euler angles. Note that q must be unit 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="q2e" class="idref" href="#q2e"><span class="id" title="definition">q2e</span></a> (<a id="q:42" class="idref" href="#q:42"><span class="id" title="binder">q</span></a> : <span class="id" title="abbreviation">vec</span> 4) : <span class="id" title="abbreviation">vec</span> 3 := <a class="idref" href="OrienRepr.OrienRepr.html#m2e"><span class="id" title="definition">m2e</span></a> (<a class="idref" href="OrienRepr.OrienRepr.html#q2m"><span class="id" title="definition">q2m</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#q:42"><span class="id" title="variable">q</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="q2e" class="idref" href="#q2e"><span class="id" title="definition">q2e</span></a> (<a id="q:38" class="idref" href="#q:38"><span class="id" title="binder">q</span></a> : <span class="id" title="abbreviation">vec</span> 4) : <span class="id" title="abbreviation">vec</span> 3 := <a class="idref" href="OrienRepr.OrienRepr.html#m2e"><span class="id" title="definition">m2e</span></a> (<a class="idref" href="OrienRepr.Quaternion.html#q2m"><span class="id" title="definition">q2m</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#q:38"><span class="id" title="variable">q</span></a>).<br/>
 
 <br/>
 </div>
@@ -281,14 +287,77 @@ Rotation matrix to unit quaternion. Note that M ∈ SO(3)
 Euler angles to unit quaternion. 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a id="e2q" class="idref" href="#e2q"><span class="id" title="definition">e2q</span></a> (<a id="e:43" class="idref" href="#e:43"><span class="id" title="binder">e</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 4 := <a class="idref" href="OrienRepr.OrienRepr.html#m2q"><span class="id" title="definition">m2q</span></a> (<a class="idref" href="OrienRepr.OrienRepr.html#e2m"><span class="id" title="definition">e2m</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#e:43"><span class="id" title="variable">e</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="e2q" class="idref" href="#e2q"><span class="id" title="definition">e2q</span></a> (<a id="e:39" class="idref" href="#e:39"><span class="id" title="binder">e</span></a> : <span class="id" title="abbreviation">vec</span> 3) : <span class="id" title="abbreviation">vec</span> 4 := <a class="idref" href="OrienRepr.Quaternion.html#m2q"><span class="id" title="definition">m2q</span></a> (<a class="idref" href="OrienRepr.OrienRepr.html#e2m"><span class="id" title="definition">e2m</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#e:39"><span class="id" title="variable">e</span></a>).<br/>
 
 <br/>
 </div>
 
 <div class="doc">
-<a id="lab62"></a><h1 class="section">Examples</h1>
+<a id="lab62"></a><h2 class="section">Unit quaternion &lt;-&gt; Axis-angle</h2>
 
+<div class="paragraph"> </div>
+
+ Unit quaternion to Axis-angle. Note that q must be unit. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="q2a" class="idref" href="#q2a"><span class="id" title="definition">q2a</span></a> (<a id="q:40" class="idref" href="#q:40"><span class="id" title="binder">q</span></a> : <span class="id" title="abbreviation">vec</span> 4) : <span class="id" title="abbreviation">vec</span> 4 := <a class="idref" href="OrienRepr.AxisAngle.html#aa2v"><span class="id" title="definition">aa2v</span></a> (<a class="idref" href="OrienRepr.Quaternion.html#quat2aa"><span class="id" title="definition">quat2aa</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#q:40"><span class="id" title="variable">q</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Axis-angle to quaternion. Note that axis must be unit 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="a2q" class="idref" href="#a2q"><span class="id" title="definition">a2q</span></a> (<a id="aa:41" class="idref" href="#aa:41"><span class="id" title="binder">aa</span></a> : <span class="id" title="abbreviation">vec</span> 4) : <span class="id" title="abbreviation">vec</span> 4 := <a class="idref" href="OrienRepr.Quaternion.html#aa2quat"><span class="id" title="definition">aa2quat</span></a> (<a class="idref" href="OrienRepr.AxisAngle.html#v2aa"><span class="id" title="definition">v2aa</span></a> <a class="idref" href="OrienRepr.OrienRepr.html#aa:41"><span class="id" title="variable">aa</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab63"></a><h1 class="section">Examples</h1>
+
+<div class="paragraph"> </div>
+
+ 我们的库是简单的而又有统一类型的：
+    1. 简单性：与数学惯例保持一致的记号，如 v.1, v.2, m.11, m.12 等
+    2. 类型统一性，以及数学定义的直观性（相比于MathComp的做法）：
+<a id="lab64"></a><h1 class="section">向量就是向量，而不是列矩阵或行矩阵，我们提供 mmulv 和 mvmul 运算，</h1>
+
+         同时也提供 cvec, rvec 等类型。
+<a id="lab65"></a><h1 class="section">点积、叉积等运算不需要借助矩阵才能实现，而是直接定义</h1>
+
+         Print v3cross.
+<a id="lab66"></a><h1 class="section">四元数是vec 4，做了一些改进。</h1>
+
+ 
+<div class="paragraph"> </div>
+
+ 在Coq中可计算带来了符号推导的好处 
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="executability_for_symbol_derivation" class="idref" href="#executability_for_symbol_derivation"><span class="id" title="section">executability_for_symbol_derivation</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">R_scope</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="0893945972d87ebda240fcb487aff2a1" class="idref" href="#0893945972d87ebda240fcb487aff2a1"><span class="id" title="variable">ϕ</span></a> <a id="32cd12accb3b601c34302f05a5beabc3" class="idref" href="#32cd12accb3b601c34302f05a5beabc3"><span class="id" title="variable">θ</span></a> <a id="110e0efe9b234550a2f89a1186fc27df" class="idref" href="#110e0efe9b234550a2f89a1186fc27df"><span class="id" title="variable">ψ</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>.<br/>
+
+<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="executability_for_symbol_derivation.a11" class="idref" href="#executability_for_symbol_derivation.a11"><span class="id" title="variable">a11</span></a> <a id="executability_for_symbol_derivation.a12" class="idref" href="#executability_for_symbol_derivation.a12"><span class="id" title="variable">a12</span></a> <a id="executability_for_symbol_derivation.a13" class="idref" href="#executability_for_symbol_derivation.a13"><span class="id" title="variable">a13</span></a> <a id="executability_for_symbol_derivation.a21" class="idref" href="#executability_for_symbol_derivation.a21"><span class="id" title="variable">a21</span></a> <a id="executability_for_symbol_derivation.a22" class="idref" href="#executability_for_symbol_derivation.a22"><span class="id" title="variable">a22</span></a> <a id="executability_for_symbol_derivation.a23" class="idref" href="#executability_for_symbol_derivation.a23"><span class="id" title="variable">a23</span></a> <a id="executability_for_symbol_derivation.a31" class="idref" href="#executability_for_symbol_derivation.a31"><span class="id" title="variable">a31</span></a> <a id="executability_for_symbol_derivation.a32" class="idref" href="#executability_for_symbol_derivation.a32"><span class="id" title="variable">a32</span></a> <a id="executability_for_symbol_derivation.a33" class="idref" href="#executability_for_symbol_derivation.a33"><span class="id" title="variable">a33</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Reals.Rdefinitions.html#RbaseSymbolsImpl.R"><span class="id" title="axiom">R</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="executability_for_symbol_derivation.A" class="idref" href="#executability_for_symbol_derivation.A"><span class="id" title="variable">A</span></a> : <span class="id" title="abbreviation">smat</span> 3 := <span class="id" title="definition">l2m</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">[[</span></a><a class="idref" href="OrienRepr.OrienRepr.html#executability_for_symbol_derivation.a11"><span class="id" title="variable">a11</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a><a class="idref" href="OrienRepr.OrienRepr.html#executability_for_symbol_derivation.a12"><span class="id" title="variable">a12</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a><a class="idref" href="OrienRepr.OrienRepr.html#executability_for_symbol_derivation.a13"><span class="id" title="variable">a13</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">];[</span></a><a class="idref" href="OrienRepr.OrienRepr.html#executability_for_symbol_derivation.a21"><span class="id" title="variable">a21</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a><a class="idref" href="OrienRepr.OrienRepr.html#executability_for_symbol_derivation.a22"><span class="id" title="variable">a22</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a><a class="idref" href="OrienRepr.OrienRepr.html#executability_for_symbol_derivation.a23"><span class="id" title="variable">a23</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">];[</span></a><a class="idref" href="OrienRepr.OrienRepr.html#executability_for_symbol_derivation.a31"><span class="id" title="variable">a31</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a><a class="idref" href="OrienRepr.OrienRepr.html#executability_for_symbol_derivation.a32"><span class="id" title="variable">a32</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a><a class="idref" href="OrienRepr.OrienRepr.html#executability_for_symbol_derivation.a33"><span class="id" title="variable">a33</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.18.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">]]</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">A</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">(</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">Rz</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">ψ</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">*</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">Ry</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">θ</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">*</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">Rx</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">ϕ</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">)%</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">M</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">meq</span>; <span class="id" title="tactic">autorewrite</span> <span class="id" title="keyword">with</span> <span class="id" title="var">R</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Abort</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="OrienRepr.OrienRepr.html#executability_for_symbol_derivation"><span class="id" title="section">executability_for_symbol_derivation</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+还可以抽取出 OCaml 程序，见下一节 
 </div>
 <div class="code">
 
@@ -296,14 +365,19 @@ Euler angles to unit quaternion.
 </div>
 
 <div class="doc">
-<a id="lab63"></a><h1 class="section">Extraction to OCaml code</h1>
+<a id="lab67"></a><h1 class="section">Extraction to OCaml code</h1>
 
 </div>
 <div class="code">
 
 <br/>
-
-<br/>
+<span class="id" title="keyword">Extraction</span> "ocaml_orienRepr.ml"<br/>
+&nbsp;&nbsp;<span class="id" title="var">v2l</span> <span class="id" title="var">l2v</span> <span class="id" title="var">m2l</span> <span class="id" title="var">l2m</span><br/>
+&nbsp;&nbsp;<span class="id" title="var">rotx</span> <span class="id" title="var">roty</span> <span class="id" title="var">rotz</span> <span class="id" title="var">rotaa</span> <span class="id" title="var">rotByM</span> <span class="id" title="var">rotByQ</span> <span class="id" title="var">rot2ByQ</span><br/>
+&nbsp;&nbsp;<span class="id" title="var">e2m</span> <span class="id" title="var">e2q</span><br/>
+&nbsp;&nbsp;<span class="id" title="var">a2m</span> <span class="id" title="var">a2e</span> <span class="id" title="var">a2q</span><br/>
+&nbsp;&nbsp;<span class="id" title="var">q2e</span> <span class="id" title="var">q2m</span> <span class="id" title="var">q2a</span><br/>
+&nbsp;&nbsp;<span class="id" title="var">m2e</span> <span class="id" title="var">m2q</span>.<br/>
 
 <br/>
 

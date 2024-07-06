@@ -23,18 +23,29 @@ Import V3Notations.
 (* https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula *)
 
 (** Axis-Angle parameter. (aa: means Axis-Angle) *)
-Record AxisAngle := mkAA {aaAngle : R; aaAxis : vec 3}.
+Record AxisAngle := mkAA {aaAxis : vec 3; aaAngle : R}.
+
+(** vector to axis-angle. The first 3 elements is axis, last one is angle *)
+Definition v2aa (v : vec 4) : AxisAngle := mkAA (vremoveT v) (vtail v).
+
+Lemma v2aa_spec : forall v,
+    (aaAxis (v2aa v) = l2v [v.1;v.2;v.3]) /\ (aaAngle (v2aa v) = v.4).
+Proof. intros. v2e v. split. veq. auto. Qed.
+
+(** axis-angle to vector*)
+Definition aa2v (aa : AxisAngle) : vec 4 := vconsT (aaAxis aa) (aaAngle aa).
+
 
 (** Rotate one vector a in R^3 by an axis described with a unit vector n and an
     angle θ according to right handle rule, we got the rotated vector as follows.
     This formula is known as Rodrigues formula. *)
 Definition rotaa (aa : AxisAngle) (a : vec 3) : vec 3 :=
-   let (θ, n) := aa in
+   let (n, θ) := aa in
   ((cos θ) s* (a - <a,n> s* n) + (sin θ) s* (n \x a) + <a,n> s* n)%V.
 
 (** The correctness of `rotaa` by geometry *)
 Theorem rotaa_spec : forall (aa : AxisAngle) (a : vec 3),
-    let (θ, n) := aa in
+    let (n, θ) := aa in
     let a_para : vec 3 := vproj a n in
     let a_perp : vec 3 := vperp a n in
     let b : vec 3 := n \x a_perp in
@@ -42,7 +53,7 @@ Theorem rotaa_spec : forall (aa : AxisAngle) (a : vec 3),
     let a' : vec 3 := (a_perp' + a_para)%V in
     vunit n -> a' = rotaa aa a.
 Proof.
-  intros. destruct aa as [θ n]; intros; simpl in *.
+  intros. destruct aa as [n θ]; intros; simpl in *.
   assert (a_para = <a,n> s* n)%V as H1.
   { unfold a_para, vproj, Vector.vproj. unfold vunit, Vector.vunit in H.
     rewrite H. unfold vscal. f_equal. unfold vdot. autounfold with tA. field. }
@@ -58,7 +69,7 @@ Qed.
 
 (** Another form of the formula *)
 Lemma rotaa_form1 : forall (aa : AxisAngle) (a : vec 3),
-    let (θ, n) := aa in
+    let (n, θ) := aa in
     rotaa aa a =
       ((cos θ) s* a + (sin θ) s* (n \x a) + (<a,n> * (1 - cos θ))%R s* n)%V.
 Proof.
@@ -76,18 +87,17 @@ Qed.
 
 (** Matrix formula of roation with axis-angle *)
 Definition aa2mat (aa : AxisAngle) : smat 3 :=
-  let (θ, n) := aa in
+  let (n, θ) := aa in
   let K := skew3 n in
   mat1 + (sin θ) s* K + (1 - cos θ)%R s* (K * K).
 
 (** `aa2mat` has the same behavior as `rotaa` *)
 Lemma aa2mat_spec : forall (aa : AxisAngle) (a : vec 3),
-  let (θ, n) := aa in
-  vunit n -> (aa2mat aa) *v a = rotaa aa a.
+    vunit (aaAxis aa) -> (aa2mat aa) *v a = rotaa aa a.
 Proof.
   pose proof (vadd_AGroup 3) as HAGroup.
   intros. pose proof (rotaa_form1 aa a).
-  destruct aa as [θ n]. intros. rewrite H; simpl in *.
+  destruct aa as [n θ]. rewrite H0. simpl in *.
   rewrite !mmulv_madd. rewrite mmulv_1_l.
   rewrite !mmulv_mscal. rewrite mmulv_assoc.
   rewrite <- !v3cross_eq_skew_mul_vec.
@@ -102,7 +112,7 @@ Qed.
 
 (** The direct form of aa2mat. *)
 Definition aa2matM (aa : AxisAngle) : mat 3 3 :=
-  let (θ, n) := aa in
+  let (n, θ) := aa in
   let x := n.1 in
   let y := n.2 in
   let z := n.3 in
@@ -117,7 +127,7 @@ Definition aa2matM (aa : AxisAngle) : mat 3 3 :=
 Theorem aa2matM_eq_aa2mat : forall (aa : AxisAngle),
     vunit (aaAxis aa) -> aa2matM aa = aa2mat aa.
 Proof.
-  intros. destruct aa as [θ n]; intros; simpl in *.
+  intros. destruct aa as [n θ]; intros; simpl in *.
   pose proof (v3unit_sqr_x n H).
   v2e n. rewrite H0 in *. cbv in H0. meq; ra; rewrite H0; ra.
 Qed.
@@ -126,7 +136,7 @@ Qed.
 Lemma aa2matM_orth : forall (aa : AxisAngle),
     vunit (aaAxis aa) -> morth (aa2matM aa).
 Proof.
-  intros. destruct aa as [θ n]; intros; simpl in *.
+  intros. destruct aa as [n θ]; intros; simpl in *.
   pose proof (v3unit_sqr_x n H).
   v2e n. rewrite H0 in *. cbv in H0. rewrite !xx_Rsqr in *.
   meq; ring_simplify; simp_pow; rewrite sin2.
@@ -137,7 +147,7 @@ Qed.
 Lemma aa2matM_det1 : forall (aa : AxisAngle),
     vunit (aaAxis aa) -> mdet (aa2matM aa) = 1.
 Proof.
-  intros. destruct aa as [θ n]; intros; simpl in *.
+  intros. destruct aa as [n θ]; intros; simpl in *.
   pose proof (v3unit_sqr_x n H).
   v2e n. rewrite H0 in *. cbv in *.
   ring_simplify. ra. rewrite sin2. rewrite H0. ra.
@@ -153,10 +163,10 @@ Definition aa2matM_SO3 (aa : AxisAngle) (H : vunit (aaAxis aa)) : SO3 :=
 
 (** R(-θ) = R(θ)\T *)
 Lemma aa2mat_neg_eq_trans : forall (aa : AxisAngle),
-    let (θ, n) := aa in
-    aa2mat (mkAA (-θ) n) = (aa2mat aa)\T.
+    let (n, θ) := aa in
+    aa2mat (mkAA n (-θ)) = (aa2mat aa)\T.
 Proof.
-  intros. destruct aa as [θ n]. simpl.
+  intros. destruct aa as [n θ]. simpl.
   pose proof (madd_AGroup 3 3) as HAGroup. agroup.
   rewrite !mtrans_madd.
   rewrite !mtrans_mscal.

@@ -44,29 +44,35 @@ Import V3Notations.
 (** *** Specifications for 3D basic rotation operations *)
 
 (** v' = R(θ) * v *)
-Lemma Rx_spec : forall (v : vec 3) (θ : R), rotaa (mkAA θ v3i) v = (Rx θ) *v v.
-Proof. intros; veq; ra. Qed.
+Lemma Rx_spec : forall (v : vec 3) (θ : R), rotaa (mkAA v3i θ) v = (Rx θ) *v v.
+Proof.
+  intros. rewrite <- aa2mat_eq_Rx, aa2mat_spec; auto; simpl. apply v3i_vunit.
+Qed.
 
-Lemma Ry_spec : forall (v : vec 3) (θ : R), rotaa (mkAA θ v3j) v = (Ry θ) *v v.
-Proof. intros; veq; ra. Qed.
+Lemma Ry_spec : forall (v : vec 3) (θ : R), rotaa (mkAA v3j θ) v = (Ry θ) *v v.
+Proof.
+  intros. rewrite <- aa2mat_eq_Ry, aa2mat_spec; auto; simpl. apply v3j_vunit.
+Qed.
 
-Lemma Rz_spec : forall (v : vec 3) (θ : R), rotaa (mkAA θ v3k) v = (Rz θ) *v v.
-Proof. intros; veq; ra. Qed.
+Lemma Rz_spec : forall (v : vec 3) (θ : R), rotaa (mkAA v3k θ) v = (Rz θ) *v v.
+Proof.
+  intros. rewrite <- aa2mat_eq_Rz, aa2mat_spec; auto; simpl. apply v3k_vunit.
+Qed.
 
 (** v = R(-θ) * v' *)
-Lemma Rx_neg_spec : forall (v : vec 3) (θ : R), v = Rx (-θ) *v (rotaa (mkAA θ v3i) v).
+Lemma Rx_neg_spec : forall (v : vec 3) (θ : R), v = Rx (-θ) *v (rotaa (mkAA v3i θ) v).
 Proof.
   intros. rewrite Rx_spec.
   rewrite <- mmulv_assoc, Rx_neg_mul_Rx, mmulv_1_l; auto.
 Qed.
 
-Lemma Ry_neg_spec : forall (v : vec 3) (θ : R), v = Ry (-θ) *v (rotaa (mkAA θ v3j) v).
+Lemma Ry_neg_spec : forall (v : vec 3) (θ : R), v = Ry (-θ) *v (rotaa (mkAA v3j θ) v).
 Proof.
   intros. rewrite Ry_spec.
   rewrite <- mmulv_assoc, Ry_neg_mul_Ry, mmulv_1_l; auto.
 Qed.
 
-Lemma Rz_neg_spec : forall (v : vec 3) (θ : R), v = Rz (-θ) *v (rotaa (mkAA θ v3k) v).
+Lemma Rz_neg_spec : forall (v : vec 3) (θ : R), v = Rz (-θ) *v (rotaa (mkAA v3k θ) v).
 Proof.
   intros. rewrite Rz_spec.
   rewrite <- mmulv_assoc, Rz_neg_mul_Rz, mmulv_1_l; auto.
@@ -74,15 +80,15 @@ Qed.
 
 (** v = R(θ)\T * v' *)
 Lemma Rx_trans_spec : forall (v : vec 3) (θ : R),
-    v = (Rx θ)\T *v (rotaa (mkAA θ v3i) v).
+    v = (Rx θ)\T *v (rotaa (mkAA v3i θ) v).
 Proof. intros. rewrite <- Rx_neg_eq_trans, <- Rx_neg_spec; auto. Qed.
 
 Lemma Ry_trans_spec : forall (v : vec 3) (θ : R),
-    v = (Ry θ)\T *v (rotaa (mkAA θ v3j) v).
+    v = (Ry θ)\T *v (rotaa (mkAA v3j θ) v).
 Proof. intros. rewrite <- Ry_neg_eq_trans, <- Ry_neg_spec; auto. Qed.
 
 Lemma Rz_trans_spec : forall (v : vec 3) (θ : R),
-    v = (Rz θ)\T *v (rotaa (mkAA θ v3k) v).
+    v = (Rz θ)\T *v (rotaa (mkAA v3k θ) v).
 Proof. intros. rewrite <- Rz_neg_eq_trans, <- Rz_neg_spec; auto. Qed.
 
 (** The equivalence of Pre-/Post- multiplication, i.e.,

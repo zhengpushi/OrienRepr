@@ -25,6 +25,36 @@
      The rotation matrix is a multiplication of basic rotation matrices by 
      reversed order. That is:
          R(ϕ,θ,ψ) = Rz(ψ) * Ry(θ) * Rx(ϕ)
+
+  usage     :
+  1. Four methods for ORs
+    * Rotation matrix:
+      Formally, it is a `smat 3`, especially, it is belong to SO(3)
+    * Euler angles: 
+      We use S123 convention, that is, extrinsic rotation with zyx sequence.
+      It is equivalent to intrinsic rotation with xyz sequence (RPY angles).
+      Three angles denoted with (\phi,\theta,\psi), i.e., (ϕ,θ,ψ)
+      Formally, it is a `vec 3` type
+    * Axis-angle:
+      It has two parameters, a 3-dimensional vector for axis, a real number for angle.
+      Not that, the axis vector must be in unit to be used correctly.
+      Formally, it is a `vec 4` type. First 3 elements are axis, the last one is angle.
+    * Unit quaternion
+      It has 4 parameters, which we called W,X,Y,Z
+      Not that, the quaternion must be in unit to be used correctly.
+      Formally, it is a `vec 4` type.
+  2. Conversion between them.
+     We will use this notation:
+        m : Rotation matrix
+        e : Euler angles
+        a : Axis-angle
+        q : Unit quaternion
+     Now, these conversion is supported.
+              m   e    a    q
+         m   id  m2e   -   m2q
+         e  e2m   id   -   e2q
+         a  a2m  a2e   id  a2q
+         q  q2m  a2e  q2a   id
  *)
 
 Require Export RotationMatrix3D AxisAngle EulerAngle Quaternion.
@@ -135,16 +165,16 @@ End xyzRPY_eq_zyxEULER.
 (** * Rotate a vector in a given frame to obtain new coordinates  *)
 
 (** Rotates vector `v` along the x-axis by `ang` (radians)  *)
-Definition rotx (ang : R) (v : vec 3) : vec 3 := (Rx ang) *v v.
+Definition rotx (ang : R) : vec 3 -> vec 3 := fun v => (Rx ang) *v v.
 
 (** Rotates vector `v` along the y-axis by `ang` (radians)  *)
-Definition roty (ang : R) (v : vec 3) : vec 3 := (Ry ang) *v v.
+Definition roty (ang : R) : vec 3 -> vec 3 := fun v => (Ry ang) *v v.
 
 (** Rotates vector `v` along the z-axis by `ang` (radians)  *)
-Definition rotz (ang : R) (v : vec 3) : vec 3 := (Rz ang) *v v.
+Definition rotz (ang : R) : vec 3 -> vec 3 := fun v => (Rz ang) *v v.
 
 (** Rotates vector `v` along the `ax`-axis by `ang` (radians)  *)
-Definition rotaa (ax : vec 3) (ang : R) (v : vec 3) : vec 3 := rotaa (mkAA ang ax) v.
+Definition rotaa (aa : vec 4) : vec 3 -> vec 3 := fun v => rotaa (v2aa aa) v.
 
 (** Rotates vector `v` by rotation matrix `M` *)
 Definition rotByM (M : smat 3) (v : vec 3) : vec 3 := M *v v.
@@ -165,7 +195,7 @@ Definition rot2ByQ (q1 q2 : vec 4) (v : vec 3) : vec 3 := qrotv (q2 * q1)%quat v
 (** Euler angles (roll,pitch,yaw) to rotation matrix *)
 Definition e2m (euler : vec 3) : smat 3 := S123 (euler.1) (euler.2) (euler.3).
 
-(** Rotation matrix to euler angles. Note that M ∈ SO(3) *)
+(** Rotation matrix to euler angles. Note that M must belogn to SO(3) *)
 (* roll∈(-π,π), pitch ∈ (-π/2,π/2), yaw ∈ (-π,π) *)
 Definition m2e (M : smat 3) : vec 3 :=
   l2v [R2Euler_S123.alg2.ϕ' M; R2Euler_S123.alg2.θ' M; R2Euler_S123.alg2.ψ' M].
@@ -173,36 +203,48 @@ Definition m2e (M : smat 3) : vec 3 :=
 (* ======================================================================= *)
 (** ** Axis-angle <-> Rotation matrix *)
 
-(** Axis-angle to rotation matrix by rodrigues formula. Note that axis is unit vector *)
-Definition aa2m (axis : vec 3) (angle : R) : smat 3 := aa2mat (mkAA angle axis).
+(** Axis-angle to rotation matrix by rodrigues formula. 
+    Note that axis must be unit *)
+Definition a2m (aa : vec 4) : smat 3 := aa2mat (v2aa aa).
 
-(** Axis-angle to rotation matrix by direct formula. Note that axis is unit vector *)
-Definition aa2m' (axis : vec 3) (angle : R) : smat 3 := aa2matM (mkAA angle axis).
+(** Axis-angle to rotation matrix by direct formula. Note that axis must be unit *)
+Definition a2m' (aa : vec 4) : smat 3 := aa2matM (v2aa aa).
 
-(** Rotation matrix to axis-angle *)
-
-(* ?  *)
+(** Rotation matrix to axis-angle (NOT SUPPORTED YET) *)
 (* Definition maa2mat (M : smat 3) : (vec 3 * R). *)
+
+(** Axis-angle to Euler angles. Note that axis must be unit *)
+Definition a2e (aa : vec 4) : vec 3 := m2e (a2m aa).
 
 
 (* ======================================================================= *)
 (** ** Unit quaternion <-> Rotation matrix *)
 
-(** Unit quaternion to rotation matrix. Note that q is unit quaternions *)
-Definition q2m (q : vec 4) : smat 3 := q2m q.
+(** Unit quaternion to rotation matrix. Note that q must be unit *)
+(* Check q2m.     (* : quat -> smat 3 *) *)
 
-(** Rotation matrix to unit quaternion. Note that M ∈ SO(3) *)
-Definition m2q (M : smat 3) : vec 4 := m2q M.
+(** Rotation matrix to unit quaternion. Note that M must belong to SO(3) *)
+(* Check m2q.     (* : smat 3 -> quat *) *)
 
 
 (* ======================================================================= *)
 (** ** Unit quaternion <-> Euler angles *)
 
-(** Unit quaternion to euler angles. Note that q is unit quaternions *)
+(** Unit quaternion to euler angles. Note that q must be unit *)
 Definition q2e (q : vec 4) : vec 3 := m2e (q2m q).
 
 (** Euler angles to unit quaternion. *)
 Definition e2q (e : vec 3) : vec 4 := m2q (e2m e).
+
+
+(* ======================================================================= *)
+(** ** Unit quaternion <-> Axis-angle *)
+
+(** Unit quaternion to Axis-angle. Note that q must be unit. *)
+Definition q2a (q : vec 4) : vec 4 := aa2v (quat2aa q).
+
+(** Axis-angle to quaternion. Note that axis must be unit *)
+Definition a2q (aa : vec 4) : vec 4 := aa2quat (v2aa aa).
 
 
 
@@ -226,7 +268,7 @@ Section executability_for_symbol_derivation.
   Variable ϕ θ ψ : R.
 
   (* 这是已经定义和验证了的结果 *)
-  Eval cbv in m2l (S123 ϕ θ ψ).
+  (* Eval cbv in m2l (S123 ϕ θ ψ). *)
   (* = [[cos θ * cos ψ; sin ϕ * sin θ * cos ψ + - (sin ψ * cos ϕ); cos ϕ * sin θ * cos ψ + sin ψ * sin ϕ];
         [cos θ * sin ψ; sin ϕ * sin θ * sin ψ + cos ψ * cos ϕ; cos ϕ * sin θ * sin ψ + - (cos ψ * sin ϕ)];
         [- sin θ; sin ϕ * cos θ; cos ϕ * cos θ]]
@@ -259,56 +301,47 @@ End executability_for_symbol_derivation.
 (* ########################################################################### *)
 (** * Extraction to OCaml code *)
 
-(* Recursive Extraction *)
-(*   rotx roty rotz rotaa rotByM rotByQ rot2ByQ *)
-(*   e2m m2e *)
-(*   aa2m aa2m' *)
-(*   q2m m2q *)
-(*   q2e e2q. *)
-
-(* Extraction "ocaml_orienRepr.ml" *)
-(*   v2l l2v m2l l2m *)
-(*   rotx roty rotz rotaa rotByM rotByQ rot2ByQ *)
-(*   e2m m2e *)
-(*   aa2m aa2m' *)
-(*   q2m m2q *)
-(*   q2e e2q. *)
+Extraction "ocaml_orienRepr.ml"
+  v2l l2v m2l l2m
+  rotx roty rotz rotaa rotByM rotByQ rot2ByQ
+  e2m e2q
+  a2m a2e a2q
+  q2e q2m q2a
+  m2e m2q.
 
 (* 
    简单测试：https://www.andre-gaschler.com/rotationconverter/
 
-   # 给定欧拉角：-2.0, 1.0, 0.1
-   utop[1]> let v1 = l2v 0. 3 [-2.;1.;0.1];;
-   val v1 : fin -> float = <fun>
-   
+   # 给定欧拉角：0.1, 1.2, 0.8
+utop[3]> let e1 = l2v 0. 3 [0.1; 1.2; 0.8];;
+val e1 : fin -> float = <fun>
    # 欧拉角到旋转矩阵
-   utop[2]> let m1 = (e2m v1);;
-   val m1 : fin -> fin -> float = <fun>
-   utop[3]> m2l 3 3 m1;;
-   - : float list list =
-   [[0.537603044848121; -0.719779490760507623; -0.439204338378588466];
-   [0.0539402252169759802; -0.490455115035341449; 0.86979551173779468];
-   [-0.841470984807896505; -0.491295496433881929; -0.224845095366152908]]
-
-   # 旋转矩阵到欧拉角
-   utop[4]> v2l 3 (m2e m1);;
-   - : float list = [-2.; 1.; 0.0999999999999999778]
-
+utop[4]> let m1 = e2m e1;;
+val m1 : fin -> fin -> float = <fun>
    # 旋转矩阵到四元数
-   utop[5]> v2l 4 (m2q m1);;
-   - : float list =
-   [0.453404574978745256; -0.750483719884984524; 0.221803367581902611;
-   0.426616623803230233]
+utop[5]> let q1 = m2q m1;;
+val q1 : fin -> float = <fun>
+   # 四元数到轴角
+utop[6]> let a1 = q2a q1;;
+val a1 : fin -> float = <fun>
+   # 轴角到欧拉角
+utop[7]> let e2 = a2e a1;;
+val e2 : fin -> float = <fun>
 
-   # 旋转矩阵到四元数，再到欧拉角
-   utop[6]> v2l 3 (q2e (m2q m1));;
-   - : float list = [-2.; 1.; 0.100000000000000019]
-
-   # 欧拉角到四元数
-   utop[7]> v2l 4 (e2q v1);;
-   - : float list =
-   [0.453404574978745256; -0.750483719884984524; 0.221803367581902611;
-   0.426616623803230233]
-
+utop[8]> v2l 3 e1;;
+- : float list = [0.1; 1.2; 0.8]
+utop[9]> m2l 3 3 m1;;
+- : float list list =
+[[0.252457078727871376; -0.64894468218969048; 0.717729909407369693];
+ [0.259939542258515621; 0.759975091022927485; 0.595709069424938731];
+ [-0.932039085967226288; 0.0361754126778788196; 0.360547475025082442]]
+utop[10]> v2l 4 a1;;
+- : float list =
+[-0.284762446508513123; 0.839613934982884724; 0.46255679569220759;
+ 1.38320825687225368]
+utop[11]> v2l 4 q1;;
+- : float list =
+[0.770223935744644539; -0.181613953676377504; 0.535483551864568;
+ 0.295006485214428626]
  *)
 

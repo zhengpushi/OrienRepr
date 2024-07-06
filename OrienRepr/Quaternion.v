@@ -620,15 +620,15 @@ Proof. intros. unfold qdiv. rewrite qmul_assoc,qmul_qinv_l,qmul_1_r; auto. Qed.
 
 (** Convert axis-angle value to unit quaternion *)
 Definition aa2quat (aa : AxisAngle) : quat :=
-  let (θ,n) := aa in
+  let (n,θ) := aa in
   si2q (cos (θ/2)) (sin (θ/2) s* n)%V.
 
 (** Any quaternion constructed from axis-angle is unit quaternion *)
 Lemma aa2quat_unit : forall aa : AxisAngle,
-    let (θ,n) := aa in
+    let (n,θ) := aa in
     vunit n -> qunit (aa2quat aa).
 Proof.
-  intros. destruct aa as [θ n]. intros.
+  intros. destruct aa as [n θ]. intros.
   pose proof (v3unit_sqr_x n H).
   v2e n. cbv. cbv in H0. ra. rewrite H0.
   rewrite sqrt_eq1_if_eq1; auto. ring_simplify. ra.
@@ -638,13 +638,13 @@ Qed.
 Definition quat2aa (q : quat) : AxisAngle :=
   let θ : R := (2 * acos (q.W))%R in
   let n : vec 3 := ((1 / sqrt (1-q.W²)) s* q.Im)%V in
-  mkAA θ n.
+  mkAA n θ.
 
 (** 若q = aa(θ,n) = (cos(θ/2), sin(θ/2)*n) 是单位向量，则：
     (1) 当 q = (1,0,0,0)，则θ为2kπ；否则 θ≠2kπ 且 n 是单位向量。
     (2) 当 q ≠ (1,0,0,0)，则n一定是单位向量 *)
 Lemma quat2aa_unit : forall (q : quat) (H : qunit q) (H1 : q <> qone),
-    let (θ,n) := quat2aa q in vunit n.
+    let (n,θ) := quat2aa q in vunit n.
 Proof.
   intros.
   pose proof (qunit_imply_W q H).
@@ -684,7 +684,7 @@ Lemma qrot_spec1 : forall (aa : AxisAngle) (v : vec 3),
     let q := aa2quat aa in
     qrotv q v = rotaa aa v.
 Proof.
-  intros. destruct aa as [θ n].
+  intros. destruct aa as [n θ].
   pose proof (v3unit_sqr_x n H).
   v2e n. v2e v. simpl in *.
   unfold q. rewrite Ha in *. cbv in H, H0. veq.
@@ -898,7 +898,7 @@ Section rotation_derivation.
     (Hangle_v01_θ: vangle v0 v1 = θ/2).
   
   (* 并按照轴角方式构造一个四元数 *)
-  Let q : quat := aa2quat (mkAA θ n).
+  Let q : quat := aa2quat (mkAA n θ).
 
   (** *** 一组关于 θ 的断言，暂时未使用 *)
   Section about_θ.
@@ -1201,7 +1201,7 @@ End rotation_derivation.
 
 (** 四元数乘法能表示旋转（这一版，仍然使用 v0,v1 这两个中间变量，以后也许能去掉） *)
 Theorem qrot_valid : forall (v0 v1 : vec 3) (s0 s1 s2 : R) (aa : AxisAngle),
-    let (θ, n) := aa in
+    let (n, θ) := aa in
     let q : quat := aa2quat aa in
     let v : vec 3 := (s0 s* v0 + s1 s* v1 + s2 s* n)%V in
     let v' : vec 3 := qrotv q v in
@@ -1411,9 +1411,9 @@ Section euler2quat.
          cϕ2 * cθ2 * sψ2 - sϕ2 * sθ2 * cψ2]%R.
 
   (* 分别绕三个坐标轴旋转所对应的四元数 *)
-  Let qx := aa2quat (mkAA ϕ v3i).
-  Let qy := aa2quat (mkAA θ v3j).
-  Let qz := aa2quat (mkAA ψ v3k).
+  Let qx := aa2quat (mkAA v3i ϕ).
+  Let qy := aa2quat (mkAA v3j θ).
+  Let qz := aa2quat (mkAA v3k ψ).
 
   (* ZYX欧拉角对应的四元数等于三次旋转的四元数乘积 *)
   Lemma euler2quat_eq : euler2quat = qz * qy * qx.
@@ -1441,17 +1441,3 @@ Section quat2euler.
   (* ToDo: 当θ=±π/2时的情形 *)
   
 End quat2euler.
-
-(* Extract Constant Rabst => "__". *)
-(* Extract Constant Rrepr => "__". *)
-(* Extraction "quat.ml" mk_mat_3_1. (* Why so many warning? *) *)
-(* Recursive Extraction mk_quat mk_quat quat_of_t4 qmul qconj qinv qlen rot_by_quat. *)
-(* Extraction "quat.ml" mk_quat mk_quat quat_of_t4 qmul qconj qinv. qlen rot_by_quat. *)
-
-
-(* Extract Constant Rabst => "__". *)
-(* Extract Constant Rrepr => "__". *)
-(* Extraction "quat.ml" mk_mat_3_1. (* Why so many warning? *) *)
-(* Recursive Extraction mkQ mkQ quat_of_t4 qmul qconj qinv qlen rot_by_quat. *)
-(* Extraction "quat.ml" mkQ mkQ quat_of_t4 qmul qconj qinv. qlen rot_by_quat. *)
-
