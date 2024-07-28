@@ -31,7 +31,7 @@
     * Rotation matrix:
       Formally, it is a `smat 3`, especially, it is belong to SO(3)
     * Euler angles: 
-      We use S123 convention, that is, extrinsic rotation with zyx sequence.
+      We use E123 convention, that is, extrinsic rotation with zyx sequence.
       It is equivalent to intrinsic rotation with xyz sequence (RPY angles).
       Three angles denoted with (\phi,\theta,\psi), i.e., (ϕ,θ,ψ)
       Formally, it is a `vec 3` type
@@ -193,12 +193,12 @@ Definition rot2ByQ (q1 q2 : vec 4) (v : vec 3) : vec 3 := qrotv (q2 * q1)%quat v
 (** ** Euler angles <-> Rotation matrix *)
 
 (** Euler angles (roll,pitch,yaw) to rotation matrix *)
-Definition e2m (euler : vec 3) : smat 3 := S123 (euler.1) (euler.2) (euler.3).
+Definition e2m (euler : vec 3) : smat 3 := E123 (euler.1) (euler.2) (euler.3).
 
 (** Rotation matrix to euler angles. Note that M must belogn to SO(3) *)
 (* roll∈(-π,π), pitch ∈ (-π/2,π/2), yaw ∈ (-π,π) *)
 Definition m2e (M : smat 3) : vec 3 :=
-  l2v [R2Euler_S123.alg2.ϕ' M; R2Euler_S123.alg2.θ' M; R2Euler_S123.alg2.ψ' M].
+  l2v [R2Euler_E123.alg2.ϕ' M; R2Euler_E123.alg2.θ' M; R2Euler_E123.alg2.ψ' M].
 
 (* ======================================================================= *)
 (** ** Axis-angle <-> Rotation matrix *)
@@ -263,12 +263,12 @@ Definition a2q (aa : vec 4) : vec 4 := aa2quat (v2aa aa).
 
 (** 在Coq中可计算带来了符号推导的好处 *)
 Section executability_for_symbol_derivation.
-  (* 以S123矩阵推导为例，看我们如何自动得到这个结果 *)
+  (* 以E123矩阵推导为例，看我们如何自动得到这个结果 *)
   Open Scope R_scope.
   Variable ϕ θ ψ : R.
 
   (* 这是已经定义和验证了的结果 *)
-  (* Eval cbv in m2l (S123 ϕ θ ψ). *)
+  (* Eval cbv in m2l (E123 ϕ θ ψ). *)
   (* = [[cos θ * cos ψ; sin ϕ * sin θ * cos ψ + - (sin ψ * cos ϕ); cos ϕ * sin θ * cos ψ + sin ψ * sin ϕ];
         [cos θ * sin ψ; sin ϕ * sin θ * sin ψ + cos ψ * cos ϕ; cos ϕ * sin θ * sin ψ + - (cos ψ * sin ϕ)];
         [- sin θ; sin ϕ * cos θ; cos ϕ * cos θ]]
@@ -301,13 +301,13 @@ End executability_for_symbol_derivation.
 (* ########################################################################### *)
 (** * Extraction to OCaml code *)
 
-Extraction "ocaml_orienRepr.ml"
-  v2l l2v m2l l2m
-  rotx roty rotz rotaa rotByM rotByQ rot2ByQ
-  e2m e2q
-  a2m a2e a2q
-  q2e q2m q2a
-  m2e m2q.
+(* Extraction "ocaml_orienRepr.ml" *)
+(*   v2l l2v m2l l2m *)
+(*   rotx roty rotz rotaa rotByM rotByQ rot2ByQ *)
+(*   e2m e2q *)
+(*   a2m a2e a2q *)
+(*   q2e q2m q2a *)
+(*   m2e m2q. *)
 
 (* 
    简单测试：https://www.andre-gaschler.com/rotationconverter/

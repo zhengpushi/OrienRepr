@@ -61,8 +61,8 @@ Proof.
   { unfold a_perp. rewrite <- H1. auto. }
   assert (b = n \x a) as H3.
   { unfold b. rewrite H2.
-    rewrite v3cross_add_distr_r. rewrite v3cross_vopp_r.
-    rewrite v3cross_vscal_assoc_r. rewrite v3cross_self. rewrite vscal_0_r.
+    rewrite v3cross_vadd_distr_r. rewrite v3cross_vopp_r.
+    rewrite v3cross_vscal_r. rewrite v3cross_self. rewrite vscal_0_r.
     rewrite vopp_vzero. rewrite vadd_0_r. auto. }
   unfold a'. unfold a_perp'. rewrite H1. rewrite H2. rewrite H3. auto.
 Qed.
@@ -174,7 +174,7 @@ Proof.
   rewrite mtrans_mat1.
   rewrite !mtrans_skew3, !skew3_vopp.
   ra. rewrite mscal_mopp. rewrite mscal_opp.
-  rewrite <- mmul_mopp_l. rewrite <- mmul_mopp_r. agroup.
+  rewrite mmul_mopp_l. rewrite mmul_mopp_r. agroup.
 Qed.
 
 (** R(θ) * R(θ)\T = I *)
