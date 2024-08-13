@@ -649,7 +649,7 @@ Proof.
   intros.
   pose proof (qunit_imply_W q H).
   q2e q. simpl in *. apply v4neq_iff in H1. cbv in *. ra.
-  rewrite Rsqr_inv'. rewrite Rsqr_sqrt; ra. field_simplify_eq; ra.
+  rewrite Rsqr_sqrt; ra. field_simplify_eq; ra.
   (* (1 + - a1²)%R <> 0 *)
 Abort.
 
