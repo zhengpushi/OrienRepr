@@ -1200,7 +1200,7 @@ Section rotation_derivation.
 End rotation_derivation.
 
 (** 四元数乘法能表示旋转（这一版，仍然使用 v0,v1 这两个中间变量，以后也许能去掉） *)
-Theorem qrot_valid : forall (v0 v1 : vec 3) (s0 s1 s2 : R) (aa : AxisAngle),
+Theorem qrot_spec : forall (v0 v1 : vec 3) (s0 s1 s2 : R) (aa : AxisAngle),
     let (n, θ) := aa in
     let q : quat := aa2quat aa in
     let v : vec 3 := (s0 s* v0 + s1 s* v1 + s2 s* n)%V in
